@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order | FH EMPIRE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="track-container">
+
+        <img src="images/logo.png" alt="FH EMPIRE Logo" class="track-logo">
+
+        <h1>Track Your Order</h1>
+        <p>Enter your FH EMPIRE Order ID below</p>
+
+        <div class="track-form">
+            <input
+                type="text"
+                id="trackOrderId"
+                placeholder="Example: FH-20260906-3837"
+            >
+            <input
+                type="text"
+                id="trackWhatsapp"
+                placeholder="WhatsApp Number"
+            >
+
+            <button id="trackBtn">Track Order</button>
+        </div>
+
+        <div id="trackResult"></div>
+        <a href="index.html" class="back-home-btn">← Back to Home</a>
+
+    </div>
+
+    <script src="track.js"></script>
+
+</body>
+</html>

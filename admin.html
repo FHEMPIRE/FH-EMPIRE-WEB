@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FH EMPIRE | Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="admin-container">
+        <h1>FH EMPIRE</h1>
+        <h2>Order Management</h2>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+
+        <div class="admin-stats">
+            <div>
+                <h3>Total Orders</h3>
+                <p id="totalOrders">0</p>
+            </div>
+
+            <div>
+                <h3>Pending</h3>
+                <p id="pendingOrders">0</p>
+            </div>
+
+            <div>
+                <h3>Completed</h3>
+                <p id="completedOrders">0</p>
+            </div>
+            <div>
+    <h3>Processing</h3>
+    <p id="processingOrders">0</p>
+</div>
+
+<div>
+    <h3>Cancelled</h3>
+    <p id="cancelledOrders">0</p>
+</div>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Name</th>
+                        <th>WhatsApp</th>
+                        <th>Poppo ID</th>
+                        <th>Coins</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="ordersTable">
+                    <tr>
+                        <td colspan="9">Loading orders...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+<script src="admin.js"></script>
+
+</body>
+</html>

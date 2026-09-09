@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FH EMPIRE | Digital Services & Online Solutions</title>
+
+    <meta name="description" content="FH EMPIRE provides Poppo services, digital services, business solutions and online products in Pakistan.">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <nav class="navbar">
+
+            <a href="#" class="brand">
+                <img src="images/logo.png" alt="FH EMPIRE Logo">
+                <span>FH EMPIRE</span>
+            </a>
+              
+            <button class="menu-toggle" id="menuToggle">☰</button>
+          <ul class="nav-links" id="navLinks">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#poppo">Poppo</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#store">Digital Store</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="track.html">Track Order</a></li>
+            </ul>
+
+            <a href="#contact" class="nav-button">Order Now</a>
+
+        </nav>
+    </header>
+
+
+    <!-- HERO SECTION -->
+    <main>
+
+        <section id="home" class="hero">
+
+            <div class="hero-content">
+
+                <p class="hero-small">WELCOME TO</p>
+
+                <h1>FH <span>EMPIRE</span></h1>
+
+                <h2>Digital Services & Online Solutions</h2>
+
+                <p class="hero-description">
+                    Your trusted destination for Poppo services,
+                    digital solutions, business services and online products.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="#services" class="primary-btn">Explore Services</a>
+                    <a href="#poppo" class="secondary-btn">Buy Poppo Coins</a>
+                </div>
+
+            </div>
+
+            <div class="hero-logo">
+                <img src="images/logo.png" alt="FH EMPIRE">
+            </div>
+
+        </section>
+
+
+       <!-- POPPO -->
+<section id="poppo" class="poppo-section">
+
+    <div class="section-heading">
+        <p class="section-tag">FAST • SAFE • RELIABLE</p>
+        <h2>Poppo Coins</h2>
+        <p>
+            Buy Poppo coins at competitive market rates.
+            Minimum order Rs. 250.
+        </p>
+    </div>
+
+    <div class="coin-grid">
+
+        <div class="coin-card">
+            <span class="coin-label">Starter</span>
+            <h3>8,000 Coins</h3>
+            <div class="coin-price">Rs. 250</div>
+
+            <a
+                class="coin-buy-btn"
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%208%2C000%20Poppo%20Coins%20for%20Rs.%20250."
+                target="_blank"
+            >
+                Order on WhatsApp
+            </a>
+        </div>
+
+
+        <div class="coin-card">
+            <span class="coin-label">Popular</span>
+            <h3>16,000 Coins</h3>
+            <div class="coin-price">Rs. 500</div>
+
+            <a
+                class="coin-buy-btn"
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%2016%2C000%20Poppo%20Coins%20for%20Rs.%20500."
+                target="_blank"
+            >
+                Order on WhatsApp
+            </a>
+        </div>
+
+
+        <div class="coin-card featured-card">
+            <span class="coin-label">Best Deal</span>
+            <h3>50,000 Coins</h3>
+            <div class="coin-price">Rs. 1,500</div>
+
+            <a
+                class="coin-buy-btn"
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%2050%2C000%20Poppo%20Coins%20for%20Rs.%201%2C500."
+                target="_blank"
+            >
+                Order on WhatsApp
+            </a>
+        </div>
+
+
+        <div class="coin-card featured-card">
+            <span class="coin-label">Hot Offer</span>
+            <h3>100,000 Coins</h3>
+            <div class="coin-price">Rs. 3,000</div>
+
+            <a
+                class="coin-buy-btn"
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%20100%2C000%20Poppo%20Coins%20for%20Rs.%203%2C000."
+                target="_blank"
+            >
+                Order on WhatsApp
+            </a>
+        </div>
+
+    </div>
+<div class="order-form-box">
+
+    <h3>Place Poppo Coins Order</h3>
+
+    <form id="poppoOrderForm">
+
+        <div class="form-group">
+            <label for="customerName">Full Name</label>
+            <input type="text" id="customerName" required>
+        </div>
+
+        <div class="form-group">
+            <label for="whatsappNumber">WhatsApp Number</label>
+            <input type="tel" id="whatsappNumber" required>
+        </div>
+
+        <div class="form-group">
+            <label for="poppoId">Poppo ID</label>
+            <input type="text" id="poppoId" required>
+        </div>
+
+        <div class="form-group">
+            <label for="coinPackage">Select Package</label>
+
+           <select id="coinPackage" required>
+    <option value="">Choose Package</option>
+    <option value="250">8,000 Coins - Rs. 250</option>
+    <option value="500">16,000 Coins - Rs. 500</option>
+    <option value="1500">50,000 Coins - Rs. 1,500</option>
+    <option value="3000">100,000 Coins - Rs. 3,000</option>
+    <option value="custom">Custom Amount</option>
+</select>
+
+<div class="form-group custom-amount-box" id="customAmountBox">
+    <label for="customAmount">Enter Amount (PKR)</label>
+
+    <input
+        type="number"
+        id="customAmount"
+        min="250"
+        placeholder="Minimum Rs. 250"
+    >
+
+    <div class="coin-calculation" id="coinCalculation">
+        You will receive: 0 Coins
+    </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="paymentMethod">Payment Method</label>
+
+            <select id="paymentMethod" required>
+                <option value="">Select Payment Method</option>
+                <option value="Easypaisa">Easypaisa</option>
+                <option value="JazzCash">JazzCash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+            </select>
+        </div>
+
+        <button type="submit" class="primary-btn">
+            Place Order
+        </button>
+
+    </form>
+
+    <div id="orderResult"></div>
+
+</div>
+
+    <div class="custom-rate-box">
+        <div>
+            <h3>Custom Amount</h3>
+            <p>
+                Current rate: <strong>1 PKR = 32 Coins</strong>
+            </p>
+            <p>
+                Need a different amount? Contact us for calculation.
+            </p>
+        </div>
+
+        <a
+            href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%20a%20custom%20amount%20of%20Poppo%20Coins."
+            target="_blank"
+            class="primary-btn"
+        >
+            Get Custom Rate
+        </a>
+    </div>
+
+
+    <div class="price-list-preview">
+
+        <div class="price-list-text">
+            <p class="section-tag">FULL RATE LIST</p>
+            <h3>Coins & Withdrawal Rates</h3>
+            <p>
+                View our current Poppo coins and withdrawal rate card.
+            </p>
+        </div>
+
+        <img
+            src="images/coins-price-list.jpg"
+            alt="FH EMPIRE Poppo Coins Price List"
+        >
+
+    </div>
+
+</section>
+
+
+       <!-- DIGITAL SERVICES -->
+<section id="services" class="services-section">
+
+    <div class="section-heading">
+        <p class="section-tag">WHAT WE DO</p>
+        <h2>Digital Services</h2>
+        <p>
+            Professional digital solutions for individuals, creators
+            and growing businesses.
+        </p>
+    </div>
+
+    <div class="services-grid">
+
+        <div class="service-card">
+            <div class="service-icon">🎨</div>
+            <h3>Graphic Design</h3>
+            <p>
+                Logos, social media posts, banners, thumbnails,
+                business cards and custom designs.
+            </p>
+
+            <a
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20need%20Graphic%20Design%20services."
+                target="_blank"
+                class="service-btn"
+            >
+                Get Started
+            </a>
+        </div>
+
+
+        <div class="service-card">
+            <div class="service-icon">🌐</div>
+            <h3>Website Development</h3>
+            <p>
+                Modern websites, landing pages, portfolios
+                and business websites for your brand.
+            </p>
+
+            <a
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20need%20Website%20Development%20services."
+                target="_blank"
+                class="service-btn"
+            >
+                Get Started
+            </a>
+        </div>
+
+
+        <div class="service-card">
+            <div class="service-icon">📱</div>
+            <h3>Social Media Design</h3>
+            <p>
+                Posts, promotional creatives, profile branding
+                and visual content for social media.
+            </p>
+
+            <a
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20need%20Social%20Media%20Design%20services."
+                target="_blank"
+                class="service-btn"
+            >
+                Get Started
+            </a>
+        </div>
+
+
+        <div class="service-card">
+            <div class="service-icon">💼</div>
+            <h3>Business Solutions</h3>
+            <p>
+                Letterheads, invoices, business templates,
+                basic digital setup and online business support.
+            </p>
+
+            <a
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20need%20Business%20Solutions."
+                target="_blank"
+                class="service-btn"
+            >
+                Get Started
+            </a>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- DIGITAL STORE -->
+<section id="store" class="store-section">
+
+    <div class="section-heading">
+        <p class="section-tag">FH EMPIRE STORE</p>
+        <h2>Digital Products</h2>
+        <p>
+            Ready-to-use digital tools and resources designed
+            for creators, sellers and small businesses.
+        </p>
+    </div>
+
+    <div class="store-coming">
+
+        <div class="store-coming-icon">⚡</div>
+
+        <span class="coming-badge">COMING SOON</span>
+
+        <h3>Something Useful Is Coming</h3>
+
+        <p>
+            We are preparing practical digital products including
+            business templates, accounting tools, design resources
+            and more.
+        </p>
+
+        <a
+            href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20please%20let%20me%20know%20when%20your%20Digital%20Store%20launches."
+            target="_blank"
+            class="primary-btn"
+        >
+            Get Updates
+        </a>
+
+    </div>
+
+</section>
+
+       <!-- ABOUT -->
+<section id="about" class="about-section">
+
+    <div class="section-heading">
+        <p class="section-tag">WHO WE ARE</p>
+        <h2>About FH EMPIRE</h2>
+        <p>
+            A growing multi-service digital business focused on
+            reliable online services, practical solutions and customer support.
+        </p>
+    </div>
+
+    <div class="about-grid">
+
+        <div class="about-content">
+
+            <h3>Built for Digital Business</h3>
+
+            <p>
+                FH EMPIRE provides selected online services under one brand,
+                including Poppo services, graphic design, website development,
+                digital business support and future digital products.
+            </p>
+
+            <p>
+                Our goal is to make online services simple, accessible and
+                professionally managed for customers in Pakistan and beyond.
+            </p>
+
+            <div class="about-points">
+
+                <div class="about-point">
+                    <span>✓</span>
+                    <p>Fast customer support</p>
+                </div>
+
+                <div class="about-point">
+                    <span>✓</span>
+                    <p>Multiple digital services under one brand</p>
+                </div>
+
+                <div class="about-point">
+                    <span>✓</span>
+                    <p>Clear pricing and direct communication</p>
+                </div>
+
+                <div class="about-point">
+                    <span>✓</span>
+                    <p>Focused on long-term customer relationships</p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="about-logo-box">
+
+            <img src="images/logo.png" alt="FH EMPIRE Logo">
+
+            <h3>FH EMPIRE</h3>
+
+            <p>
+                Digital Services • Online Solutions • Business Support
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="trust-grid">
+
+        <div class="trust-card">
+            <div class="trust-number">24/7</div>
+            <p>Customer Support</p>
+        </div>
+
+        <div class="trust-card">
+            <div class="trust-number">FAST</div>
+            <p>Order Processing</p>
+        </div>
+
+        <div class="trust-card">
+            <div class="trust-number">SAFE</div>
+            <p>Direct Communication</p>
+        </div>
+
+        <div class="trust-card">
+            <div class="trust-number">ONE</div>
+            <p>Brand, Multiple Services</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+       <!-- CONTACT -->
+<section id="contact" class="contact-section">
+
+    <div class="section-heading">
+        <p class="section-tag">GET IN TOUCH</p>
+        <h2>Contact FH EMPIRE</h2>
+        <p>
+            Need help, want to place an order, or have a business inquiry?
+            Contact us directly.
+        </p>
+    </div>
+
+    <div class="contact-grid">
+
+        <div class="contact-card">
+            <div class="contact-icon">💬</div>
+            <h3>WhatsApp</h3>
+            <p>Fastest way to contact us for orders and support.</p>
+
+            <a
+                href="https://wa.me/923475554774"
+                target="_blank"
+                class="contact-btn"
+            >
+                Chat on WhatsApp
+            </a>
+        </div>
+
+        <div class="contact-card">
+            <div class="contact-icon">✉️</div>
+            <h3>Email</h3>
+            <p>For business inquiries, partnerships and detailed requests.</p>
+
+            <a
+                href="mailto:furqanofficial70@gmail.com"
+                class="contact-btn"
+            >
+                Send Email
+            </a>
+        </div>
+
+        <div class="contact-card">
+            <div class="contact-icon">🛒</div>
+            <h3>Place an Order</h3>
+            <p>
+                Order Poppo coins, digital services or request a custom solution.
+            </p>
+
+            <a
+                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20place%20an%20order."
+                target="_blank"
+                class="contact-btn"
+            >
+                Order Now
+            </a>
+        </div>
+
+    </div>
+
+    <div class="contact-info-box">
+
+        <div>
+            <span>Phone / WhatsApp</span>
+            <strong>0347-5554774</strong>
+        </div>
+
+        <div>
+            <span>Email</span>
+            <strong>furqanofficial70@gmail.com</strong>
+        </div>
+
+        <div>
+            <span>Business</span>
+            <strong>FH EMPIRE</strong>
+        </div>
+
+    </div>
+
+</section>
+
+    </main>
+
+
+    <footer class="footer">
+
+    <div class="footer-content">
+
+        <div class="footer-brand">
+            <img src="images/logo.png" alt="FH EMPIRE Logo">
+            <h3>FH EMPIRE</h3>
+            <p>Digital Services • Online Solutions • Business Support</p>
+        </div>
+
+        <div class="footer-links">
+            <h4>Quick Links</h4>
+            <a href="#home">Home</a>
+            <a href="#poppo">Poppo</a>
+            <a href="#services">Services</a>
+            <a href="#store">Digital Store</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+
+        <div class="footer-contact">
+            <h4>Contact</h4>
+            <p>WhatsApp: 0347-5554774</p>
+            <p>Email: furqanofficial70@gmail.com</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2026 FH EMPIRE. All Rights Reserved.</p>
+    </div>
+
+</footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
