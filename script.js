@@ -167,3 +167,92 @@ if (!response.ok) {
         status: "Pending"
     });
 });
+/* =========================================
+   AVATAR FRAME FILTERS
+========================================= */
+
+const frameFilterButtons = document.querySelectorAll(".frame-filter");
+const frameCards = document.querySelectorAll(".frame-card");
+
+frameFilterButtons.forEach(button => {
+    button.addEventListener("click", () => {
+
+        const selectedFilter = button.getAttribute("data-filter");
+
+        // Active button change
+        frameFilterButtons.forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        // Filter cards
+        frameCards.forEach(card => {
+
+            const cardType = card.getAttribute("data-type");
+
+            if (selectedFilter === "all" || cardType === selectedFilter) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+
+        });
+
+    });
+});
+/* =========================================
+   AVATAR FRAME BUY NOW - WHATSAPP
+========================================= */
+
+const frameBuyButtons = document.querySelectorAll(".frame-buy-btn");
+
+frameBuyButtons.forEach(button => {
+    button.addEventListener("click", () => {
+
+        const card = button.closest(".frame-card");
+
+        const frameName = card.querySelector("h3").innerText.trim();
+        const frameType = card.getAttribute("data-type");
+        const duration = card.querySelector(".frame-duration").innerText.trim();
+        const price = card.querySelector(".new-price").innerText.trim();
+
+        const typeText =
+            frameType === "animated" ? "Animated" : "Simple";
+
+        // Contact box ke WhatsApp number ko automatically use karega
+        const whatsappLink = document.querySelector(".frame-whatsapp-btn");
+
+        if (!whatsappLink) {
+            alert("WhatsApp contact link not found.");
+            return;
+        }
+
+        const href = whatsappLink.getAttribute("href");
+        const numberMatch = href.match(/wa\.me\/(\d+)/);
+
+        if (!numberMatch) {
+            alert("Please add a valid WhatsApp number first.");
+            return;
+        }
+
+        const whatsappNumber = numberMatch[1];
+
+        const message =
+`Hello FH EMPIRE 👋
+
+I want to order a Poppo Avatar Frame.
+
+🖼 Frame: ${frameName}
+✨ Type: ${typeText}
+⏳ Duration: ${duration}
+💰 Price: ${price}
+
+Please confirm availability and payment details.`;
+
+        const whatsappURL =
+            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+        window.open(whatsappURL, "_blank");
+    });
+});
