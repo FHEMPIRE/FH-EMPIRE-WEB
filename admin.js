@@ -97,17 +97,94 @@ const cancelled = orders.filter(order =>
         <td>${escapeHtml(order.payment_method)}</td>
         <td>${escapeHtml(order.status)}</td>
 
-        <td>
-            <select class="status-select">
-                <option value="pending" ${String(order.status).toLowerCase() === "pending" ? "selected" : ""}>Pending</option>
-                <option value="processing" ${String(order.status).toLowerCase() === "processing" ? "selected" : ""}>Processing</option>
-                <option value="completed" ${String(order.status).toLowerCase() === "completed" ? "selected" : ""}>Completed</option>
-                <option value="cancelled" ${String(order.status).toLowerCase() === "cancelled" ? "selected" : ""}>Cancelled</option>
-            </select>
-        </td>
+       <td>
+    <select class="status-select">
+        <option value="pending" ${String(order.status).toLowerCase() === "pending" ? "selected" : ""}>Pending</option>
+        <option value="processing" ${String(order.status).toLowerCase() === "processing" ? "selected" : ""}>Processing</option>
+        <option value="completed" ${String(order.status).toLowerCase() === "completed" ? "selected" : ""}>Completed</option>
+        <option value="cancelled" ${String(order.status).toLowerCase() === "cancelled" ? "selected" : ""}>Cancelled</option>
+    </select>
+
+    <button class="accept-whatsapp-btn">
+        Accept & WhatsApp
+    </button>
+</td>
     `;
 
     const statusSelect = row.querySelector(".status-select");
+    const acceptWhatsappBtn = row.querySelector(".accept-whatsapp-btn");
+
+acceptWhatsappBtn.addEventListener("click", async () => {
+
+    try {
+
+        // Order ko Processing kar do
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({
+                    status: "processing"
+                })
+            }
+        );
+
+        if (!response.ok) {
+            alert("Order status update nahi ho saka.");
+            return;
+        }
+
+        // Dashboard dropdown bhi Processing show kare
+        statusSelect.value = "processing";
+
+        // Customer WhatsApp number clean karo
+        let whatsappNumber = String(order.whatsapp_number || "")
+            .replace(/\D/g, "");
+
+        // Pakistani 03XX number ko 923XX bana do
+        if (whatsappNumber.startsWith("0")) {
+            whatsappNumber = "92" + whatsappNumber.substring(1);
+        }
+
+        if (!whatsappNumber) {
+            alert("Customer WhatsApp number missing hai.");
+            return;
+        }
+
+        const message =
+`Hi ${order.customer_name || "Dear"} 👋
+
+We have received your order to buy ${Number(order.coins || 0).toLocaleString()} Poppo Coins.
+
+🪙 Coins: ${Number(order.coins || 0).toLocaleString()}
+💰 Amount: Rs. ${Number(order.amount || 0).toLocaleString()}
+🆔 Poppo ID: ${order.poppo_id || "-"}
+📦 Order ID: ${order.order_id || "-"}
+
+Please send payment to the given payment number and send us the payment screenshot for processing.
+
+Thank you for choosing FH EMPIRE.`;
+
+        const whatsappURL =
+            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+        window.open(whatsappURL, "_blank");
+        statusSelect.value = "processing";
+
+// Refresh dashboard orders + counters
+await loadOrders();
+
+    } catch (error) {
+        console.error("Accept & WhatsApp error:", error);
+        alert("Something went wrong.");
+    }
+
+});
 
     statusSelect.addEventListener("change", async function () {
         const newStatus = this.value;

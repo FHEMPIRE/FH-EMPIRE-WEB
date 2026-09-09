@@ -1668,3 +1668,24 @@ footer {
     transform: translateY(-2px);
     box-shadow: 0 8px 22px rgba(246, 195, 68, 0.22);
 }
+/* ACCEPT & WHATSAPP BUTTON */
+
+.accept-whatsapp-btn {
+    margin-top: 7px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #f6c344;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #f6c344, #ffd875);
+    color: #000;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.25s ease;
+}
+
+.accept-whatsapp-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(246, 195, 68, 0.25);
+}
