@@ -170,8 +170,8 @@ Please send payment to the given payment number and send us the payment screensh
 
 Thank you for choosing FH EMPIRE.`;
 
-        const whatsappURL =
-            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+       const whatsappURL =
+    `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
 
         window.open(whatsappURL, "_blank");
         statusSelect.value = "processing";
