@@ -256,3 +256,26 @@ Please confirm availability and payment details.`;
         window.open(whatsappURL, "_blank");
     });
 });
+const withdrawWhatsappBtn = document.getElementById("withdrawWhatsappBtn");
+
+if (withdrawWhatsappBtn) {
+    withdrawWhatsappBtn.addEventListener("click", () => {
+
+        const message =
+`Hello FH EMPIRE 👋
+
+I want to use Poppo Withdrawal Service.
+
+🆔 Poppo ID:
+💵 Withdrawal Amount:
+
+Please guide me about the withdrawal process and current rate.`;
+
+        const whatsappNumber = "923475554774";
+
+        const whatsappURL =
+            `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+
+        window.open(whatsappURL, "_blank");
+    });
+}
