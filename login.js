@@ -38,6 +38,12 @@ adminLoginForm.addEventListener("submit", async function (e) {
                 "Invalid email or password.";
             return;
         }
+        // Only FH EMPIRE admin account is allowed
+if (data.user?.email?.toLowerCase() !== "fhempire.official@gmail.com") {
+    loginMessage.className = "login-error";
+    loginMessage.textContent = "Access denied. Admin account required.";
+    return;
+}
 
         localStorage.setItem("fh_admin_access_token", data.access_token);
         localStorage.setItem("fh_admin_refresh_token", data.refresh_token);
