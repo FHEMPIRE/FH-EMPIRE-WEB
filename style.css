@@ -1752,3 +1752,225 @@ footer {
         padding: 28px 20px;
     }
 }
+/* =========================================
+   POPPO PROMOTION SERVICES
+========================================= */
+
+.poppo-promo-section {
+    padding: 85px 8%;
+    background:
+        radial-gradient(circle at top, rgba(246, 195, 68, 0.08), transparent 40%),
+        #050505;
+    border-top: 1px solid rgba(246, 195, 68, 0.12);
+}
+
+.promo-grid {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.promo-card {
+    overflow: hidden;
+    background: linear-gradient(145deg, #111, #080808);
+    border: 1px solid rgba(246, 195, 68, 0.28);
+    border-radius: 20px;
+    transition: 0.35s ease;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+.promo-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(246, 195, 68, 0.7);
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.5),
+        0 0 24px rgba(246, 195, 68, 0.08);
+}
+.promo-card img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    background: #050505;
+    border-bottom: 1px solid rgba(246, 195, 68, 0.18);
+}
+
+
+.promo-info {
+    padding: 24px;
+    text-align: center;
+}
+
+.promo-info h3 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 24px;
+}
+
+.promo-info p {
+    margin: 0 0 12px;
+    color: #b9b9b9;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.promo-price {
+    margin-bottom: 18px;
+    color: #f6c344;
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.promo-order-btn {
+    width: 100%;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f6c344, #ffd875);
+    color: #000;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.promo-order-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(246, 195, 68, 0.22);
+}
+
+@media (max-width: 800px) {
+    .promo-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .promo-card img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+}
+/* =========================================
+   PROMOTION DESIGN BUTTON
+========================================= */
+
+.promo-design-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 11px 16px;
+    border: 1px solid rgba(246, 195, 68, 0.55);
+    border-radius: 10px;
+    background: #0b0b0b;
+    color: #f6c344;
+    text-align: center;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    transition: 0.3s ease;
+}
+
+.promo-design-btn:hover {
+    background: rgba(246, 195, 68, 0.10);
+    border-color: #f6c344;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(246, 195, 68, 0.12);
+}
+#graphic-design {
+    scroll-margin-top: 120px;
+}
+/* =========================================
+   GRAPHIC DESIGN SERVICES
+========================================= */
+
+.graphic-design-section {
+    padding: 45px 8% 70px;
+    background:
+        radial-gradient(circle at top, rgba(246, 195, 68, 0.08), transparent 42%),
+        #070707;
+    border-top: 1px solid rgba(246, 195, 68, 0.12);
+}
+
+.graphic-services-grid {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.graphic-service-card {
+    padding: 28px 24px;
+    background: linear-gradient(145deg, #111111, #080808);
+    border: 1px solid rgba(246, 195, 68, 0.25);
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.35);
+    transition: 0.3s ease;
+}
+
+.graphic-service-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(246, 195, 68, 0.7);
+    box-shadow:
+        0 20px 45px rgba(0, 0, 0, 0.5),
+        0 0 22px rgba(246, 195, 68, 0.08);
+}
+
+.graphic-icon {
+    font-size: 34px;
+    margin-bottom: 15px;
+}
+
+.graphic-service-card h3 {
+    margin: 0 0 12px;
+    color: #f6c344;
+    font-size: 21px;
+}
+
+.graphic-service-card p {
+    margin: 0 0 22px;
+    color: #bcbcbc;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.graphic-order-btn {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #f6c344, #ffd875);
+    color: #000;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.graphic-order-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(246, 195, 68, 0.22);
+}
+
+#graphic-design-services {
+    scroll-margin-top: 100px;
+}
+
+@media (max-width: 950px) {
+    .graphic-services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 650px) {
+    .graphic-design-section {
+        padding: 60px 20px;
+    }
+
+    .graphic-services-grid {
+        grid-template-columns: 1fr;
+    }
+}

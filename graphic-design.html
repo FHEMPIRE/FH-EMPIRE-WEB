@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Graphic Design Services | FH EMPIRE</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+
+            <a href="#" class="brand">
+                <img src="images/logo.png" alt="FH EMPIRE Logo">
+                <span>FH EMPIRE</span>
+            </a>
+              
+            <button class="menu-toggle" id="menuToggle">☰</button>
+          <ul class="nav-links" id="navLinks">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#poppo">Poppo</a></li>
+                <li><a href="#frames">Avatar Frames</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#store">Digital Store</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="track.html">Track Order</a></li>
+            </ul>
+
+            <a href="#contact" class="nav-button">Order Now</a>
+
+        </nav>
+    </header>
+
+
+    <main>
+
+        <section class="graphic-page-hero">
+            <p class="section-tag">FH EMPIRE • CREATIVE SERVICES</p>
+
+            <h1>Graphic Design Services</h1>
+
+            <p>
+                Professional designs for Poppo creators, events,
+                promotions, businesses and social media.
+            </p>
+        </section>
+        <!-- GRAPHIC DESIGN SERVICE CARDS -->
+<section class="graphic-design-section">
+
+    <div class="graphic-services-grid">
+
+        <div class="graphic-service-card">
+            <div class="graphic-icon">📢</div>
+            <h3>Banner Design</h3>
+            <p>Professional promotional banners for Poppo events, birthdays and campaigns.</p>
+            <button class="graphic-order-btn" data-design="Banner Design">Get Design</button>
+        </div>
+
+        <div class="graphic-service-card">
+            <div class="graphic-icon">📱</div>
+            <h3>Open Screen Design</h3>
+            <p>Premium full-screen designs specially created for Poppo Open Screen promotions.</p>
+            <button class="graphic-order-btn" data-design="Open Screen Design">Get Design</button>
+        </div>
+
+        <div class="graphic-service-card">
+            <div class="graphic-icon">🎉</div>
+            <h3>Birthday & Event Poster</h3>
+            <p>Creative posters for birthdays, live events, celebrations and special occasions.</p>
+            <button class="graphic-order-btn" data-design="Birthday & Event Poster">Get Design</button>
+        </div>
+
+        <div class="graphic-service-card">
+            <div class="graphic-icon">🎬</div>
+            <h3>Live Cover Design</h3>
+            <p>Professional live covers for your profile, event and live stream.</p>
+            <button class="graphic-order-btn" data-design="Live Cover Design">Get Design</button>
+        </div>
+
+        <div class="graphic-service-card">
+            <div class="graphic-icon">👤</div>
+            <h3>DP / Avatar Design</h3>
+            <p>Premium profile pictures, avatar designs and branded display pictures.</p>
+            <button class="graphic-order-btn" data-design="DP / Avatar Design">Get Design</button>
+        </div>
+
+        <div class="graphic-service-card">
+            <div class="graphic-icon">✨</div>
+            <h3>Logo & Custom GFX</h3>
+            <p>Professional logos, branding graphics and custom designs for your requirements.</p>
+            <button class="graphic-order-btn" data-design="Logo & Custom GFX">Get Design</button>
+        </div>
+
+    </div>
+
+</section>
+
+    </main>
+<script>
+const graphicOrderButtons = document.querySelectorAll(".graphic-order-btn");
+
+graphicOrderButtons.forEach(button => {
+    button.addEventListener("click", () => {
+
+        const designName = button.getAttribute("data-design");
+
+        const whatsappNumber = "923475554774";
+
+        const message =
+`Hello FH EMPIRE 👋
+
+I want to order a Graphic Design Service.
+
+🎨 Design: ${designName}
+
+Please tell me the price, required details and delivery time.`;
+
+        const whatsappURL =
+            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+        window.open(whatsappURL, "_blank");
+    });
+});
+</script>
+</body>
+
+</html>

@@ -279,3 +279,37 @@ Please guide me about the withdrawal process and current rate.`;
         window.open(whatsappURL, "_blank");
     });
 }
+/* =========================================
+   POPPO PROMOTION ORDER BUTTONS
+========================================= */
+
+const promoOrderButtons = document.querySelectorAll(".promo-order-btn");
+
+promoOrderButtons.forEach(button => {
+    button.addEventListener("click", () => {
+
+        const card = button.closest(".promo-card");
+
+        const service = card.getAttribute("data-service");
+        const duration = card.getAttribute("data-duration");
+        const price = Number(card.getAttribute("data-price")).toLocaleString();
+
+        const whatsappNumber = "923475554774";
+
+        const message =
+`Hello FH EMPIRE 👋
+
+I want to order a Poppo Promotion Service.
+
+📢 Service: ${service}
+⏳ Duration: ${duration}
+💰 Price: Rs. ${price}
+
+Please confirm availability and guide me about the next process.`;
+
+        const whatsappURL =
+            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+        window.open(whatsappURL, "_blank");
+    });
+});
