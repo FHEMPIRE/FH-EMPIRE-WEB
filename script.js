@@ -274,7 +274,7 @@ Please guide me about the withdrawal process and current rate.`;
         const whatsappNumber = "923475554774";
 
         const whatsappURL =
-            `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
         window.open(whatsappURL, "_blank");
     });
