@@ -130,6 +130,26 @@ if (!response.ok) {
 
     return;
 }
+// NEW ORDER PUSH NOTIFICATION
+try {
+    const projectUrl = SUPABASE_URL.replace(/\/rest\/v1\/?$/, "");
+
+    await fetch(`${projectUrl}/functions/v1/send-push`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify({
+            title: "🛒 New FH EMPIRE Order",
+            body: `${coins.toLocaleString()} Coins - Rs. ${amount.toLocaleString()} | Poppo ID: ${poppoId} | Order: ${orderId}`,
+            url: "admin.html"
+        })
+    });
+
+} catch (pushError) {
+    console.error("Push notification failed:", pushError);
+}
 
     orderResult.innerHTML = `
         <div class="order-success">
@@ -313,3 +333,17 @@ Please confirm availability and guide me about the next process.`;
         window.open(whatsappURL, "_blank");
     });
 });
+/* =========================================
+   SERVICE WORKER REGISTRATION
+========================================= */
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async () => {
+        try {
+            const registration = await navigator.serviceWorker.register("sw.js");
+            console.log("Service Worker registered:", registration.scope);
+        } catch (error) {
+            console.error("Service Worker registration failed:", error);
+        }
+    });
+}

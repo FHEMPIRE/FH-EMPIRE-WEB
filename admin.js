@@ -314,3 +314,83 @@ logoutBtn.addEventListener("click", function () {
 
     window.location.href = "login.html";
 });
+/* =========================================
+   ENABLE NOTIFICATIONS
+========================================= */
+
+
+const VAPID_PUBLIC_KEY = "BJdm1LjY9h2kVkB4U1ybIispwPpWQPZ6xlM3E_hfymiijjYy2lXVA1Xm0EjTXPn7R5EevbQRGPm3qsx8GojglbE";
+function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+    const rawData = window.atob(base64);
+
+    return Uint8Array.from(
+        [...rawData].map(char => char.charCodeAt(0))
+    );
+}
+
+const enableNotificationsBtn =
+    document.getElementById("enableNotificationsBtn");
+
+if (enableNotificationsBtn) {
+    enableNotificationsBtn.addEventListener("click", async () => {
+        try {
+            const permission = await Notification.requestPermission();
+
+            if (permission !== "granted") {
+                alert("Please allow notifications.");
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.register("sw.js");
+            await navigator.serviceWorker.ready;
+
+            let subscription = await registration.pushManager.getSubscription();
+
+            if (!subscription) {
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey:
+                        urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                });
+            }
+
+            const data = subscription.toJSON();
+
+            const response = await fetch(
+                `${SUPABASE_URL}/rest/v1/push_subscriptions`,
+                {
+                    method: "POST",
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${accessToken}`,
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal"
+                    },
+                    body: JSON.stringify({
+                        endpoint: data.endpoint,
+                        p256dh: data.keys.p256dh,
+                        auth: data.keys.auth
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            enableNotificationsBtn.textContent = "🔔 Notifications Enabled";
+            enableNotificationsBtn.disabled = true;
+
+            alert("Push notifications enabled successfully ✅");
+
+        } catch (error) {
+            console.error("Push notification error:", error);
+            alert("Error! F12 Console check karo.");
+        }
+    });
+}
