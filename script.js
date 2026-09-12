@@ -39,7 +39,13 @@ customAmount.addEventListener("input", function () {
 
     if (amount >= 250) {
 
-        const coins = amount * 32;
+        let coins;
+
+if (amount % 1500 === 0) {
+    coins = (amount / 1500) * 50000;
+} else {
+    coins = amount * 32;
+}
 
         coinCalculation.textContent =
             "You will receive: " +
@@ -69,12 +75,16 @@ poppoOrderForm.addEventListener("submit", async function (e) {
     let coins = 0;
 
     if (coinPackage.value === "custom") {
-        amount = Number(customAmount.value);
-        coins = amount * 32;
-    } else {
-        amount = Number(coinPackage.value);
-        coins = amount * 32;
-    }
+    amount = Number(customAmount.value);
+} else {
+    amount = Number(coinPackage.value);
+}
+
+if (amount % 1500 === 0) {
+    coins = (amount / 1500) * 50000;
+} else {
+    coins = amount * 32;
+}
 
     if (amount < 250) {
         orderResult.innerHTML = `
