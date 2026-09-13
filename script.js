@@ -41,12 +41,10 @@ customAmount.addEventListener("input", function () {
 
         let coins;
 
-if (amount % 1500 === 0) {
-    coins = (amount / 1500) * 50000;
-} else {
-    coins = amount * 32;
-}
+const blocks = Math.floor(amount / 1500);
+const remaining = amount % 1500;
 
+coins = (blocks * 50000) + (remaining * 32);
         coinCalculation.textContent =
             "You will receive: " +
             coins.toLocaleString() +
@@ -80,11 +78,10 @@ poppoOrderForm.addEventListener("submit", async function (e) {
     amount = Number(coinPackage.value);
 }
 
-if (amount % 1500 === 0) {
-    coins = (amount / 1500) * 50000;
-} else {
-    coins = amount * 32;
-}
+const blocks = Math.floor(amount / 1500);
+const remaining = amount % 1500;
+
+coins = (blocks * 50000) + (remaining * 32);
 
     if (amount < 250) {
         orderResult.innerHTML = `
