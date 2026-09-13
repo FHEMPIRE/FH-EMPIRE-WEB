@@ -187,35 +187,54 @@ await loadOrders();
 });
 
     statusSelect.addEventListener("change", async function () {
-        const newStatus = this.value;
+    const newStatus = this.value;
 
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}`,
-            {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": SUPABASE_KEY,
-                    "Authorization": `Bearer ${accessToken}`,
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({
-                    status: newStatus
-                })
-            }
+    let cancelReason = null;
+
+    // Cancelled ho to reason lena zaroori hai
+    if (newStatus === "cancelled") {
+        cancelReason = prompt(
+            "Please enter cancellation reason for the customer:"
         );
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Status update failed:", errorText);
-            alert("Status update failed.");
+        if (!cancelReason || !cancelReason.trim()) {
+            alert("Cancellation reason is required.");
             await loadOrders();
             return;
         }
 
-        await loadOrders();
-    });
+        cancelReason = cancelReason.trim();
+    }
 
+    const updateData = {
+        status: newStatus,
+        cancel_reason: newStatus === "cancelled" ? cancelReason : null
+    };
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}`,
+        {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_KEY,
+                "Authorization": `Bearer ${accessToken}`,
+                "Prefer": "return=minimal"
+            },
+            body: JSON.stringify(updateData)
+        }
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Status update failed:", errorText);
+        alert("Status update failed.");
+        await loadOrders();
+        return;
+    }
+
+    await loadOrders();
+});
     ordersTable.appendChild(row);
 });
 

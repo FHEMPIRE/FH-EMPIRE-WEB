@@ -80,6 +80,12 @@ trackBtn.addEventListener("click", async function () {
         ${escapeHtml(order.status)}
     </span>
 </p>
+${String(order.status).toLowerCase() === "cancelled" && order.cancel_reason
+    ? `<p class="cancel-reason">
+         <span>Reason:</span> ${escapeHtml(order.cancel_reason)}
+       </p>`
+    : ""
+}
             </div>
         `;
 
