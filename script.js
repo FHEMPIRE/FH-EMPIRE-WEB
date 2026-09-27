@@ -92,35 +92,22 @@ coins = (blocks * 50000) + (remaining * 32);
         return;
     }
 
-    const now = new Date();
+   
 
-    const datePart =
-        now.getFullYear().toString() +
-        String(now.getMonth() + 1).padStart(2, "0") +
-        String(now.getDate()).padStart(2, "0");
-
-    const randomPart = Math.floor(1000 + Math.random() * 9000);
-
-    const orderId = `FH-${datePart}-${randomPart}`;
-    
-
-    const response = await fetch(`${SUPABASE_URL}/orders`, {
+    const response = await fetch(`${SUPABASE_URL}/rpc/create_order`, {
     method: "POST",
     headers: {
         "Content-Type": "application/json",
         "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`,
-        "Prefer": "return=minimal"
+        "Authorization": `Bearer ${SUPABASE_KEY}`
     },
     body: JSON.stringify({
-        order_id: orderId,
-        customer_name: customerName,
-        whatsapp_number: whatsappNumber,
-        poppo_id: poppoId,
-        coins: coins,
-        amount: amount,
-        payment_method: paymentMethod,
-        status: "pending"
+        p_customer_name: customerName,
+        p_whatsapp_number: whatsappNumber,
+        p_poppo_id: poppoId,
+        p_coins: coins,
+        p_amount: amount,
+        p_payment_method: paymentMethod
     })
 });
 
@@ -137,6 +124,8 @@ if (!response.ok) {
 
     return;
 }
+const finalOrderId = await response.json();
+
 // NEW ORDER PUSH NOTIFICATION
 try {
     const projectUrl = SUPABASE_URL.replace(/\/rest\/v1\/?$/, "");
@@ -149,7 +138,7 @@ try {
         },
         body: JSON.stringify({
             title: "🛒 New FH EMPIRE Order",
-            body: `${coins.toLocaleString()} Coins - Rs. ${amount.toLocaleString()} | Poppo ID: ${poppoId} | Order: ${orderId}`,
+            body: `${coins.toLocaleString()} Coins - Rs. ${amount.toLocaleString()} | Poppo ID: ${poppoId} | Order: ${finalOrderId}`,
             url: "admin.html"
         })
     });
@@ -164,7 +153,7 @@ try {
             <h3>Order Received ✅</h3>
 
             <p class="order-id">
-                Order ID: <strong>${orderId}</strong>
+                Order ID: <strong>${finalOrderId}</strong>
             </p>
 
             <div class="order-summary">
@@ -184,7 +173,7 @@ try {
     `;
 
     console.log({
-        orderId,
+       finalOrderId,
         customerName,
         whatsappNumber,
         poppoId,
