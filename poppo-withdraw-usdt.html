@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Poppo USDT Withdrawal Guide | FH EMPIRE</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            margin: 0;
+            background: #050505;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .usdt-guide-page {
+            min-height: 100vh;
+            padding: 35px 18px 90px;
+            background:
+                radial-gradient(circle at top,
+                rgba(255, 215, 0, 0.08),
+                transparent 32%),
+                #050505;
+        }
+
+        .guide-container {
+            width: 100%;
+            max-width: 1050px;
+            margin: auto;
+        }
+
+        .guide-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 35px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .guide-back:hover {
+            color: #fff;
+        }
+
+        .guide-heading {
+            max-width: 780px;
+            margin: 0 auto 50px;
+            text-align: center;
+        }
+
+        .guide-label {
+            margin-bottom: 12px;
+            color: #ffd700;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+        }
+
+        .guide-heading h1 {
+            margin: 0 0 15px;
+            font-size: clamp(32px, 5vw, 52px);
+            line-height: 1.1;
+        }
+
+        .guide-heading p {
+            margin: 0 auto;
+            max-width: 650px;
+            color: #aaa;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .method-badge {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 9px 16px;
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.28);
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .guide-note {
+            max-width: 820px;
+            margin: 0 auto 40px;
+            padding: 18px 20px;
+            background: rgba(255, 215, 0, 0.055);
+            border: 1px solid rgba(255, 215, 0, 0.22);
+            border-radius: 14px;
+            color: #ccc;
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+        }
+
+        .step-card {
+            overflow: hidden;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 215, 0, 0.055),
+                    rgba(255, 255, 255, 0.015)
+                ),
+                #090909;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 20px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .step-top {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 22px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.12);
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            color: #050505;
+            background: linear-gradient(135deg, #ffd700, #dca900);
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 900;
+        }
+
+        .step-info span {
+            display: block;
+            margin-bottom: 4px;
+            color: #ffd700;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .step-info h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .step-image {
+            padding: 16px;
+        }
+
+        .step-image img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 13px;
+        }
+
+        .guide-finish {
+            margin-top: 45px;
+            padding: 28px 20px;
+            text-align: center;
+            background: rgba(255, 215, 0, 0.055);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 18px;
+        }
+
+        .guide-finish h2 {
+            margin: 0 0 10px;
+            color: #ffd700;
+            font-size: 24px;
+        }
+
+        .guide-finish p {
+            margin: 0;
+            color: #bbb;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 650px) {
+
+            .usdt-guide-page {
+                padding: 25px 12px 60px;
+            }
+
+            .guide-heading {
+                margin-bottom: 35px;
+            }
+
+            .guide-heading h1 {
+                font-size: 32px;
+            }
+
+            .steps-list {
+                gap: 22px;
+            }
+
+            .step-card {
+                border-radius: 15px;
+            }
+
+            .step-top {
+                padding: 15px;
+            }
+
+            .step-number {
+                width: 42px;
+                height: 42px;
+            }
+
+            .step-info h2 {
+                font-size: 17px;
+            }
+
+            .step-image {
+                padding: 8px;
+            }
+
+            .step-image img {
+                border-radius: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="usdt-guide-page">
+
+    <div class="guide-container">
+
+        <a href="poppo-withdraw.html" class="guide-back">
+            ← Back to Poppo Withdrawal
+        </a>
+
+        <section class="guide-heading">
+
+            <div class="guide-label">
+                FH EMPIRE • POPPO LIVE
+            </div>
+
+            <h1>USDT Withdrawal Guide</h1>
+
+            <p>
+                Follow each step carefully to complete your Poppo
+                withdrawal through the USDT method.
+            </p>
+
+            <div class="method-badge">
+                LESS THAN $65 • USDT METHOD
+            </div>
+
+        </section>
+
+        <div class="guide-note">
+            Follow the steps in order. Always verify the wallet address
+            and withdrawal information carefully before confirming.
+        </div>
+
+
+        <section class="steps-list">
+
+
+            <!-- STEP 1 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <span>STEP 01</span>
+                        <h2>Open Poppo Live App</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-01.png"
+                         alt="Step 1 - Open Poppo Live App">
+                </div>
+            </article>
+
+
+            <!-- STEP 2 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <span>STEP 02</span>
+                        <h2>Go to Your Profile</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-02.png"
+                         alt="Step 2 - Go to Your Profile">
+                </div>
+            </article>
+
+
+            <!-- STEP 3 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <span>STEP 03</span>
+                        <h2>Click on Your Points</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-03.png"
+                         alt="Step 3 - Click on Your Points">
+                </div>
+            </article>
+
+
+            <!-- STEP 4 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">4</div>
+                    <div class="step-info">
+                        <span>STEP 04</span>
+                        <h2>Click on Withdraw Now</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-04.png"
+                         alt="Step 4 - Click Withdraw Now">
+                </div>
+            </article>
+
+
+            <!-- STEP 5 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">5</div>
+                    <div class="step-info">
+                        <span>STEP 05</span>
+                        <h2>Change Payment Method</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-05.png"
+                         alt="Step 5 - Change Payment Method">
+                </div>
+            </article>
+
+
+            <!-- STEP 6 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">6</div>
+                    <div class="step-info">
+                        <span>STEP 06</span>
+                        <h2>Select USDT-TRC20</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-06.png"
+                         alt="Step 6 - Select USDT TRC20">
+                </div>
+            </article>
+
+
+            <!-- STEP 7 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">7</div>
+                    <div class="step-info">
+                        <span>STEP 07</span>
+                        <h2>Enter Your Security Password</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-07.png"
+                         alt="Step 7 - Enter Security Password">
+                </div>
+            </article>
+
+
+            <!-- STEP 8 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">8</div>
+                    <div class="step-info">
+                        <span>STEP 08</span>
+                        <h2>Remove Previously Bound Address</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-08.png"
+                         alt="Step 8 - Remove Previous Address">
+                </div>
+            </article>
+
+
+            <!-- STEP 9 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">9</div>
+                    <div class="step-info">
+                        <span>STEP 09</span>
+                        <h2>Paste the Given USDT Address</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-09.png"
+                         alt="Step 9 - Paste USDT Address">
+                </div>
+            </article>
+
+
+            <!-- STEP 10 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">10</div>
+                    <div class="step-info">
+                        <span>STEP 10</span>
+                        <h2>Click Submit</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-10.png"
+                         alt="Step 10 - Click Submit">
+                </div>
+            </article>
+
+
+            <!-- STEP 11 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">11</div>
+                    <div class="step-info">
+                        <span>STEP 11</span>
+                        <h2>Verify Address & Click Checked</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-11.png"
+                         alt="Step 11 - Verify Address">
+                </div>
+            </article>
+
+
+            <!-- STEP 12 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">12</div>
+                    <div class="step-info">
+                        <span>STEP 12</span>
+                        <h2>Click Withdraw Now</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-12.png"
+                         alt="Step 12 - Click Withdraw Now">
+                </div>
+            </article>
+
+
+            <!-- STEP 13 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">13</div>
+                    <div class="step-info">
+                        <span>STEP 13</span>
+                        <h2>Click Confirm</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-13.png"
+                         alt="Step 13 - Click Confirm">
+                </div>
+            </article>
+
+
+            <!-- STEP 14 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">14</div>
+                    <div class="step-info">
+                        <span>STEP 14</span>
+                        <h2>Click Exchange Coins</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-14.png"
+                         alt="Step 14 - Exchange Coins">
+                </div>
+            </article>
+
+
+            <!-- STEP 15 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">15</div>
+                    <div class="step-info">
+                        <span>STEP 15</span>
+                        <h2>Enter Your Security Password</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-15.png"
+                         alt="Step 15 - Enter Security Password">
+                </div>
+            </article>
+
+
+            <!-- STEP 16 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">16</div>
+                    <div class="step-info">
+                        <span>STEP 16</span>
+                        <h2>Click Check for Details</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-16.png"
+                         alt="Step 16 - Check for Details">
+                </div>
+            </article>
+
+
+            <!-- STEP 17 -->
+            <article class="step-card">
+                <div class="step-top">
+                    <div class="step-number">17</div>
+                    <div class="step-info">
+                        <span>FINAL STEP</span>
+                        <h2>Take Screenshot & Send to FH EMPIRE</h2>
+                    </div>
+                </div>
+
+                <div class="step-image">
+                    <img src="images/poppo-withdraw-usdt-step-17.png"
+                         alt="Step 17 - Send Screenshot to FH EMPIRE">
+                </div>
+            </article>
+
+
+        </section>
+
+
+        <section class="guide-finish">
+
+            <h2>Withdrawal Process Complete ✓</h2>
+
+            <p>
+                Send the screenshot of the latest arrival message
+                along with your account details to the FH EMPIRE team
+                for further processing.
+            </p>
+
+        </section>
+<section class="withdraw-contact-box">
+
+    <div class="contact-icon">✓</div>
+
+    <h2>Ready to Complete Your Withdrawal?</h2>
+
+    <p>
+        After completing the steps above, send your latest withdrawal
+        screenshot and account details to the FH EMPIRE team.
+    </p>
+
+    <a
+        href="https://wa.me/923475554774?text=Hi%20FH%20EMPIRE%2C%20I%20have%20completed%20the%20Poppo%20USDT%20withdrawal%20process.%20I%20am%20sending%20my%20latest%20withdrawal%20screenshot%20and%20account%20details."
+        target="_blank"
+        class="withdraw-contact-btn"
+    >
+        Send Details on WhatsApp →
+    </a>
+
+    <small>
+        Please send your latest withdrawal screenshot along with your account/payment details.
+    </small>
+
+</section>
+    </div>
+
+</main>
+
+</body>
+</html>

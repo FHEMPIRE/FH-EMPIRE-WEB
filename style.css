@@ -1974,3 +1974,1410 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+/* ==================================================
+   FH EMPIRE - BUY COINS PAGE
+================================================== */
+
+.coins-page-header {
+    min-height: 75px;
+    padding: 12px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #080808;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.18);
+}
+
+.coins-back-btn {
+    color: #ffd700;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.coins-page-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffd700;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.coins-page-brand img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+
+/* MAIN PAGE */
+
+.coins-store-page {
+    min-height: calc(100vh - 75px);
+    padding: 70px 6%;
+    background:
+        radial-gradient(circle at top, rgba(255, 215, 0, 0.08), transparent 35%),
+        #050505;
+}
+
+
+/* HEADING */
+
+.coins-store-heading {
+    max-width: 700px;
+    margin: 0 auto 45px;
+    text-align: center;
+}
+
+.coins-store-heading p {
+    margin-bottom: 10px;
+    color: #ffd700;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.coins-store-heading h1 {
+    margin: 0 0 12px;
+    color: #ffffff;
+    font-size: clamp(34px, 6vw, 58px);
+}
+
+.coins-store-heading > span {
+    color: #aaaaaa;
+    font-size: 15px;
+}
+
+
+/* APP GRID */
+
+.coins-app-grid {
+    width: 100%;
+    max-width: 1050px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 320px));
+    justify-content: center;
+    gap: 25px;
+}
+
+
+/* APP CARD */
+
+.coins-app-card {
+    position: relative;
+    padding: 30px 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 215, 0, 0.07),
+            rgba(255, 255, 255, 0.015)
+        );
+
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 18px;
+
+    text-decoration: none;
+    color: #ffffff;
+
+    overflow: hidden;
+    transition: 0.25s ease;
+}
+
+.coins-app-card:hover {
+    transform: translateY(-6px);
+    border-color: #ffd700;
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.12);
+}
+
+
+/* APP ICON */
+
+.coins-app-icon {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+
+    font-size: 30px;
+}
+
+
+/* CARD TEXT */
+
+.coins-app-card h2 {
+    margin-bottom: 10px;
+    color: #ffffff;
+    font-size: 24px;
+}
+
+.coins-app-card > p {
+    min-height: 48px;
+    margin-bottom: 20px;
+    color: #999999;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* FEATURES */
+
+.coins-app-features {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.coins-app-features span {
+    color: #d5d5d5;
+    font-size: 12px;
+}
+
+
+/* BUTTON */
+
+.coins-app-button {
+    padding: 12px 15px;
+
+    text-align: center;
+
+    background: linear-gradient(135deg, #ffd700, #e5b800);
+    color: #000000;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 900;
+
+    transition: 0.2s ease;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .coins-page-header {
+        padding: 10px 18px;
+    }
+
+    .coins-page-brand span {
+        display: none;
+    }
+
+    .coins-store-page {
+        padding: 50px 18px;
+    }
+
+    .coins-store-heading {
+        margin-bottom: 32px;
+    }
+
+    .coins-app-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .coins-app-card {
+        padding: 25px 22px;
+    }
+}
+.coin-app-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    border-radius: 18px;
+    display: block;
+    margin-bottom: 20px;
+}
+.coins-app-button:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 7px 20px rgba(255, 215, 0, 0.35);
+    filter: brightness(1.08);
+}
+/* =========================================
+   POPPO COINS PAGE
+========================================= */
+
+.poppo-coins-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 50% 15%, rgba(255, 215, 0, 0.07), transparent 32%),
+        #050505;
+    color: #fff;
+    padding-bottom: 70px;
+}
+
+/* TOP BAR */
+
+.poppo-coins-topbar {
+    min-height: 76px;
+    padding: 0 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.22);
+    background: rgba(0, 0, 0, 0.92);
+}
+
+.poppo-back-btn {
+    color: #ffd700;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.poppo-page-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffd700;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.poppo-page-brand img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+/* HERO */
+
+.poppo-coins-hero {
+    max-width: 900px;
+    margin: auto;
+    padding: 65px 20px 45px;
+    text-align: center;
+}
+
+.poppo-page-logo {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    border-radius: 18px;
+    margin-bottom: 20px;
+}
+
+.poppo-page-tag {
+    color: #ffd700;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.poppo-coins-hero h1 {
+    margin: 0;
+    font-size: clamp(38px, 6vw, 58px);
+    line-height: 1.1;
+}
+
+.poppo-page-description {
+    margin: 16px auto 0;
+    color: #aaa;
+    font-size: 15px;
+}
+
+/* PACKAGES */
+
+.poppo-packages-section {
+    width: min(1050px, 90%);
+    margin: auto;
+}
+
+.poppo-section-title {
+    margin-bottom: 25px;
+}
+
+.poppo-section-title h2 {
+    margin: 0 0 7px;
+    font-size: 26px;
+}
+
+.poppo-section-title p {
+    margin: 0;
+    color: #999;
+    font-size: 14px;
+}
+
+.poppo-packages-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.poppo-package-card {
+    min-height: 175px;
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    background: linear-gradient(
+        145deg,
+        rgba(255, 215, 0, 0.07),
+        rgba(255, 255, 255, 0.015)
+    );
+
+    border: 1px solid rgba(255, 215, 0, 0.30);
+    border-radius: 16px;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.poppo-package-card:hover {
+   
+    border-color: #ffd700;
+    box-shadow: 0 14px 35px rgba(255, 215, 0, 0.12);
+}
+
+.package-coins {
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.package-price {
+    color: #ffd700;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.package-buy {
+    margin-top: 24px;
+    color: #aaa;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.poppo-package-card:hover .package-buy {
+    color: #ffd700;
+}
+
+/* CUSTOM AMOUNT */
+
+.poppo-custom-box {
+    width: min(1050px, 90%);
+    margin: 30px auto 0;
+    padding: 27px 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 16px;
+
+    background: rgba(255, 215, 0, 0.035);
+}
+
+.custom-label {
+    color: #ffd700;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+.poppo-custom-box h2 {
+    margin: 7px 0;
+    font-size: 22px;
+}
+
+.poppo-custom-box p {
+    margin: 0;
+    color: #999;
+    font-size: 13px;
+}
+
+.poppo-custom-btn {
+    min-width: 190px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 9px;
+
+    background: linear-gradient(135deg, #ffd700, #f0b900);
+    color: #000;
+
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.poppo-custom-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(255, 215, 0, 0.28);
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+    .poppo-packages-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 550px) {
+    .poppo-coins-topbar {
+        padding: 0 18px;
+    }
+
+    .poppo-coins-hero {
+        padding-top: 45px;
+    }
+
+    .poppo-packages-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .poppo-custom-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .poppo-custom-btn {
+        width: 100%;
+    }
+}
+/* =========================================
+   POPPO ORDER PAGE
+========================================= */
+
+.poppo-order-page {
+    min-height: 100vh;
+    padding: 55px 20px 80px;
+    background:
+        radial-gradient(circle at top, rgba(255, 215, 0, 0.07), transparent 35%),
+        #050505;
+}
+
+.poppo-order-container {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.order-back-link {
+    display: inline-block;
+    margin-bottom: 30px;
+    color: #ffd700;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.order-back-link:hover {
+    opacity: 0.8;
+}
+
+
+/* HEADING */
+
+.poppo-order-heading {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.poppo-order-heading img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border-radius: 16px;
+}
+
+.poppo-order-heading p {
+    margin: 0 0 7px;
+    color: #ffd700;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.poppo-order-heading h1 {
+    margin: 0 0 7px;
+    color: #ffffff;
+    font-size: 32px;
+}
+
+.poppo-order-heading span {
+    color: #999999;
+    font-size: 14px;
+}
+
+
+/* SELECTED PACKAGE */
+
+.selected-package-box {
+    padding: 18px 20px;
+    margin-bottom: 25px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(255, 215, 0, 0.08),
+        rgba(255, 255, 255, 0.02)
+    );
+
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 12px;
+}
+
+.selected-package-box > span {
+    display: block;
+    margin-bottom: 10px;
+    color: #999;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.selected-package-box > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+#selectedCoins {
+    color: #ffffff;
+    font-size: 20px;
+}
+
+#selectedPrice {
+    color: #ffd700;
+    font-size: 20px;
+}
+
+
+/* FORM CARD */
+
+.poppo-order-container form {
+    padding: 25px;
+
+    background: rgba(255, 255, 255, 0.025);
+
+    border: 1px solid rgba(255, 215, 0, 0.20);
+    border-radius: 16px;
+
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
+}
+
+
+/* INPUTS */
+
+.poppo-order-container .form-group {
+    margin-bottom: 20px;
+}
+
+.poppo-order-container .form-group label {
+    display: block;
+    margin-bottom: 8px;
+
+    color: #dddddd;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.poppo-order-container input,
+.poppo-order-container select {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 13px 14px;
+
+    background: #0c0c0c;
+    color: #ffffff;
+
+    border: 1px solid #292929;
+    border-radius: 9px;
+
+    outline: none;
+    font-size: 14px;
+
+    transition: 0.2s ease;
+}
+
+.poppo-order-container input:focus,
+.poppo-order-container select:focus {
+    border-color: #ffd700;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+}
+
+
+/* COIN CALCULATION */
+
+.poppo-order-container .coin-calculation {
+    margin-top: 10px;
+    padding: 12px 14px;
+
+    background: rgba(255, 215, 0, 0.07);
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 8px;
+
+    color: #ffd700;
+    font-weight: 700;
+}
+
+
+/* PLACE ORDER */
+
+.poppo-order-container .primary-btn {
+    width: 100%;
+    padding: 14px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: linear-gradient(135deg, #ffd700, #e4ad00);
+    color: #000000;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.poppo-order-container .primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.22);
+}
+
+
+/* ORDER RESULT */
+
+.poppo-order-container #orderResult {
+    margin-top: 25px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .poppo-order-page {
+        padding: 30px 15px 60px;
+    }
+
+    .poppo-order-heading {
+        align-items: flex-start;
+    }
+
+    .poppo-order-heading img {
+        width: 55px;
+        height: 55px;
+    }
+
+    .poppo-order-heading h1 {
+        font-size: 25px;
+    }
+
+    .poppo-order-container form {
+        padding: 18px;
+    }
+
+    .selected-package-box > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+.custom-amount-btn {
+    display: inline-block;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #ffd700, #ffbf00);
+    color: #000 !important;
+    font-weight: 800;
+    text-decoration: none;
+    border-radius: 9px;
+    transition: 0.2s ease;
+}
+
+.custom-amount-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.25);
+}
+/* PACKAGE SELECT TEXT HOVER */
+
+.package-buy {
+    display: inline-block;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.poppo-package-card:hover .package-buy {
+    transform: translateX(6px) scale(1.06);
+    color: #ffd700;
+}
+/* ========================================
+   POPPO WITHDRAWAL PROCESS PAGE
+======================================== */
+
+.poppo-withdraw-page {
+    min-height: 100vh;
+    padding: 70px 20px 100px;
+    background:
+        radial-gradient(circle at top, rgba(255, 215, 0, 0.07), transparent 35%),
+        #050505;
+    color: #fff;
+}
+
+.poppo-withdraw-heading {
+    max-width: 850px;
+    margin: 0 auto 50px;
+    text-align: center;
+}
+
+.poppo-withdraw-heading p {
+    margin-bottom: 12px;
+    color: #ffd700;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.poppo-withdraw-heading h1 {
+    margin: 0 0 15px;
+    font-size: clamp(34px, 5vw, 55px);
+    line-height: 1.1;
+    color: #fff;
+}
+
+.poppo-withdraw-heading span {
+    display: block;
+    max-width: 650px;
+    margin: auto;
+    color: #aaa;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+
+/* GRID */
+
+.withdraw-process-grid {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+}
+
+
+/* CARD */
+
+.withdraw-process-card {
+    overflow: hidden;
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 215, 0, 0.055),
+            rgba(255, 255, 255, 0.015)
+        ),
+        #090909;
+
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 22px;
+
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.withdraw-process-card:hover {
+    transform: translateY(-7px);
+    border-color: #ffd700;
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.55),
+        0 0 25px rgba(255, 215, 0, 0.09);
+}
+
+
+/* CARD IMAGE */
+
+.withdraw-card-image {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #000;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.18);
+}
+
+.withdraw-card-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    transition: transform 0.35s ease;
+}
+
+.withdraw-process-card:hover .withdraw-card-image img {
+    transform: scale(1.025);
+}
+
+
+/* CONTENT */
+
+.withdraw-card-content {
+    padding: 26px;
+}
+
+.withdraw-method-tag {
+    display: inline-flex;
+    align-items: center;
+
+    margin-bottom: 14px;
+    padding: 7px 12px;
+
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.08);
+
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 30px;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+.withdraw-card-content h2 {
+    margin: 0 0 12px;
+
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.withdraw-card-content > p {
+    min-height: 52px;
+    margin: 0 0 20px;
+
+    color: #aaa;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+
+/* FEATURES */
+
+.withdraw-card-features {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+
+    margin-bottom: 25px;
+}
+
+.withdraw-card-features span {
+    color: #ddd;
+    font-size: 13px;
+}
+
+
+/* BUTTON */
+
+.withdraw-process-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 52px;
+
+    background: linear-gradient(135deg, #ffd700, #e5ae00);
+    color: #050505;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.withdraw-process-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.22);
+}
+
+
+/* MOBILE */
+
+@media (max-width: 750px) {
+
+    .poppo-withdraw-page {
+        padding: 50px 15px 70px;
+    }
+
+    .poppo-withdraw-heading {
+        margin-bottom: 35px;
+    }
+
+    .poppo-withdraw-heading h1 {
+        font-size: 34px;
+    }
+
+    .withdraw-process-grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .withdraw-card-content {
+        padding: 21px;
+    }
+
+    .withdraw-card-content h2 {
+        font-size: 25px;
+    }
+
+    .withdraw-card-content > p {
+        min-height: auto;
+    }
+}
+/* ========================================
+   POPPO EPAY WITHDRAWAL GUIDE
+======================================== */
+
+.withdraw-guide-page {
+    min-height: 100vh;
+    padding: 65px 20px 100px;
+    background:
+        radial-gradient(circle at top, rgba(255, 215, 0, 0.07), transparent 30%),
+        #050505;
+    color: #fff;
+}
+
+
+/* PAGE HEADING */
+
+.withdraw-guide-heading {
+    max-width: 850px;
+    margin: 0 auto 25px;
+    text-align: center;
+}
+
+.withdraw-guide-heading > p {
+    margin: 0 0 12px;
+    color: #ffd700;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.withdraw-guide-heading h1 {
+    margin: 0 0 15px;
+    color: #fff;
+    font-size: clamp(34px, 5vw, 52px);
+    line-height: 1.1;
+}
+
+.withdraw-guide-method {
+    display: inline-block;
+    margin-bottom: 18px;
+    padding: 7px 15px;
+
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.08);
+
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 30px;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.withdraw-guide-heading > span {
+    display: block;
+    max-width: 650px;
+    margin: auto;
+
+    color: #aaa;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+
+/* IMPORTANT NOTE */
+
+.withdraw-guide-note {
+    max-width: 900px;
+    margin: 30px auto 55px;
+    padding: 17px 20px;
+
+    color: #ccc;
+    background: rgba(255, 215, 0, 0.05);
+
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-left: 4px solid #ffd700;
+    border-radius: 10px;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.withdraw-guide-note strong {
+    color: #ffd700;
+}
+
+
+/* STEPS CONTAINER */
+
+.withdraw-steps {
+    width: 100%;
+    max-width: 950px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+}
+
+
+/* SINGLE STEP */
+
+.withdraw-step {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    align-items: center;
+    gap: 35px;
+
+    padding: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 215, 0, 0.045),
+            rgba(255, 255, 255, 0.012)
+        ),
+        #090909;
+
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 22px;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.withdraw-step:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 215, 0, 0.7);
+
+    box-shadow:
+        0 20px 45px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(255, 215, 0, 0.06);
+}
+
+
+/* LARGE BACKGROUND STEP NUMBER */
+
+.withdraw-step-number {
+    position: absolute;
+    left: 15px;
+    bottom: -25px;
+
+    color: rgba(255, 215, 0, 0.035);
+
+    font-size: 130px;
+    font-weight: 900;
+    line-height: 1;
+
+    pointer-events: none;
+}
+
+
+/* STEP TEXT */
+
+.withdraw-step-text {
+    position: relative;
+    z-index: 2;
+}
+
+.withdraw-step-text > span {
+    display: inline-block;
+
+    margin-bottom: 13px;
+    padding: 6px 11px;
+
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.08);
+
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 30px;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.withdraw-step-text h2 {
+    margin: 0 0 12px;
+
+    color: #fff;
+    font-size: 25px;
+    line-height: 1.25;
+}
+
+.withdraw-step-text p {
+    margin: 0;
+
+    max-width: 460px;
+
+    color: #aaa;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.withdraw-step-text strong {
+    color: #ffd700;
+}
+
+
+/* SCREENSHOT */
+
+.withdraw-step > img {
+    position: relative;
+    z-index: 2;
+
+    display: block;
+
+    width: 100%;
+    max-width: 330px;
+    max-height: 560px;
+
+    margin-left: auto;
+
+    object-fit: contain;
+
+    background: #000;
+
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 16px;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+
+/* ALTERNATE STEPS */
+
+.withdraw-step:nth-child(even) {
+    grid-template-columns: 330px minmax(0, 1fr);
+}
+
+.withdraw-step:nth-child(even) .withdraw-step-text {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.withdraw-step:nth-child(even) > img {
+    grid-column: 1;
+    grid-row: 1;
+
+    margin-left: 0;
+    margin-right: auto;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 760px) {
+
+    .withdraw-guide-page {
+        padding: 45px 14px 70px;
+    }
+
+    .withdraw-guide-heading h1 {
+        font-size: 32px;
+    }
+
+    .withdraw-guide-note {
+        margin-bottom: 35px;
+    }
+
+    .withdraw-steps {
+        gap: 22px;
+    }
+
+    .withdraw-step,
+    .withdraw-step:nth-child(even) {
+        display: flex;
+        flex-direction: column;
+
+        gap: 22px;
+
+        padding: 20px;
+    }
+
+    .withdraw-step-text,
+    .withdraw-step:nth-child(even) .withdraw-step-text {
+        width: 100%;
+        order: 1;
+    }
+
+    .withdraw-step > img,
+    .withdraw-step:nth-child(even) > img {
+        width: 100%;
+        max-width: 390px;
+        max-height: none;
+
+        margin: 0 auto;
+
+        order: 2;
+    }
+
+    .withdraw-step-number {
+        font-size: 100px;
+    }
+
+    .withdraw-step-text h2 {
+        font-size: 22px;
+    }
+}
+.withdraw-contact-box {
+    max-width: 820px;
+    margin: 0 auto;
+    margin-top: 70px !important;
+    padding: 35px 25px;
+    text-align: center;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 215, 0, 0.09),
+            rgba(255, 215, 0, 0.02)
+        ),
+        #090909;
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 20px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+.contact-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 55px;
+    height: 55px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: #ffd700;
+    color: #050505;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.withdraw-contact-box h2 {
+    margin: 0 0 12px;
+    color: #ffd700;
+    font-size: 25px;
+}
+
+.withdraw-contact-box p {
+    max-width: 620px;
+    margin: 0 auto 24px;
+    color: #bbb;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.withdraw-contact-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 0 28px;
+    background: linear-gradient(135deg, #ffd700, #e5ae00);
+    color: #050505;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.withdraw-contact-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.22);
+}
+
+.withdraw-contact-box small {
+    display: block;
+    margin-top: 17px;
+    color: #777;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+@media (max-width: 650px) {
+    .withdraw-contact-box {
+        padding: 28px 17px;
+    }
+
+    .withdraw-contact-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+/* EPAY - Withdrawal Complete Box */
+
+.guide-finish {
+    max-width: 820px;
+    margin: 60px auto 70px;
+    padding: 35px 25px;
+    text-align: center;
+    background: linear-gradient(
+        145deg,
+        rgba(255, 215, 0, 0.08),
+        rgba(255, 215, 0, 0.02)
+    ), #090909;
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 20px;
+}
+
+.guide-finish h2 {
+    margin: 0 0 18px;
+    color: #ffd700;
+    font-size: 28px;
+}
+
+.guide-finish p {
+    margin: 0 auto;
+    max-width: 650px;
+    color: #bbb;
+    line-height: 1.7;
+}

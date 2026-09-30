@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Buy Poppo Coins | FH EMPIRE</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<main class="poppo-coins-page">
+
+    <!-- TOP BAR -->
+    <div class="poppo-coins-topbar">
+
+        <a href="coins.html" class="poppo-back-btn">
+            ← Back to Coins
+        </a>
+
+        <div class="poppo-page-brand">
+            <img src="images/logo.png" alt="FH EMPIRE">
+            <span>FH EMPIRE</span>
+        </div>
+
+    </div>
+
+
+    <!-- PAGE INTRO -->
+    <section class="poppo-coins-hero">
+
+        <img
+            src="images/poppo-logo.png"
+            alt="Poppo Live"
+            class="poppo-page-logo"
+        >
+
+        <p class="poppo-page-tag">
+            FH EMPIRE • POPPO LIVE
+        </p>
+
+        <h1>Buy Poppo Coins</h1>
+
+        <p class="poppo-page-description">
+            Select your preferred coin package or enter a custom amount.
+        </p>
+
+    </section>
+
+
+    <!-- PACKAGES -->
+    <section class="poppo-packages-section">
+
+        <div class="poppo-section-title">
+            <h2>Choose Your Package</h2>
+            <p>Select an offer to continue your order.</p>
+        </div>
+
+        <div class="poppo-packages-grid">
+
+    <button class="poppo-package-card"
+        onclick="window.location.href='poppo-order.html?amount=250'">
+        <span class="package-coins">8,000 Coins</span>
+        <span class="package-price">Rs. 250</span>
+        <span class="package-buy">Select Package →</span>
+    </button>
+
+    <button class="poppo-package-card"
+        onclick="window.location.href='poppo-order.html?amount=500'">
+        <span class="package-coins">16,000 Coins</span>
+        <span class="package-price">Rs. 500</span>
+        <span class="package-buy">Select Package →</span>
+    </button>
+
+    <button class="poppo-package-card"
+        onclick="window.location.href='poppo-order.html?amount=1500'">
+        <span class="package-coins">50,000 Coins</span>
+        <span class="package-price">Rs. 1,500</span>
+        <span class="package-buy">Select Package →</span>
+    </button>
+
+    <button class="poppo-package-card"
+        onclick="window.location.href='poppo-order.html?amount=3000'">
+        <span class="package-coins">100,000 Coins</span>
+        <span class="package-price">Rs. 3,000</span>
+        <span class="package-buy">Select Package →</span>
+    </button>
+
+</div>
+
+    </section>
+
+
+    <!-- CUSTOM AMOUNT -->
+    <section class="poppo-custom-box">
+
+        <div>
+            <span class="custom-label">CUSTOM ORDER</span>
+            <h2>Need a Different Amount?</h2>
+
+            <p>
+                Enter your own amount and we'll calculate your Poppo coins.
+            </p>
+        </div>
+
+        <a href="poppo-order.html?custom=true" class="custom-amount-btn">
+    Custom Amount →
+</a>
+
+    </section>
+
+</main>
+
+</body>
+</html>

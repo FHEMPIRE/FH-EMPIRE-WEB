@@ -12,273 +12,66 @@
 </head>
 
 <body>
+<!-- HEADER -->
+<header>
+    <nav class="navbar">
 
-    <!-- HEADER -->
-    <header>
-        <nav class="navbar">
-
-            <a href="#" class="brand">
-                <img src="images/logo.png" alt="FH EMPIRE Logo">
-                <span>FH EMPIRE</span>
-            </a>
-              
-            <button class="menu-toggle" id="menuToggle">☰</button>
-          <ul class="nav-links" id="navLinks">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#poppo">Poppo</a></li>
-                <li><a href="#frames">Avatar Frames</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#store">Digital Store</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="track.html">Track Order</a></li>
-            </ul>
-
-            <a href="#contact" class="nav-button">Order Now</a>
-
-        </nav>
-    </header>
-
-
-    <!-- HERO SECTION -->
-    <main>
-
-        <section id="home" class="hero">
-
-            <div class="hero-content">
-
-                <p class="hero-small">WELCOME TO</p>
-
-                <h1>FH <span>EMPIRE</span></h1>
-
-                <h2>Digital Services & Online Solutions</h2>
-
-                <p class="hero-description">
-                    Your trusted destination for Poppo services,
-                    digital solutions, business services and online products.
-                </p>
-
-                <div class="hero-buttons">
-                    <a href="#services" class="primary-btn">Explore Services</a>
-                    <a href="#poppo" class="secondary-btn">Buy Poppo Coins</a>
-                </div>
-
-            </div>
-
-            <div class="hero-logo">
-                <img src="images/logo.png" alt="FH EMPIRE">
-            </div>
-
-        </section>
-
-
-       <!-- POPPO -->
-<section id="poppo" class="poppo-section">
-
-    <div class="section-heading">
-        <p class="section-tag">FAST • SAFE • RELIABLE</p>
-        <h2>Poppo Coins</h2>
-        <p>
-            Buy Poppo coins at competitive market rates.
-            Minimum order Rs. 250.
-        </p>
-    </div>
-
-    <div class="coin-grid">
-
-        <div class="coin-card">
-            <span class="coin-label">Starter</span>
-            <h3>8,000 Coins</h3>
-            <div class="coin-price">Rs. 250</div>
-
-            <a
-                class="coin-buy-btn"
-                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%208%2C000%20Poppo%20Coins%20for%20Rs.%20250."
-                target="_blank"
-            >
-                Order on WhatsApp
-            </a>
-        </div>
-
-
-        <div class="coin-card">
-            <span class="coin-label">Popular</span>
-            <h3>16,000 Coins</h3>
-            <div class="coin-price">Rs. 500</div>
-
-            <a
-                class="coin-buy-btn"
-                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%2016%2C000%20Poppo%20Coins%20for%20Rs.%20500."
-                target="_blank"
-            >
-                Order on WhatsApp
-            </a>
-        </div>
-
-
-        <div class="coin-card featured-card">
-            <span class="coin-label">Best Deal</span>
-            <h3>50,000 Coins</h3>
-            <div class="coin-price">Rs. 1,500</div>
-
-            <a
-                class="coin-buy-btn"
-                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%2050%2C000%20Poppo%20Coins%20for%20Rs.%201%2C500."
-                target="_blank"
-            >
-                Order on WhatsApp
-            </a>
-        </div>
-
-
-        <div class="coin-card featured-card">
-            <span class="coin-label">Hot Offer</span>
-            <h3>100,000 Coins</h3>
-            <div class="coin-price">Rs. 3,000</div>
-
-            <a
-                class="coin-buy-btn"
-                href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%20100%2C000%20Poppo%20Coins%20for%20Rs.%203%2C000."
-                target="_blank"
-            >
-                Order on WhatsApp
-            </a>
-        </div>
-
-    </div>
-<div class="order-form-box">
-
-    <h3>Place Poppo Coins Order</h3>
-
-    <form id="poppoOrderForm">
-
-        <div class="form-group">
-            <label for="customerName">Full Name</label>
-            <input type="text" id="customerName" required>
-        </div>
-
-        <div class="form-group">
-            <label for="whatsappNumber">WhatsApp Number</label>
-            <input type="tel" id="whatsappNumber" required>
-        </div>
-
-        <div class="form-group">
-            <label for="poppoId">Poppo ID</label>
-            <input type="text" id="poppoId" required>
-        </div>
-
-        <div class="form-group">
-            <label for="coinPackage">Select Package</label>
-
-           <select id="coinPackage" required>
-    <option value="">Choose Package</option>
-    <option value="250">8,000 Coins - Rs. 250</option>
-    <option value="500">16,000 Coins - Rs. 500</option>
-    <option value="1500">50,000 Coins - Rs. 1,500</option>
-    <option value="3000">100,000 Coins - Rs. 3,000</option>
-    <option value="custom">Custom Amount</option>
-</select>
-
-<div class="form-group custom-amount-box" id="customAmountBox">
-    <label for="customAmount">Enter Amount (PKR)</label>
-
-    <input
-        type="number"
-        id="customAmount"
-        min="250"
-        placeholder="Minimum Rs. 250"
-    >
-
-    <div class="coin-calculation" id="coinCalculation">
-        You will receive: 0 Coins
-    </div>
-
-        </div>
-
-        <div class="form-group">
-            <label for="paymentMethod">Payment Method</label>
-
-            <select id="paymentMethod" required>
-                <option value="">Select Payment Method</option>
-                <option value="Easypaisa">Easypaisa</option>
-                <option value="JazzCash">JazzCash</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-            </select>
-        </div>
-
-        <button type="submit" class="primary-btn">
-            Place Order
-        </button>
-
-    </form>
-
-    <div id="orderResult"></div>
-
-</div>
-
-    <div class="custom-rate-box">
-        <div>
-            <h3>Custom Amount</h3>
-            <p>
-                Current rate: <strong>1 PKR = 32 Coins</strong>
-            </p>
-            <p>
-                Need a different amount? Contact us for calculation.
-            </p>
-        </div>
-
-        <a
-            href="https://wa.me/923475554774?text=Assalamualaikum%20FH%20EMPIRE%2C%20I%20want%20to%20buy%20a%20custom%20amount%20of%20Poppo%20Coins."
-            target="_blank"
-            class="primary-btn"
-        >
-            Get Custom Rate
+        <a href="#" class="brand">
+            <img src="images/logo.png" alt="FH EMPIRE Logo">
+            <span>FH EMPIRE</span>
         </a>
-    </div>
+          
+        <button class="menu-toggle" id="menuToggle">☰</button>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home">Home</a></li>
+            <li><a href="coins.html">Buy Coins</a></li>
+            <li><a href="withdraw.html">Withdrawal</a></li>
+            <li><a href="#frames">Avatar Frames</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#store">Digital Store</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="track.html">Track Order</a></li>
+        </ul>
+
+        <a href="#contact" class="nav-button">Order Now</a>
+
+    </nav>
+</header>
 
 
-    <div class="price-list-preview">
+<!-- HERO SECTION -->
+<main>
 
-        <div class="price-list-text">
-            <p class="section-tag">FULL RATE LIST</p>
-            <h3>Coins & Withdrawal Rates</h3>
-            <p>
-                View our current Poppo coins and withdrawal rate card.
+    <section id="home" class="hero">
+
+        <div class="hero-content">
+
+            <p class="hero-small">WELCOME TO</p>
+
+            <h1>FH <span>EMPIRE</span></h1>
+
+            <h2>Digital Services & Online Solutions</h2>
+
+            <p class="hero-description">
+                Your trusted destination for Poppo services,
+                digital solutions, business services and online products.
             </p>
+
+            <div class="hero-buttons">
+                <a href="#services" class="primary-btn">Explore Services</a>
+                <a href="coins.html" class="secondary-btn">Buy Coins</a>
+                <a href="withdraw.html" class="secondary-btn">Withdrawal</a>
+            </div>
+
         </div>
 
-        <img
-            src="images/coins-price-list.jpg"
-            alt="FH EMPIRE Poppo Coins Price List"
-        >
+        <div class="hero-logo">
+            <img src="images/logo.png" alt="FH EMPIRE">
+        </div>
 
-    </div>
-
-</section>
-<section class="withdraw-section">
-
-    <div class="section-heading">
-        <p class="section-tag">FH EMPIRE • POPPO SERVICE</p>
-        <h2>Poppo Withdrawal Service</h2>
-        <p>
-            Fast & secure Poppo withdrawal assistance.
-            Contact us on WhatsApp with your Poppo ID and withdrawal amount.
-        </p>
-    </div>
-
-    <div class="withdraw-card">
-        <h3>Need to Withdraw?</h3>
-        <p>
-            Send us your Poppo ID and withdrawal amount.
-            Our team will guide you through the process.
-        </p>
-
-        <button class="withdraw-whatsapp-btn" id="withdrawWhatsappBtn">
-            Withdraw on WhatsApp
-        </button>
-    </div>
-
-</section>
+    </section>
 <!-- POPPO PROMOTION SERVICES -->
 <section class="poppo-promo-section">
 
