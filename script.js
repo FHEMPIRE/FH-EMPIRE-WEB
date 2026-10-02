@@ -3,17 +3,19 @@ const SUPABASE_KEY = "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q";
 const menuToggle = document.getElementById("menuToggle");
 const navLinks = document.getElementById("navLinks");
 
-menuToggle.addEventListener("click", () => {
-    navLinks.classList.toggle("active");
-});
-
-const navItems = navLinks.querySelectorAll("a");
-
-navItems.forEach(link => {
-    link.addEventListener("click", () => {
-        navLinks.classList.remove("active");
+if (menuToggle && navLinks) {
+    menuToggle.addEventListener("click", () => {
+        navLinks.classList.toggle("active");
     });
-});
+
+    const navItems = navLinks.querySelectorAll("a");
+
+    navItems.forEach(link => {
+        link.addEventListener("click", () => {
+            navLinks.classList.remove("active");
+        });
+    });
+}
 
 /* =========================================
    AVATAR FRAME FILTERS

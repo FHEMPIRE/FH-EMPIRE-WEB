@@ -413,3 +413,22 @@ if (enableNotificationsBtn) {
         }
     });
 }
+// Admin Order Search
+const orderSearch = document.getElementById("orderSearch");
+
+if (orderSearch) {
+    orderSearch.addEventListener("input", function () {
+        const searchValue = this.value.toLowerCase().trim();
+        const rows = document.querySelectorAll(".admin-table tbody tr");
+
+        rows.forEach((row) => {
+            const rowText = row.textContent.toLowerCase();
+
+            if (rowText.includes(searchValue)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+}
