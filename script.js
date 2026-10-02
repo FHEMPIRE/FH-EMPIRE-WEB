@@ -167,13 +167,3 @@ Please confirm availability and guide me about the next process.`;
    SERVICE WORKER REGISTRATION
 ========================================= */
 
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", async () => {
-        try {
-            const registration = await navigator.serviceWorker.register("sw.js");
-            console.log("Service Worker registered:", registration.scope);
-        } catch (error) {
-            console.error("Service Worker registration failed:", error);
-        }
-    });
-}
