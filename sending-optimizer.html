@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sending Optimizer | FH EMPIRE Admin</title>
+    <link rel="stylesheet" href="style.css?v=3">
+</head>
+
+<body class="sending-optimizer-page">
+
+    <div class="admin-container">
+
+        <h1>FH EMPIRE</h1>
+        <h2>Poppo Sending Optimizer</h2>
+
+        <a href="admin.html" class="logout-btn"
+           style="display:inline-block; text-decoration:none; margin-bottom:20px;">
+            ← Back to Admin
+        </a>
+
+        <div class="admin-stats">
+            <div>
+                <h3>Sending Optimizer</h3>
+                <p>Reward & Profit Planning System</p>
+            </div>
+        </div>
+<div style="margin-top:30px;">
+    <h2>Add Poppo Host</h2>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+
+        
+     <input
+    type="text"
+    id="poppoId"
+    placeholder="Poppo ID"
+    inputmode="numeric"
+>
+
+<input
+    type="text"
+    id="hostName"
+    placeholder="Host Name (Auto)"
+   
+>
+
+<p id="poppoVerifyResult"></p>
+
+        <select id="hostType">
+            <option value="salarybase">Salary Base Host</option>
+            <option value="rocket">Rocket Host</option>
+            <option value="star">Star Host</option>
+        </select>
+
+        <button type="button" id="addHostBtn">
+            + Add Host
+        </button>
+
+    </div>
+
+    <p id="hostMessage"></p>
+</div>
+    </div>
+<div style="margin-top:30px;">
+    <h2>Saved Hosts</h2>
+
+    <div id="savedHosts">
+        <p style="color:#aaa;">Loading hosts...</p>
+    </div>
+</div>
+<!-- OPTIMIZER INPUTS -->
+<div style="margin-top:30px;">
+    <h2>Sending Optimizer</h2>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+
+        <input
+            type="number"
+            id="availableSending"
+            placeholder="Available Sending"
+            min="10000"
+            step="10000"
+        >
+
+        <input
+            type="number"
+            id="senderRate"
+            placeholder="Sender Rate / 100K"
+        >
+
+        <input
+            type="number"
+            id="sellingRate"
+            placeholder="Selling Rate / 100K"
+            value="2870"
+        >
+
+        <button type="button" id="calculateOptimizerBtn">
+            Calculate Best Distribution
+        </button>
+
+    </div>
+
+    <div id="optimizerResult" style="margin-top:15px;"></div>
+</div>
+<div style="margin-top:30px;">
+    <h2>Record Sending</h2>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+
+        <select id="sendingHost">
+            <option value="">Select Host</option>
+        </select>
+
+        <input
+            type="number"
+            id="sendingAmount"
+            placeholder="Actual Sending"
+            min="10000"
+            step="10000"
+        >
+
+        <input
+    type="number"
+    id="receivingAmount"
+    placeholder="Receiving / Points"
+    min="0"
+>
+<input
+    type="date"
+    id="sendingDate"
+>
+        <button type="button" id="confirmSendingBtn">
+            Confirm Sending
+        </button>
+
+    </div>
+
+    <p id="sendingMessage"></p>
+</div>
+   <script>
+    const SUPABASE_URL = "https://vmllowldjzwmzsvxccui.supabase.co";
+const SUPABASE_KEY = "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q";
+    const accessToken = localStorage.getItem("fh_admin_access_token");
+
+    if (!accessToken) {
+        window.location.href = "login.html";
+    }
+    const addHostBtn = document.getElementById("addHostBtn");
+const hostMessage = document.getElementById("hostMessage");
+
+addHostBtn.addEventListener("click", async () => {
+    const hostName = document.getElementById("hostName").value.trim();
+    const poppoId = document.getElementById("poppoId").value.trim();
+    const hostType = document.getElementById("hostType").value;
+
+    if (!hostName || !poppoId) {
+        hostMessage.textContent = "Please enter Host Name and Poppo ID.";
+        return;
+    }
+
+    hostMessage.textContent = "Saving...";
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/poppo_hosts`,
+            {
+                method: "POST",
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=representation"
+                },
+                body: JSON.stringify({
+                    host_name: hostName,
+                    poppo_id: poppoId,
+                    host_type: hostType
+                })
+            }
+        );
+
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error);
+        }
+
+        hostMessage.textContent = "✓ Host added successfully";
+
+        document.getElementById("hostName").value = "";
+        document.getElementById("poppoId").value = "";
+        document.getElementById("hostType").value = "salarybase";
+
+    } catch (error) {
+        console.error(error);
+        hostMessage.textContent = "Unable to add host. Please check the details.";
+    }
+});
+const poppoIdInput = document.getElementById("poppoId");
+const hostNameInput = document.getElementById("hostName");
+const poppoVerifyResult = document.getElementById("poppoVerifyResult");
+
+let verifiedPoppoId = "";
+
+poppoIdInput.addEventListener("input", async () => {
+    const poppoId = poppoIdInput.value.trim();
+
+    hostNameInput.value = "";
+    verifiedPoppoId = "";
+    poppoVerifyResult.textContent = "";
+
+    if (!/^\d+$/.test(poppoId) || poppoId.length < 6) {
+        return;
+    }
+
+    poppoVerifyResult.innerHTML =
+        '<span style="color:#ffd700;">Checking Poppo account...</span>';
+
+    try {
+        const response = await fetch(
+            "https://vmllowldjzwmzsvxccui.supabase.co/functions/v1/poppo-profile",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    poppoId: poppoId
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            verifiedPoppoId = String(data.id);
+            hostNameInput.value = data.nickname || "";
+
+            poppoVerifyResult.innerHTML =
+                '<span style="color:#22c55e;">✓ Account Found</span>';
+        } else {
+            poppoVerifyResult.innerHTML =
+                '<span style="color:#ff5c5c;">✕ Poppo account not found</span>';
+        }
+    } catch (error) {
+        console.error(error);
+        poppoVerifyResult.innerHTML =
+            '<span style="color:#ff5c5c;">✕ Unable to verify Poppo ID</span>';
+    }
+});
+async function getRolling7DayReceiving(hostId) {
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() - 6);
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/poppo_sending_transactions?host_id=eq.${hostId}&sent_at=gte.${encodeURIComponent(startDate.toISOString())}&select=received_amount`,
+            {
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        const transactions = await response.json();
+
+        return transactions.reduce(
+            (total, item) => total + Number(item.received_amount || 0),
+            0
+        );
+
+    } catch (error) {
+        console.error("7-day receiving error:", error);
+        return 0;
+    }
+}
+// Get rolling receiving for any future day
+async function getReceivingForDay(hostId, daysAhead = 0) {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + daysAhead);
+    targetDate.setHours(23, 59, 59, 999);
+
+    const startDate = new Date(targetDate);
+    startDate.setDate(startDate.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/poppo_sending_transactions?host_id=eq.${hostId}&sent_at=gte.${encodeURIComponent(startDate.toISOString())}&sent_at=lte.${encodeURIComponent(targetDate.toISOString())}&select=received_amount,sent_at`,
+            {
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        const transactions = await response.json();
+
+        return transactions.reduce(
+            (total, item) => total + Number(item.received_amount || 0),
+            0
+        );
+
+    } catch (error) {
+        console.error("Future receiving error:", error);
+        return 0;
+    }
+}
+async function loadSavedHosts() {
+    const savedHosts = document.getElementById("savedHosts");
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/poppo_hosts?select=*&order=created_at.desc`,
+            {
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        const hosts = await response.json();
+
+        if (hosts.length === 0) {
+            savedHosts.innerHTML = `<p style="color:#aaa;">No hosts saved yet.</p>`;
+            return;
+        }
+
+       savedHosts.innerHTML = "";
+
+for (const host of hosts) {
+    const rollingReceiving = await getRolling7DayReceiving(host.id);
+const rewardStatus = getRewardStatus(rollingReceiving);
+    savedHosts.innerHTML += `
+        <div style="padding:12px; margin-bottom:10px; border:1px solid #333;">
+            <strong>${host.host_name}</strong><br>
+            Poppo ID: ${host.poppo_id}<br>
+            Host Type: ${host.host_type}<br>
+            <span style="color:#ffc107;">
+                7-Day Receiving: ${rollingReceiving.toLocaleString()}
+           <br>
+Current Reward Level: ${rewardStatus.currentLevel}<br>
+Next Target: ${rewardStatus.nextLevel}<br>
+Receiving Needed: ${rewardStatus.receivingNeeded.toLocaleString()}
+   <br>
+Sending Needed: ${(Math.ceil((rewardStatus.receivingNeeded / 0.70) / 10000) * 10000).toLocaleString()}        
+            </span>
+        </div>
+    `;
+}
+
+    } catch (error) {
+        console.error(error);
+        savedHosts.innerHTML = `<p style="color:#ff5c5c;">Unable to load saved hosts.</p>`;
+    }
+}
+function getRewardStatus(receiving) {
+    const levels = [
+        { level: "S", target: 50000000, reward: 480000 },
+        { level: "A", target: 22000000, reward: 280000 },
+        { level: "B", target: 10000000, reward: 150000 },
+        { level: "C", target: 7000000, reward: 120000 },
+        { level: "D", target: 4000000, reward: 84000 },
+        { level: "E", target: 2000000, reward: 54000 },
+        { level: "F", target: 1200000, reward: 36000 },
+        { level: "G", target: 900000, reward: 27000 },
+        { level: "H", target: 300000, reward: 10000 },
+        { level: "I", target: 150000, reward: 6000 }
+    ];
+
+    let currentLevel = "No Reward";
+    let currentReward = 0;
+
+    for (const item of levels) {
+        if (receiving >= item.target) {
+            currentLevel = item.level;
+            currentReward = item.reward;
+            break;
+        }
+    }
+
+    const nextLevels = [...levels]
+        .reverse()
+        .filter(item => item.target > receiving);
+
+    const next = nextLevels.length ? nextLevels[0] : null;
+
+    return {
+        currentLevel,
+        currentReward,
+        nextLevel: next ? next.level : "MAX",
+        nextTarget: next ? next.target : receiving,
+        receivingNeeded: next ? next.target - receiving : 0
+    };
+}
+// ================================
+// SENDING HISTORY SYSTEM
+// ================================
+
+const sendingHost = document.getElementById("sendingHost");
+const sendingAmount = document.getElementById("sendingAmount");
+const sendingDate = document.getElementById("sendingDate");
+function getCurrentPoppoDate() {
+    const now = new Date();
+    const poppoDate = new Date(now);
+
+    // Poppo ka naya day Pakistan time 9:00 PM par start hota hai
+    if (now.getHours() >= 21) {
+        poppoDate.setDate(poppoDate.getDate() + 1);
+    }
+
+    return poppoDate.toLocaleDateString("en-CA");
+}
+
+sendingDate.value = getCurrentPoppoDate();
+const receivingAmount = document.getElementById("receivingAmount");
+const confirmSendingBtn = document.getElementById("confirmSendingBtn");
+const sendingMessage = document.getElementById("sendingMessage");
+
+let sendingHosts = [];
+
+// Load hosts into Record Sending dropdown
+async function loadSendingHosts() {
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/poppo_hosts?select=id,host_name,poppo_id,host_type&order=created_at.desc`,
+            {
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        sendingHosts = await response.json();
+
+        sendingHost.innerHTML = `<option value="">Select Host</option>`;
+
+        sendingHosts.forEach(host => {
+            const option = document.createElement("option");
+
+            option.value = host.id;
+            option.textContent =
+                `${host.host_name} — ${host.poppo_id}`;
+
+            sendingHost.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Host dropdown error:", error);
+    }
+}
+
+
+// Live 70% receiving calculation
+let sendingCalculationLock = false;
+
+sendingAmount.addEventListener("input", () => {
+    if (sendingCalculationLock) return;
+
+    const sent = Number(sendingAmount.value) || 0;
+
+    sendingCalculationLock = true;
+
+    if (sent <= 0) {
+        receivingAmount.value = "";
+    } else {
+        receivingAmount.value = Math.floor(sent * 0.70);
+    }
+
+    sendingCalculationLock = false;
+});
+
+receivingAmount.addEventListener("input", () => {
+    if (sendingCalculationLock) return;
+
+    const received = Number(receivingAmount.value) || 0;
+
+    sendingCalculationLock = true;
+
+    if (received <= 0) {
+        sendingAmount.value = "";
+    } else {
+        sendingAmount.value = Math.round(received / 0.70);
+    }
+
+    sendingCalculationLock = false;
+});
+
+
+// Confirm and save actual sending
+confirmSendingBtn.addEventListener("click", async () => {
+
+    const hostId = sendingHost.value;
+    const sent = Number(sendingAmount.value);
+const selectedDate = sendingDate.value;
+
+if (!selectedDate) {
+    sendingMessage.innerHTML =
+        `<span style="color:#ff5c5c;">✕ Please select sending date.</span>`;
+    return;
+}
+    if (!hostId) {
+        sendingMessage.innerHTML =
+            `<span style="color:#ff5c5c;">✕ Please select a host.</span>`;
+        return;
+    }
+
+    if (!sent || sent < 10000) {
+        sendingMessage.innerHTML =
+            `<span style="color:#ff5c5c;">✕ Minimum sending is 10,000.</span>`;
+        return;
+    }
+
+    if (sent % 10000 !== 0) {
+        sendingMessage.innerHTML =
+            `<span style="color:#ff5c5c;">✕ Sending must be in 10,000 increments.</span>`;
+        return;
+    }
+
+    const received = Math.floor(sent * 0.70);
+
+    confirmSendingBtn.disabled = true;
+    sendingMessage.innerHTML =
+        `<span style="color:#ffd700;">Saving sending...</span>`;
+
+    try {
+const poppoDayDate = new Date(selectedDate + "T12:00:00");
+poppoDayDate.setDate(poppoDayDate.getDate() - 1);
+poppoDayDate.setHours(21, 0, 0, 0);
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/poppo_sending_transactions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=representation"
+                },
+
+                body: JSON.stringify({
+                    host_id: Number(hostId),
+                    sent_amount: sent,
+                    received_amount: received,
+                   sent_at: poppoDayDate.toISOString(),
+                    notes: "Confirmed from Sending Optimizer"
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        const selectedHost =
+            sendingHosts.find(host => String(host.id) === String(hostId));
+
+        sendingMessage.innerHTML =
+            `<span style="color:#22c55e;">
+                ✓ Sending confirmed — ${selectedHost?.host_name || "Host"}:
+                ${sent.toLocaleString()} sent →
+                ${received.toLocaleString()} received
+            </span>`;
+
+        sendingAmount.value = "";
+        receivingAmount.value = "";
+
+        // Refresh host data / rolling totals later
+        await loadSavedHosts();
+
+    } catch (error) {
+
+        console.error("Sending save error:", error);
+
+        sendingMessage.innerHTML =
+            `<span style="color:#ff5c5c;">
+                ✕ Unable to save sending.
+            </span>`;
+
+    } finally {
+        confirmSendingBtn.disabled = false;
+    }
+});
+// ==========================================
+// FINAL 7-DAY MAXIMUM PROFIT OPTIMIZER
+// ==========================================
+
+const calculateOptimizerBtn = document.getElementById("calculateOptimizerBtn");
+const availableSendingInput = document.getElementById("availableSending");
+const senderRateInput = document.getElementById("senderRate");
+const sellingRateInput = document.getElementById("sellingRate");
+const optimizerResult = document.getElementById("optimizerResult");
+
+const OPTIMIZER_STEP = 10000;
+const RECEIVING_PERCENT = 0.70;
+const AGENCY_SHARE_PERCENT = 0.20;
+const POINTS_PER_USD = 10000;
+const COINS_PER_USD = 9900;
+
+const optimizerRewardLevels = [
+    { level: "I", target: 150000, reward: 6000, rate: 3000, hours: 2 },
+    { level: "H", target: 300000, reward: 10000, rate: 5000, hours: 2 },
+    { level: "G", target: 900000, reward: 27000, rate: 9000, hours: 3 },
+    { level: "F", target: 1200000, reward: 36000, rate: 12000, hours: 3 },
+    { level: "E", target: 2000000, reward: 54000, rate: 18000, hours: 3 },
+    { level: "D", target: 4000000, reward: 84000, rate: 28000, hours: 3 },
+    { level: "C", target: 7000000, reward: 120000, rate: 40000, hours: 3 },
+    { level: "B", target: 10000000, reward: 150000, rate: 50000, hours: 3 },
+    { level: "A", target: 22000000, reward: 280000, rate: 70000, hours: 4 },
+    { level: "S", target: 50000000, reward: 480000, rate: 120000, hours: 4 }
+];
+
+function optimizerRewardStatus(receiving) {
+    let current = {
+        level: "No Reward",
+        target: 0,
+        reward: 0,
+        rate: 0,
+        hours: 0
+    };
+
+    for (const item of optimizerRewardLevels) {
+        if (receiving >= item.target) {
+            current = item;
+        }
+    }
+
+    return current;
+}
+
+// Platform withdrawal rule:
+// Under $65 = 1.5%
+// $65 and above = $1 only
+function optimizerWithdrawalFee(usd) {
+    if (usd <= 0) return 0;
+
+    if (usd < 65) {
+        return usd * 0.015;
+    }
+
+    return 1;
+}
+
+function optimizerStartOfDay(date) {
+    const d = new Date(date);
+
+    // Poppo day starts at 9:00 PM Pakistan time
+    if (d.getHours() < 21) {
+        d.setDate(d.getDate() - 1);
+    }
+
+    d.setHours(21, 0, 0, 0);
+    return d;
+}
+
+function optimizerEndOfDay(date) {
+    const d = optimizerStartOfDay(date);
+    d.setDate(d.getDate() + 1);
+    d.setMilliseconds(d.getMilliseconds() - 1);
+    return d;
+}
+
+function optimizerOldReceivingForDay(transactions, dayAhead) {
+    // Current Poppo day starts at 9 PM Pakistan time
+    const currentPoppoDayStart = optimizerStartOfDay(new Date());
+
+    // Move to the Poppo day we want to simulate
+    const targetDayStart = new Date(currentPoppoDayStart);
+    targetDayStart.setDate(targetDayStart.getDate() + dayAhead);
+
+    // Rolling 7-day window:
+    // target Poppo day + previous 6 Poppo days
+    const windowStart = new Date(targetDayStart);
+    windowStart.setDate(windowStart.getDate() - 6);
+
+    const windowEnd = new Date(targetDayStart);
+    windowEnd.setDate(windowEnd.getDate() + 1);
+    windowEnd.setMilliseconds(windowEnd.getMilliseconds() - 1);
+
+    let total = 0;
+
+    for (const item of transactions) {
+        const transactionDate = new Date(item.sent_at);
+
+        if (
+            transactionDate >= windowStart &&
+            transactionDate <= windowEnd
+        ) {
+            total += Number(item.received_amount || 0);
+        }
+    }
+
+    return total;
+}
+function optimizerEvaluateHost(host, sending, sellingRate) {
+    const newReceiving = Math.round(sending * RECEIVING_PERCENT);
+
+    // -----------------------------
+    // Normal sending economics
+    // -----------------------------
+
+    const hostGrossUSD = newReceiving / POINTS_PER_USD;
+
+    const hostWithdrawalFee =
+        optimizerWithdrawalFee(hostGrossUSD);
+
+    const hostNetUSD =
+        Math.max(0, hostGrossUSD - hostWithdrawalFee);
+
+    // Agency gets 20% share.
+    // No withdrawal fee on agency share.
+    const agencySharePoints =
+        newReceiving * AGENCY_SHARE_PERCENT;
+
+    const agencyUSD =
+        agencySharePoints / POINTS_PER_USD;
+
+    const hostSaleableCoins =
+        hostNetUSD * COINS_PER_USD;
+
+    const agencySaleableCoins =
+        agencyUSD * COINS_PER_USD;
+
+    const normalSaleableCoins =
+        hostSaleableCoins + agencySaleableCoins;
+
+    const normalSaleValue =
+        (normalSaleableCoins / 100000) * sellingRate;
+
+    // -----------------------------
+    // Exact next 7-day reward
+    // -----------------------------
+
+    const rewardByDay = [];
+    const receivingByDay = [];
+    const levelByDay = [];
+
+    let weeklyRewardPoints = 0;
+let baselineWeeklyRewardPoints = 0;
+    for (let day = 0; day < 7; day++) {
+        const oldReceiving =
+            optimizerOldReceivingForDay(
+                host.transactions,
+                day
+            );
+
+        // Today's recommended sending remains
+        // in rolling 7-day window for Day 1-7.
+        const rollingReceiving =
+            oldReceiving + newReceiving;
+const baselineStatus = optimizerRewardStatus(oldReceiving);
+baselineWeeklyRewardPoints += baselineStatus.reward;
+        const status =
+            optimizerRewardStatus(rollingReceiving);
+
+        receivingByDay.push(rollingReceiving);
+        levelByDay.push(status.level);
+        rewardByDay.push(status.reward);
+
+        weeklyRewardPoints += status.reward;
+    }
+const extraWeeklyRewardPoints =
+    Math.max(0, weeklyRewardPoints - baselineWeeklyRewardPoints);
+    // Reward is also converted using the
+    // same platform withdrawal rule.
+    const rewardGrossUSD =
+       extraWeeklyRewardPoints / POINTS_PER_USD;
+
+    const rewardWithdrawalFee =
+        optimizerWithdrawalFee(rewardGrossUSD);
+
+    const rewardNetUSD =
+        Math.max(
+            0,
+            rewardGrossUSD - rewardWithdrawalFee
+        );
+
+    const rewardSaleableCoins =
+        rewardNetUSD * COINS_PER_USD;
+
+    const rewardSaleValue =
+        (rewardSaleableCoins / 100000) * sellingRate;
+
+    const totalSaleableCoins =
+        normalSaleableCoins + rewardSaleableCoins;
+
+    const totalSaleValue =
+        normalSaleValue + rewardSaleValue;
+
+    return {
+        sending,
+        newReceiving,
+
+        hostGrossUSD,
+        hostWithdrawalFee,
+        hostNetUSD,
+
+        agencySharePoints,
+        agencyUSD,
+
+        hostSaleableCoins,
+        agencySaleableCoins,
+        normalSaleableCoins,
+        normalSaleValue,
+
+        rewardByDay,
+        receivingByDay,
+        levelByDay,
+        weeklyRewardPoints,
+baselineWeeklyRewardPoints,
+extraWeeklyRewardPoints,
+        rewardGrossUSD,
+        rewardWithdrawalFee,
+        rewardNetUSD,
+        rewardSaleableCoins,
+        rewardSaleValue,
+
+        totalSaleableCoins,
+        totalSaleValue
+    };
+}
+
+calculateOptimizerBtn.addEventListener("click", async () => {
+
+    let availableSending =
+        Number(availableSendingInput.value);
+
+    const senderRateValue =
+        Number(senderRateInput.value);
+
+    const sellingRateValue =
+        Number(sellingRateInput.value);
+
+    if (!availableSending || availableSending < OPTIMIZER_STEP) {
+        optimizerResult.innerHTML =
+            `<span style="color:#ff5c5c;">
+                Please enter available sending.
+            </span>`;
+        return;
+    }
+
+    if (!senderRateValue || !sellingRateValue) {
+        optimizerResult.innerHTML =
+            `<span style="color:#ff5c5c;">
+                Please enter both rates.
+            </span>`;
+        return;
+    }
+
+    availableSending =
+        Math.floor(
+            availableSending / OPTIMIZER_STEP
+        ) * OPTIMIZER_STEP;
+
+    optimizerResult.innerHTML =
+        `<span style="color:#ffd700;">
+            Checking full 7-day history and finding maximum profit...
+        </span>`;
+
+    calculateOptimizerBtn.disabled = true;
+
+    try {
+
+        // ======================================
+        // LOAD HOSTS
+        // ======================================
+
+        const hostResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/poppo_hosts?select=*&order=created_at.asc`,
+            {
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!hostResponse.ok) {
+            throw new Error(
+                await hostResponse.text()
+            );
+        }
+
+       const allHosts = await hostResponse.json();
+
+const hosts = allHosts.filter(
+    host => host.host_type === "salarybase"
+);
+
+        if (!hosts.length) {
+            optimizerResult.innerHTML =
+                `<span style="color:#ff5c5c;">
+                    No saved hosts found.
+                </span>`;
+            return;
+        }
+
+        // ======================================
+        // LOAD EACH HOST HISTORY ONCE
+        // ======================================
+
+        const hostData = [];
+
+        for (const host of hosts) {
+
+            const historyResponse = await fetch(
+                `${SUPABASE_URL}/rest/v1/poppo_sending_transactions?host_id=eq.${host.id}&select=received_amount,sent_at&order=sent_at.asc`,
+                {
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+            if (!historyResponse.ok) {
+                throw new Error(
+                    await historyResponse.text()
+                );
+            }
+
+            const transactions =
+                await historyResponse.json();
+
+            const currentReceiving =
+                optimizerOldReceivingForDay(
+                    transactions,
+                    0
+                );
+
+            hostData.push({
+                ...host,
+                transactions,
+                currentReceiving
+            });
+        }
+
+        // ======================================
+        // BUILD EVERY POSSIBLE ALLOCATION
+        // FOR EACH HOST
+        // ======================================
+
+        const totalUnits =
+            availableSending / OPTIMIZER_STEP;
+
+        const candidates = [];
+
+        for (const host of hostData) {
+
+            const hostCandidates = [];
+
+            for (
+                let units = 0;
+                units <= totalUnits;
+                units++
+            ) {
+
+                const sending =
+                    units * OPTIMIZER_STEP;
+
+                const evaluation =
+                    optimizerEvaluateHost(
+                        host,
+                        sending,
+                        sellingRateValue
+                    );
+
+                hostCandidates.push(
+                    evaluation
+                );
+            }
+
+            candidates.push(
+                hostCandidates
+            );
+        }
+
+        // ======================================
+        // DYNAMIC PROGRAMMING
+        //
+        // Finds the allocation of ALL sending
+        // which gives maximum 7-day sale value.
+        //
+        // Sender payment is fixed for the total
+        // sending, so maximizing sale value also
+        // maximizes final profit.
+        // ======================================
+
+        let previous =
+            new Array(totalUnits + 1)
+                .fill(-Infinity);
+
+        previous[0] = 0;
+
+        const choices = [];
+
+        for (
+            let hostIndex = 0;
+            hostIndex < hostData.length;
+            hostIndex++
+        ) {
+
+            const current =
+                new Array(totalUnits + 1)
+                    .fill(-Infinity);
+
+            const hostChoice =
+                new Array(totalUnits + 1)
+                    .fill(-1);
+
+            for (
+                let alreadyUsed = 0;
+                alreadyUsed <= totalUnits;
+                alreadyUsed++
+            ) {
+
+                if (
+                    previous[alreadyUsed] ===
+                    -Infinity
+                ) {
+                    continue;
+                }
+
+                const maxUnitsForHost =
+                    totalUnits - alreadyUsed;
+
+                for (
+                    let hostUnits = 0;
+                    hostUnits <= maxUnitsForHost;
+                    hostUnits++
+                ) {
+
+                    const newTotal =
+                        alreadyUsed + hostUnits;
+
+                    const candidateValue =
+                        previous[alreadyUsed] +
+                        candidates[hostIndex][hostUnits]
+                           .weeklyRewardPoints
+
+                    if (
+                        candidateValue >
+                        current[newTotal]
+                    ) {
+
+                        current[newTotal] =
+                            candidateValue;
+
+                        hostChoice[newTotal] =
+                            hostUnits;
+                    }
+                }
+            }
+
+            previous = current;
+            choices.push(hostChoice);
+        }
+
+        // ======================================
+        // REBUILD WINNING DISTRIBUTION
+        // ======================================
+
+        const selectedUnits =
+            new Array(hostData.length)
+                .fill(0);
+
+        let unitsLeft =
+            totalUnits;
+
+        for (
+            let hostIndex =
+                hostData.length - 1;
+            hostIndex >= 0;
+            hostIndex--
+        ) {
+
+            const units =
+                choices[hostIndex][unitsLeft];
+
+            if (units < 0) {
+                throw new Error(
+                    "Unable to rebuild optimizer result."
+                );
+            }
+
+            selectedUnits[hostIndex] =
+                units;
+
+            unitsLeft -= units;
+        }
+
+        const allocations = [];
+
+        for (
+            let i = 0;
+            i < hostData.length;
+            i++
+        ) {
+
+            const units =
+                selectedUnits[i];
+
+            if (units <= 0) {
+                continue;
+            }
+
+            const evaluation =
+                candidates[i][units];
+
+            allocations.push({
+                ...hostData[i],
+                ...evaluation
+            });
+        }
+
+        // ======================================
+        // TOTALS
+        // ======================================
+
+        const senderPayment =
+            (availableSending / 100000) *
+            senderRateValue;
+
+        let totalHostReceiving = 0;
+
+        let totalHostGrossUSD = 0;
+        let totalHostWithdrawalFee = 0;
+        let totalHostNetUSD = 0;
+
+        let totalAgencySharePoints = 0;
+        let totalAgencyUSD = 0;
+
+        let totalNormalSaleableCoins = 0;
+        let totalNormalSaleValue = 0;
+
+        let totalWeeklyRewardPoints = 0;
+        let totalRewardGrossUSD = 0;
+        let totalRewardWithdrawalFee = 0;
+        let totalRewardNetUSD = 0;
+        let totalRewardSaleableCoins = 0;
+        let totalRewardSaleValue = 0;
+
+        let totalSaleableCoins = 0;
+        let totalSaleValue = 0;
+
+        const totalRewardByDay =
+            [0, 0, 0, 0, 0, 0, 0];
+
+        for (const host of allocations) {
+
+            totalHostReceiving +=
+                host.newReceiving;
+
+            totalHostGrossUSD +=
+                host.hostGrossUSD;
+
+            totalHostWithdrawalFee +=
+                host.hostWithdrawalFee;
+
+            totalHostNetUSD +=
+                host.hostNetUSD;
+
+            totalAgencySharePoints +=
+                host.agencySharePoints;
+
+            totalAgencyUSD +=
+                host.agencyUSD;
+
+            totalNormalSaleableCoins +=
+                host.normalSaleableCoins;
+
+            totalNormalSaleValue +=
+                host.normalSaleValue;
+
+            totalWeeklyRewardPoints +=
+                host.weeklyRewardPoints;
+
+            totalRewardGrossUSD +=
+                host.rewardGrossUSD;
+
+            totalRewardWithdrawalFee +=
+                host.rewardWithdrawalFee;
+
+            totalRewardNetUSD +=
+                host.rewardNetUSD;
+
+            totalRewardSaleableCoins +=
+                host.rewardSaleableCoins;
+
+            totalRewardSaleValue +=
+                host.rewardSaleValue;
+
+            totalSaleableCoins +=
+                host.totalSaleableCoins;
+
+            totalSaleValue +=
+                host.totalSaleValue;
+
+            for (
+                let day = 0;
+                day < 7;
+                day++
+            ) {
+                totalRewardByDay[day] +=
+                    host.rewardByDay[day];
+            }
+        }
+
+        const weeklyProfit =
+            totalSaleValue - senderPayment;
+
+        const breakEvenRate =
+            totalSaleableCoins > 0
+                ? (
+                    senderPayment /
+                    totalSaleableCoins
+                ) * 100000
+                : 0;
+
+        // ======================================
+        // RESULT HTML
+        // ======================================
+
+        let resultHTML = `
+            <h3>Best 7-Day Profit Distribution</h3>
+
+            <p style="color:#aaa;">
+                Optimized using previous 6-day receiving,
+                expiry dates and full next 7-day reward.
+            </p>
+        `;
+
+        allocations.forEach(
+            (host, index) => {
+
+                const todayStatus =
+                    optimizerRewardStatus(
+                        host.receivingByDay[0]
+                    );
+
+                const levelInfo =
+                    optimizerRewardLevels.find(
+                        item =>
+                            item.level ===
+                            todayStatus.level
+                    );
+
+                resultHTML += `
+                    <div style="
+                        margin:12px 0;
+                        padding:12px;
+                        border:1px solid #444;
+                        border-radius:8px;
+                    ">
+
+                        <strong>
+                            ${index + 1}. ${host.host_name}
+                        </strong><br>
+
+                        Poppo ID:
+                        <strong>${host.poppo_id}</strong><br>
+
+                        Send:
+                        <strong>
+                            ${host.sending.toLocaleString()}
+                        </strong><br>
+
+                        Expected Receiving:
+                        ${host.newReceiving.toLocaleString()}<br>
+
+                        Current 7-Day:
+                        ${host.currentReceiving.toLocaleString()}<br>
+
+                        Projected Today:
+                        ${host.receivingByDay[0].toLocaleString()}<br>
+
+                        Reward Level Today:
+                        <strong>${todayStatus.level}</strong><br>
+
+                        ${
+                            levelInfo
+                                ? `${levelInfo.rate.toLocaleString()}/H × ${levelInfo.hours}H = ${levelInfo.reward.toLocaleString()}/day`
+                                : `No Reward`
+                        }
+
+                        <br><br>
+
+                        <strong>
+                            Host 7-Day Reward:
+                            ${host.weeklyRewardPoints.toLocaleString()}
+                        </strong><br>
+
+                        Day 1:
+                        ${host.rewardByDay[0].toLocaleString()}
+                        (${host.levelByDay[0]})<br>
+
+                        Day 2:
+                        ${host.rewardByDay[1].toLocaleString()}
+                        (${host.levelByDay[1]})<br>
+
+                        Day 3:
+                        ${host.rewardByDay[2].toLocaleString()}
+                        (${host.levelByDay[2]})<br>
+
+                        Day 4:
+                        ${host.rewardByDay[3].toLocaleString()}
+                        (${host.levelByDay[3]})<br>
+
+                        Day 5:
+                        ${host.rewardByDay[4].toLocaleString()}
+                        (${host.levelByDay[4]})<br>
+
+                        Day 6:
+                        ${host.rewardByDay[5].toLocaleString()}
+                        (${host.levelByDay[5]})<br>
+
+                        Day 7:
+                        ${host.rewardByDay[6].toLocaleString()}
+                        (${host.levelByDay[6]})<br>
+
+                        <br>
+
+                        Host Gross:
+                        $${host.hostGrossUSD.toFixed(2)}<br>
+
+                        Host Withdrawal Fee:
+                        $${host.hostWithdrawalFee.toFixed(2)}<br>
+
+                        Agency Share:
+                        ${Math.round(host.agencySharePoints).toLocaleString()}
+                        ($${host.agencyUSD.toFixed(2)})
+                        — No Fee<br>
+
+                        Normal Saleable Coins:
+                        ${Math.round(host.normalSaleableCoins).toLocaleString()}<br>
+
+                        Reward Saleable Coins:
+                        ${Math.round(host.rewardSaleableCoins).toLocaleString()}<br>
+
+                        Total Sale Value:
+                        <strong>
+                            Rs ${Math.round(host.totalSaleValue).toLocaleString()}
+                        </strong>
+
+                    </div>
+                `;
+            }
+        );
+
+        resultHTML += `
+
+            <hr style="margin:20px 0;border-color:#444;">
+
+            <h3>7-Day Summary</h3>
+
+            <strong>Total Sending:</strong>
+            ${availableSending.toLocaleString()}<br>
+
+            <strong>Total Expected Receiving:</strong>
+            ${totalHostReceiving.toLocaleString()}<br><br>
+
+            <strong>Sender Rate:</strong>
+            Rs ${senderRateValue.toLocaleString()} / 100K<br>
+
+            <strong>Sender Payment:</strong>
+            Rs ${Math.round(senderPayment).toLocaleString()}<br><br>
+
+            <strong>Host Gross:</strong>
+            $${totalHostGrossUSD.toFixed(2)}<br>
+
+            <strong>Host Withdrawal Fees:</strong>
+            $${totalHostWithdrawalFee.toFixed(2)}<br>
+
+            <strong>Host Net:</strong>
+            $${totalHostNetUSD.toFixed(2)}<br><br>
+
+            <strong>Agency Share (20%):</strong>
+            ${Math.round(totalAgencySharePoints).toLocaleString()}<br>
+
+            <strong>Agency USD — No Fee:</strong>
+            $${totalAgencyUSD.toFixed(2)}<br><br>
+
+            <strong>Host + Agency Saleable Coins:</strong>
+            ${Math.round(totalNormalSaleableCoins).toLocaleString()}<br>
+
+            <strong>Normal Sale Value:</strong>
+            Rs ${Math.round(totalNormalSaleValue).toLocaleString()}
+
+            <hr style="margin:15px 0;border-color:#444;">
+
+            <h3>7-Day Reward</h3>
+
+            Day 1:
+            ${totalRewardByDay[0].toLocaleString()}<br>
+
+            Day 2:
+            ${totalRewardByDay[1].toLocaleString()}<br>
+
+            Day 3:
+            ${totalRewardByDay[2].toLocaleString()}<br>
+
+            Day 4:
+            ${totalRewardByDay[3].toLocaleString()}<br>
+
+            Day 5:
+            ${totalRewardByDay[4].toLocaleString()}<br>
+
+            Day 6:
+            ${totalRewardByDay[5].toLocaleString()}<br>
+
+            Day 7:
+            ${totalRewardByDay[6].toLocaleString()}<br><br>
+
+            <strong>Total 7-Day Reward:</strong>
+            ${totalWeeklyRewardPoints.toLocaleString()}<br>
+
+            Reward Gross:
+            $${totalRewardGrossUSD.toFixed(2)}<br>
+
+            Reward Withdrawal Fees:
+            $${totalRewardWithdrawalFee.toFixed(2)}<br>
+
+            Reward Net:
+            $${totalRewardNetUSD.toFixed(2)}<br>
+
+            Reward Saleable Coins:
+            ${Math.round(totalRewardSaleableCoins).toLocaleString()}<br>
+
+            Reward Sale Value:
+            <strong>
+                Rs ${Math.round(totalRewardSaleValue).toLocaleString()}
+            </strong>
+
+            <hr style="margin:15px 0;border-color:#444;">
+
+            <h3>Final Profit</h3>
+
+            <strong>Selling Rate:</strong>
+            Rs ${sellingRateValue.toLocaleString()} / 100K<br>
+
+            <strong>Total Saleable Coins:</strong>
+            ${Math.round(totalSaleableCoins).toLocaleString()}<br>
+
+            <strong>Total Sale Value:</strong>
+            Rs ${Math.round(totalSaleValue).toLocaleString()}<br>
+
+            <strong>Sender Payment:</strong>
+            Rs ${Math.round(senderPayment).toLocaleString()}<br><br>
+
+            <strong>
+                Break-even Selling Rate:
+                Rs ${Math.ceil(breakEvenRate).toLocaleString()} / 100K
+            </strong>
+
+            <div style="
+                margin-top:15px;
+                padding:12px;
+                border:1px solid #444;
+                border-radius:8px;
+                font-size:22px;
+                color:${weeklyProfit >= 0 ? "#2ecc71" : "#ff5c5c"};
+            ">
+
+                MAXIMUM PROJECTED 7-DAY
+                ${weeklyProfit >= 0 ? "PROFIT" : "LOSS"}:
+
+                <strong>
+                    Rs ${Math.abs(
+                        Math.round(weeklyProfit)
+                    ).toLocaleString()}
+                </strong>
+
+            </div>
+        `;
+
+        optimizerResult.innerHTML =
+            resultHTML;
+
+    } catch (error) {
+
+        console.error(
+            "Final optimizer error:",
+            error
+        );
+
+        optimizerResult.innerHTML =
+            `<span style="color:#ff5c5c;">
+                Unable to calculate distribution.
+                Please check console.
+            </span>`;
+
+    } finally {
+
+        calculateOptimizerBtn.disabled =
+            false;
+    }
+}); 
+// Load dropdown when page opens
+loadSendingHosts();
+loadSavedHosts();
+</script>
+       
+</body>
+</html>
