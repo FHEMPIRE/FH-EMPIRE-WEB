@@ -80,12 +80,12 @@
     <option value="halfhalf">Half-Half Hosts</option>
 </select>
         <input
-            type="number"
-            id="availableSending"
-            placeholder="Available Sending"
-            min="10000"
-            step="10000"
-        >
+    type="text"
+    id="availableSending"
+    placeholder="Available Sending"
+    inputmode="numeric"
+    autocomplete="off"
+>
 
         <input
             type="number"
@@ -118,18 +118,19 @@
         </select>
 
         <input
-            type="number"
-            id="sendingAmount"
-            placeholder="Actual Sending"
-            min="10000"
-            step="10000"
-        >
+    type="text"
+    id="sendingAmount"
+    placeholder="Actual Sending"
+    inputmode="numeric"
+    autocomplete="off"
+>
 
-        <input
-    type="number"
+       <input
+    type="text"
     id="receivingAmount"
     placeholder="Receiving / Points"
-    min="0"
+    inputmode="numeric"
+    autocomplete="off"
 >
 <input
     type="date"
@@ -360,8 +361,16 @@ const rewardStatus = getRewardStatus(rollingReceiving);
             <span style="color:#ffc107;">
                 7-Day Receiving: ${rollingReceiving.toLocaleString()}
            <br>
-Current Reward Level: ${rewardStatus.currentLevel}<br>
-Next Target: ${rewardStatus.nextLevel}<br>
+Current Reward Level: ${rewardStatus.currentLevel}${
+    rewardStatus.currentReward > 0
+        ? ` — ${rewardStatus.currentRate.toLocaleString()} × ${rewardStatus.currentHours} = ${rewardStatus.currentReward.toLocaleString()}`
+        : ""
+}<br>
+Next Target: ${rewardStatus.nextLevel}${
+    rewardStatus.nextRewardInfo
+        ? ` — ${rewardStatus.nextRewardInfo.rate.toLocaleString()} × ${rewardStatus.nextRewardInfo.hours} = ${rewardStatus.nextRewardInfo.reward.toLocaleString()}`
+        : ""
+}<br>
 Receiving Needed: ${rewardStatus.receivingNeeded.toLocaleString()}
    <br>
 Sending Needed: ${(Math.ceil((rewardStatus.receivingNeeded / 0.70) / 10000) * 10000).toLocaleString()}        
@@ -390,14 +399,25 @@ function getRewardStatus(receiving) {
     ];
 
     let currentLevel = "No Reward";
-    let currentReward = 0;
-
+let currentReward = 0;
+let currentRate = 0;
+let currentHours = 0;
     for (const item of levels) {
         if (receiving >= item.target) {
-            currentLevel = item.level;
-            currentReward = item.reward;
-            break;
-        }
+    currentLevel = item.level;
+    currentReward = item.reward;
+
+    const rewardInfo = optimizerRewardLevels.find(
+        level => level.level === item.level
+    );
+
+    if (rewardInfo) {
+        currentRate = rewardInfo.rate;
+        currentHours = rewardInfo.hours;
+    }
+
+    break;
+}
     }
 
     const nextLevels = [...levels]
@@ -405,11 +425,16 @@ function getRewardStatus(receiving) {
         .filter(item => item.target > receiving);
 
     const next = nextLevels.length ? nextLevels[0] : null;
-
+const nextRewardInfo = next
+    ? optimizerRewardLevels.find(level => level.level === next.level)
+    : null;
     return {
-        currentLevel,
-        currentReward,
-        nextLevel: next ? next.level : "MAX",
+    currentLevel,
+    currentReward,
+    currentRate,
+    currentHours,
+    nextRewardInfo,
+    nextLevel: next ? next.level : "MAX",
         nextTarget: next ? next.target : receiving,
         receivingNeeded: next ? next.target - receiving : 0
     };
@@ -435,6 +460,21 @@ function getCurrentPoppoDate() {
 
 sendingDate.value = getCurrentPoppoDate();
 const receivingAmount = document.getElementById("receivingAmount");
+function formatNumberInput(input) {
+    input.addEventListener("input", () => {
+        const rawValue = input.value.replace(/\D/g, "");
+
+        if (!rawValue) {
+            input.value = "";
+            return;
+        }
+
+        input.value = Number(rawValue).toLocaleString("en-US");
+    });
+}
+
+formatNumberInput(sendingAmount);
+formatNumberInput(receivingAmount);
 const confirmSendingBtn = document.getElementById("confirmSendingBtn");
 const sendingMessage = document.getElementById("sendingMessage");
 
@@ -483,14 +523,13 @@ let sendingCalculationLock = false;
 sendingAmount.addEventListener("input", () => {
     if (sendingCalculationLock) return;
 
-    const sent = Number(sendingAmount.value) || 0;
-
+    const sent = Number(sendingAmount.value.replace(/,/g, "")) || 0;
     sendingCalculationLock = true;
 
     if (sent <= 0) {
         receivingAmount.value = "";
     } else {
-        receivingAmount.value = Math.floor(sent * 0.70);
+       receivingAmount.value = Math.floor(sent * 0.70).toLocaleString("en-US");
     }
 
     sendingCalculationLock = false;
@@ -499,14 +538,14 @@ sendingAmount.addEventListener("input", () => {
 receivingAmount.addEventListener("input", () => {
     if (sendingCalculationLock) return;
 
-    const received = Number(receivingAmount.value) || 0;
+    const received = Number(receivingAmount.value.replace(/,/g, "")) || 0;
 
     sendingCalculationLock = true;
 
     if (received <= 0) {
         sendingAmount.value = "";
     } else {
-        sendingAmount.value = Math.round(received / 0.70);
+       sendingAmount.value = Math.round(received / 0.70).toLocaleString("en-US");
     }
 
     sendingCalculationLock = false;
@@ -517,7 +556,8 @@ receivingAmount.addEventListener("input", () => {
 confirmSendingBtn.addEventListener("click", async () => {
 
     const hostId = sendingHost.value;
-    const sent = Number(sendingAmount.value);
+   const sent = Number(sendingAmount.value.replace(/,/g, ""));
+   const received = Number(receivingAmount.value.replace(/,/g, ""));
 const selectedDate = sendingDate.value;
 
 if (!selectedDate) {
@@ -543,7 +583,7 @@ if (!selectedDate) {
         return;
     }
 
-    const received = Math.floor(sent * 0.70);
+   receivingAmount.value = Math.floor(sent * 0.70).toLocaleString("en-US");
 
     confirmSendingBtn.disabled = true;
     sendingMessage.innerHTML =
@@ -614,6 +654,17 @@ poppoDayDate.setHours(21, 0, 0, 0);
 
 const calculateOptimizerBtn = document.getElementById("calculateOptimizerBtn");
 const availableSendingInput = document.getElementById("availableSending");
+availableSendingInput.addEventListener("input", () => {
+    const rawValue = availableSendingInput.value.replace(/\D/g, "");
+
+    if (!rawValue) {
+        availableSendingInput.value = "";
+        return;
+    }
+
+    availableSendingInput.value =
+        Number(rawValue).toLocaleString("en-US");
+});
 const senderRateInput = document.getElementById("senderRate");
 const sellingRateInput = document.getElementById("sellingRate");
 const optimizerResult = document.getElementById("optimizerResult");
@@ -855,8 +906,8 @@ extraWeeklyRewardPoints,
 
 calculateOptimizerBtn.addEventListener("click", async () => {
 
-    let availableSending =
-        Number(availableSendingInput.value);
+let availableSending =
+    Number(availableSendingInput.value.replace(/,/g, ""));
 
     const senderRateValue =
         Number(senderRateInput.value);
