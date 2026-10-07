@@ -47,11 +47,12 @@
 
 <p id="poppoVerifyResult"></p>
 
-        <select id="hostType">
-            <option value="salarybase">Salary Base Host</option>
-            <option value="rocket">Rocket Host</option>
-            <option value="star">Star Host</option>
-        </select>
+       <select id="hostType">
+    <option value="salarybase">Salary Base Host</option>
+    <option value="halfhalf">Half-Half Host</option>
+    <option value="rocket">Rocket Host</option>
+    <option value="star">Star Host</option>
+</select>
 
         <button type="button" id="addHostBtn">
             + Add Host
@@ -74,7 +75,10 @@
     <h2>Sending Optimizer</h2>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-
+<select id="optimizerHostType">
+    <option value="salarybase">Salary Base Hosts</option>
+    <option value="halfhalf">Half-Half Hosts</option>
+</select>
         <input
             type="number"
             id="availableSending"
@@ -793,14 +797,20 @@ const extraWeeklyRewardPoints =
         optimizerWithdrawalFee(rewardGrossUSD);
 
     const rewardNetUSD =
-        Math.max(
-            0,
-            rewardGrossUSD - rewardWithdrawalFee
-        );
+    Math.max(
+        0,
+        rewardGrossUSD - rewardWithdrawalFee
+    );
 
-    const rewardSaleableCoins =
-        rewardNetUSD * COINS_PER_USD;
+// Salary Base = 100% reward ours
+// Half-Half = 50% reward ours
+const ourRewardNetUSD =
+    host.host_type === "halfhalf"
+        ? rewardNetUSD * 0.50
+        : rewardNetUSD;
 
+const rewardSaleableCoins =
+    ourRewardNetUSD * COINS_PER_USD;
     const rewardSaleValue =
         (rewardSaleableCoins / 100000) * sellingRate;
 
@@ -906,8 +916,11 @@ calculateOptimizerBtn.addEventListener("click", async () => {
 
        const allHosts = await hostResponse.json();
 
+const selectedHostType =
+    document.getElementById("optimizerHostType").value;
+
 const hosts = allHosts.filter(
-    host => host.host_type === "salarybase"
+    host => host.host_type === selectedHostType
 );
 
         if (!hosts.length) {
@@ -1057,10 +1070,9 @@ const hosts = allHosts.filter(
                         alreadyUsed + hostUnits;
 
                     const candidateValue =
-                        previous[alreadyUsed] +
-                        candidates[hostIndex][hostUnits]
-                           .weeklyRewardPoints
-
+    previous[alreadyUsed] +
+    candidates[hostIndex][hostUnits]
+        .totalSaleValue;
                     if (
                         candidateValue >
                         current[newTotal]
@@ -1160,6 +1172,7 @@ const hosts = allHosts.filter(
         let totalRewardGrossUSD = 0;
         let totalRewardWithdrawalFee = 0;
         let totalRewardNetUSD = 0;
+        let totalOurRewardNetUSD = 0;
         let totalRewardSaleableCoins = 0;
         let totalRewardSaleValue = 0;
 
@@ -1206,7 +1219,10 @@ const hosts = allHosts.filter(
 
             totalRewardNetUSD +=
                 host.rewardNetUSD;
-
+totalOurRewardNetUSD +=
+    host.host_type === "halfhalf"
+        ? host.rewardNetUSD * 0.50
+        : host.rewardNetUSD;
             totalRewardSaleableCoins +=
                 host.rewardSaleableCoins;
 
@@ -1308,11 +1324,18 @@ const hosts = allHosts.filter(
 
                         <br><br>
 
-                        <strong>
-                            Host 7-Day Reward:
-                            ${host.weeklyRewardPoints.toLocaleString()}
-                        </strong><br>
+                       <strong>
+    Full 7-Day Reward:
+    ${host.weeklyRewardPoints.toLocaleString()}
+</strong><br>
 
+Old Sending Already Expected Reward:
+${host.baselineWeeklyRewardPoints.toLocaleString()}<br>
+
+<strong>
+    New Sending Extra Reward:
+    ${host.extraWeeklyRewardPoints.toLocaleString()}
+</strong><br><br>
                         Day 1:
                         ${host.rewardByDay[0].toLocaleString()}
                         (${host.levelByDay[0]})<br>
@@ -1364,7 +1387,21 @@ const hosts = allHosts.filter(
                         <strong>
                             Rs ${Math.round(host.totalSaleValue).toLocaleString()}
                         </strong>
+<br><br>
 
+<button
+    type="button"
+    class="optimizer-copy-btn"
+    data-host-index="${index}">
+    Copy
+</button>
+
+<button
+    type="button"
+    class="optimizer-whatsapp-btn"
+    data-host-index="${index}">
+    Share on WhatsApp
+</button>
                     </div>
                 `;
             }
@@ -1443,8 +1480,17 @@ const hosts = allHosts.filter(
             Reward Withdrawal Fees:
             $${totalRewardWithdrawalFee.toFixed(2)}<br>
 
-            Reward Net:
-            $${totalRewardNetUSD.toFixed(2)}<br>
+            Reward Net After Fee:
+$${totalRewardNetUSD.toFixed(2)}<br>
+
+${selectedHostType === "halfhalf"
+    ? `FH EMPIRE 50% Reward:
+       <strong>$${totalOurRewardNetUSD.toFixed(2)}</strong><br>
+       Host 50% Reward:
+       $${totalOurRewardNetUSD.toFixed(2)}<br>`
+    : `FH EMPIRE Reward:
+       <strong>$${totalOurRewardNetUSD.toFixed(2)}</strong><br>`
+}
 
             Reward Saleable Coins:
             ${Math.round(totalRewardSaleableCoins).toLocaleString()}<br>
@@ -1498,7 +1544,61 @@ const hosts = allHosts.filter(
 
         optimizerResult.innerHTML =
             resultHTML;
+// ======================================
+// HOST COPY + WHATSAPP SHARE BUTTONS
+// ======================================
 
+document.querySelectorAll(".optimizer-copy-btn").forEach(button => {
+    button.addEventListener("click", async () => {
+
+        const index = Number(button.dataset.hostIndex);
+        const host = allocations[index];
+
+        if (!host) return;
+
+        const shareText =
+`Host Name: ${host.host_name}
+Host ID: ${host.poppo_id}
+Coins Send: ${host.sending.toLocaleString()}
+Points Received: ${host.newReceiving.toLocaleString()}`;
+
+        try {
+            await navigator.clipboard.writeText(shareText);
+
+            const oldText = button.textContent;
+            button.textContent = "Copied ✓";
+
+            setTimeout(() => {
+                button.textContent = oldText;
+            }, 1500);
+
+        } catch (error) {
+            console.error("Copy failed:", error);
+        }
+    });
+});
+
+
+document.querySelectorAll(".optimizer-whatsapp-btn").forEach(button => {
+    button.addEventListener("click", () => {
+
+        const index = Number(button.dataset.hostIndex);
+        const host = allocations[index];
+
+        if (!host) return;
+
+        const shareText =
+`Host Name: ${host.host_name}
+Host ID: ${host.poppo_id}
+Coins Send: ${host.sending.toLocaleString()}
+Points Received: ${host.newReceiving.toLocaleString()}`;
+
+        const whatsappURL =
+            `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+
+        window.open(whatsappURL, "_blank");
+    });
+});
     } catch (error) {
 
         console.error(
