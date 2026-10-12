@@ -981,7 +981,49 @@ function renderHosts() {
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", () => deleteHost(host.id));
 
-    card.append(name, id, type, editBtn, deleteBtn);
+   
+const statusBtn = document.createElement("button");
+statusBtn.className = "host-action";
+
+const isActive = host.isActive !== false;
+
+statusBtn.textContent = isActive
+  ? "🟢 Active — Set Inactive"
+  : "🔴 Inactive — Set Active";
+
+statusBtn.addEventListener("click", async () => {
+  const updatedHost = {
+    ...host,
+    isActive: !isActive
+  };
+
+  statusBtn.disabled = true;
+
+  try {
+    await fhSaveHost(updatedHost);
+
+    const hosts = getHosts().map(item =>
+      item.id === host.id ? updatedHost : item
+    );
+
+    saveHosts(hosts);
+    renderHosts();
+
+    showMessage(
+      updatedHost.isActive
+        ? "✓ Host activated successfully."
+        : "✓ Host deactivated successfully.",
+      "#22c55e"
+    );
+  } catch (error) {
+    console.error("Unable to update host status:", error);
+    statusBtn.disabled = false;
+    showMessage("Unable to update host status.", "#ff5c5c");
+  }
+});
+
+card.append(name, id, type, statusBtn, editBtn, deleteBtn);
+
     savedHostsBox.appendChild(card);
   });
 }

@@ -38,16 +38,18 @@ async function fhSendingRequest(table, options = {}) {
 
 async function fhLoadHosts() {
   const rows = await fhSendingRequest(
-    "fh_sending_hosts?select=poppo_id,host_name,host_type&order=created_at.asc",
+    "fh_sending_hosts?select=poppo_id,host_name,host_type,is_active&order=created_at.asc",
     { method: "GET" }
   );
 
   return rows.map(row => ({
     id: row.poppo_id,
     name: row.host_name,
-    type: row.host_type
+    type: row.host_type,
+    isActive: row.is_active !== false
   }));
 }
+
 
 async function fhSaveHost(host) {
   return fhSendingRequest("fh_sending_hosts?on_conflict=poppo_id", {
@@ -58,7 +60,8 @@ async function fhSaveHost(host) {
     body: JSON.stringify({
       poppo_id: host.id,
       host_name: host.name,
-      host_type: host.type
+      host_type: host.type,
+is_active: host.isActive !== false
     })
   });
 }

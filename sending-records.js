@@ -56,7 +56,7 @@
     const selected = select.value;
     select.replaceChildren();
 
-    for (const host of hosts()) {
+   for (const host of hosts().filter(h => h.isActive !== false)) {
       const option = document.createElement("option");
       option.value = host.id;
      option.textContent = `${host.name} (${host.id})`;
@@ -210,7 +210,22 @@ try {
     const record = records().find(r => r.id === id);
     if (!record) return;
 
-    refreshHosts();
+   
+refreshHosts();
+
+const editingHost = hosts().find(h => h.id === record.hostId);
+const hostDropdown = $("sendingHost");
+
+if (
+  editingHost &&
+  ![...hostDropdown.options].some(o => o.value === record.hostId)
+) {
+  const option = document.createElement("option");
+  option.value = editingHost.id;
+  option.textContent =
+    `${editingHost.name} (${editingHost.id}) — Inactive`;
+  hostDropdown.appendChild(option);
+}
 
     $("editingSendingId").value = record.id;
     $("sendingHost").value = record.hostId;
@@ -242,9 +257,19 @@ try {
     const saleStatus = $("sendingSaleStatus").value;
     const editingId = $("editingSendingId").value;
 
-    if (!hosts().some(h => h.id === hostId)) {
-      return showMessage("Select a saved host first.", true);
-    }
+const selectedHost = hosts().find(h => h.id === hostId);
+
+if (!selectedHost) {
+  return showMessage("Select a saved host first.", true);
+}
+
+if (!editingId && selectedHost.isActive === false) {
+  return showMessage(
+    "This host is inactive. Activate the host before adding new sending.",
+    true
+  );
+}
+
 
     if (!date || date < "2026-10-01" || date > poppoToday()) {
       return showMessage("Select a valid Poppo date.", true);
@@ -633,9 +658,11 @@ function runMaximumProfitOptimizer() {
     return;
   }
 
-  const savedHosts = hosts().filter(h =>
-    ["salarybase", "halfhalf"].includes(h.type)
-  );
+  
+const savedHosts = hosts().filter(h =>
+  ["salarybase", "halfhalf"].includes(h.type) &&
+  h.isActive !== false
+);
 
   if (!savedHosts.length) {
     optimizerResult.textContent = "Please add saved hosts first.";
