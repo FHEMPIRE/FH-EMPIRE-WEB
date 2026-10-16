@@ -1,0 +1,3848 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rocket Host Management | FH EMPIRE</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #090909;
+      color: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 24px 16px;
+      text-align: center;
+      background: #141414;
+      border-bottom: 1px solid #594700;
+    }
+
+    h1, h2 { color: #ffd700; }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    header p {
+      color: #aaa;
+      margin: 0;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 25px auto;
+      padding: 0 15px;
+    }
+
+    .panel {
+      background: #171717;
+      border: 1px solid #393939;
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 22px;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 18px;
+      background: #222;
+      border: 1px solid #393939;
+      border-radius: 10px;
+    }
+
+    .stat span {
+      display: block;
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .stat strong {
+      color: #ffd700;
+      font-size: 23px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #ddd;
+      font-size: 13px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #101010;
+      color: white;
+      font-size: 15px;
+    }
+
+    input:focus, select:focus {
+      outline: 1px solid #ffd700;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 8px;
+      background: #ffd700;
+      color: #111;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover { background: #e6c200; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .muted {
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .empty {
+      color: #888;
+      padding: 18px;
+      text-align: center;
+      border: 1px dashed #444;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 22px; }
+      .panel { padding: 16px; }
+      .stat strong { font-size: 19px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+  <h1>🚀 FH EMPIRE</h1>
+<p>Rocket & Esports Host Management System</p>
+  </header>
+
+  <main>
+ 
+<section class="panel">
+  <h2>🚀 Rocket & Esports Dashboard</h2>
+  <p class="muted">
+    Weekly performance, sending, charges and payment overview.
+  </p>
+
+  <div class="stats">
+
+    <div class="stat">
+      <span>👥 Total Hosts</span>
+      <strong id="rocketTotalHosts">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>🚀 Rocket Hosts</span>
+      <strong id="rocketHostCount">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>🎮 Esports Hosts</span>
+      <strong id="esportsHostCount">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>🎯 Weekly Sending Target</span>
+      <strong id="rocketWeeklyTarget">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>📤 Sending Completed</span>
+      <strong id="rocketCompleted">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>⏳ Remaining Sending</span>
+      <strong id="rocketRemaining">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>✅ Hosts Target Completed</span>
+      <strong id="rocketTargetCompleted">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>🕒 Hosts Not Started</span>
+      <strong id="rocketNotStarted">0</strong>
+    </div>
+<div class="stat">
+  <span>💰 Pending Sending Charges</span>
+  <strong id="rocketTotalCharges">Rs 0</strong>
+</div>
+
+    <div class="stat">
+      <span>💵 Pending Withdrawals</span>
+      <strong id="rocketPendingWithdrawals">0</strong>
+    </div>
+
+   <div class="stat" id="fhUnpaidCard" style="cursor:pointer">
+  <span>📋 Unpaid Payments</span>
+  <strong id="rocketPendingPayments">Rs 0</strong>
+</div>
+
+<div class="stat" id="fhPartialCard" style="cursor:pointer">
+  <span>🟠 Partially Paid</span>
+  <strong id="rocketPartialPayments">Rs 0</strong>
+</div>
+
+<div class="stat" id="fhPaidCard" style="cursor:pointer">
+  <span>✅ Cleared Payments</span>
+  <strong id="rocketClearedPayments">Rs 0</strong>
+</div>
+
+  </div>
+</section>
+
+
+    <section class="panel">
+     <h2>🚀 Rocket & 🎮 Esports Host Registration</h2>
+       <p class="muted">
+  Register and manage Rocket & Esports Hosts separately
+  with their own weekly targets, sending charges and payments.
+</p>
+      <div class="form-grid">
+        
+<div>
+  <label>Host Category</label>
+  <select id="rocketHostCategory">
+    <option value="rocket">🚀 Rocket Host</option>
+    <option value="esports">🎮 Esports Host</option>
+  </select>
+</div>
+
+        <div>
+          <label>Poppo ID</label>
+          <input id="rocketPoppoId"
+                 placeholder="Enter Poppo ID">
+        </div>
+        <div>
+          <label>Host Name</label>
+          <input id="rocketHostName"
+                 placeholder="Poppo verified name"
+                 readonly>
+        </div>
+        <div>
+          <label>Weekly Receiving Target (USD)</label>
+          <input id="rocketReceivingTarget"
+                 type="number" value="50">
+        </div>
+        <div>
+          <label>Weekly Sending Target</label>
+          <input id="rocketSendingTarget"
+                 type="number" value="720000">
+        </div>
+        <div>
+          <label>Sending Charge (Rs / 100K)</label>
+          <input id="rocketChargeRate"
+                 type="number" value="200">
+        </div>
+        <div>
+          
+<div>
+  <label for="rocketWhatsappNumber">
+    Host WhatsApp Number (Optional)
+  </label>
+  <input
+    id="rocketWhatsappNumber"
+    type="tel"
+    inputmode="tel"
+    autocomplete="off"
+    placeholder="03XXXXXXXXX"
+    maxlength="16"
+  >
+</div>
+
+          <label>Status</label>
+          <select id="rocketStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+     
+<div class="actions">
+  <button id="rocketSaveHost" type="button">
+    Save Rocket Host
+  </button>
+
+  <button
+    id="rocketUpdateHost"
+    type="button"
+    style="display:none;"
+  >
+    ✓ Update Host
+  </button>
+
+  <button
+    id="rocketCancelEdit"
+    type="button"
+    style="display:none;"
+  >
+    ✕ Cancel Edit
+  </button>
+</div>
+<p id="rocketHostMessage" class="muted"></p>
+    </section>
+      <!-- FH EMPIRE — HOST WITHDRAWAL MANAGEMENT -->
+<section class="panel" id="fhWithdrawalPanel">
+  <h2>💵 Host Withdrawal Management</h2>
+  <p class="muted">
+    Calculate host withdrawals, sending adjustments and final payments.
+  </p>
+
+  <div style="display:grid;gap:12px;max-width:650px;">
+
+    <label for="fhWithdrawalHost">Select Host</label>
+    <select id="fhWithdrawalHost">
+      <option value="">Select Rocket / Esports Host</option>
+    </select>
+
+    <label for="fhWithdrawalAmount">Received Withdrawal (USD)</label>
+    <input
+      id="fhWithdrawalAmount"
+      type="text"
+      inputmode="decimal"
+      placeholder="e.g. 50.4"
+    >
+
+    <button type="button" id="fhCalculateWithdrawal">
+      💰 Calculate Withdrawal
+    </button>
+
+    <div id="fhWithdrawalResult"
+         style="display:none;padding:15px;background:#101010;
+                border:1px solid #80651d;border-radius:10px;">
+    </div>
+    <button id="fhCopyWithdrawalMessage"
+  type="button"
+  style="display:none;width:100%;margin-top:10px;">
+  📋 Copy Host Message
+</button>
+<!-- FH EMPIRE — WITHDRAWAL UPDATE -->
+<div id="fhWithdrawalUpdateActions"
+   style="display:none;margin-top:12px;">
+
+  <label for="fhWithdrawalPaymentStatus">
+    Payment Status
+  </label>
+
+  <select id="fhWithdrawalPaymentStatus">
+    <option value="unpaid">⏳ Save as Unpaid</option>
+    <option value="paid">✅ Mark as Paid</option>
+  </select>
+
+  <div id="fhWithdrawalPaidAmountBox"
+       style="display:none;margin-top:12px;">
+
+    <label for="fhWithdrawalPaidAmount">
+      Paid Amount (PKR)
+    </label>
+
+    <input id="fhWithdrawalPaidAmount"
+           type="number"
+           min="0"
+           step="0.01"
+           placeholder="Enter actual paid amount">
+  </div>
+
+  <button type="button"
+          id="fhUpdateWithdrawal"
+          disabled
+          style="width:100%;margin-top:12px;">
+    ✓ Update Withdrawal
+  </button>
+
+  <p id="fhWithdrawalUpdateMessage"
+     class="muted"></p>
+</div>
+  </div>
+</section>
+<section class="panel">
+  <h2>🚀 Rocket & 🎮 Esports Saved Hosts</h2>
+
+  <div id="rocketHostList" class="empty">
+    No Rocket or Esports hosts registered yet.
+  </div>
+</section>
+   
+  
+  </main>
+
+  <script src="sending-supabase.js"></script>
+
+<script>
+  if (
+    typeof getSendingAdminToken !== "function" ||
+    !getSendingAdminToken()
+  ) {
+    window.location.replace("login.html");
+  }
+</script>
+
+<script>
+ document.addEventListener("DOMContentLoaded", async () => {
+    const message = document.getElementById("rocketHostMessage");
+
+    if (typeof getSendingAdminToken !== "function") {
+      message.textContent = "✕ Authentication system not loaded.";
+      message.style.color = "#ff5c5c";
+      return;
+    }
+
+    const token = getSendingAdminToken();
+
+   
+if (token) {
+  message.textContent = "⏳ Verifying admin session...";
+  message.style.color = "#ffd700";
+
+  try {
+    const response = await fetch(
+      "https://vmllowldjzwmzsvxccui.supabase.co/auth/v1/user",
+      {
+        headers: {
+          apikey: FH_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    message.textContent = "✓ Admin session verified.";
+    message.style.color = "#22c55e";
+  } catch (error) {
+    message.textContent = "✕ Unable to verify session.";
+    message.style.color = "#ff5c5c";
+  }
+} else {
+  window.location.replace("login.html");
+}
+});
+</script>
+<script>
+
+const rocketCategoryInput = document.getElementById("rocketHostCategory");
+const rocketSaveButton = document.getElementById("rocketSaveHost");
+
+function updateRocketSaveButton() {
+  rocketSaveButton.textContent =
+    rocketCategoryInput.value === "esports"
+      ? "Save Esports Host"
+      : "Save Rocket Host";
+}
+
+rocketCategoryInput.addEventListener("change", updateRocketSaveButton);
+updateRocketSaveButton();
+rocketSaveButton.addEventListener("click", async () => {
+  const message = document.getElementById("rocketHostMessage");
+
+  const host = {
+    id: document.getElementById("rocketPoppoId").value.trim(),
+    name: document.getElementById("rocketHostName").value.trim(),
+    category: rocketCategoryInput.value,
+    receivingTarget: Number(document.getElementById("rocketReceivingTarget").value),
+    sendingTarget: Number(document.getElementById("rocketSendingTarget").value),
+    chargeRate: Number(document.getElementById("rocketChargeRate").value),
+    whatsappNumber: document.getElementById("rocketWhatsappNumber").value.trim(),
+    isActive: document.getElementById("rocketStatus").value === "active"
+  };
+
+  if (!/^\d{6,}$/.test(host.id) || !host.name) {
+    message.textContent = "✕ Enter a valid Poppo ID and wait for verified host name.";
+    message.style.color = "#ff5c5c";
+    return;
+  }
+
+  if (
+    !Number.isFinite(host.receivingTarget) ||
+    !Number.isFinite(host.sendingTarget) ||
+    !Number.isFinite(host.chargeRate) ||
+    host.receivingTarget <= 0 ||
+    host.sendingTarget <= 0 ||
+    host.chargeRate < 0
+  ) {
+    message.textContent = "✕ Please enter valid targets and sending charge.";
+    message.style.color = "#ff5c5c";
+    return;
+  }
+
+const whatsappNumber = host.whatsappNumber.replace(/[\s-]/g, "");
+
+if (
+  whatsappNumber &&
+  !/^(03\d{9}|923\d{9}|\+923\d{9})$/.test(whatsappNumber)
+) {
+  message.textContent =
+    "✕ Enter a valid Pakistani WhatsApp number (03XXXXXXXXX).";
+  message.style.color = "#ff5c5c";
+  return;
+}
+
+// Normalize number for saving
+host.whatsappNumber = whatsappNumber;
+
+  rocketSaveButton.disabled = true;
+  message.textContent = "Saving host...";
+  message.style.color = "#ffd700";
+
+  try {
+   const existingHosts = await fhLoadRocketEsportsHosts();
+
+const duplicate = existingHosts.find(
+  existing => existing.id === host.id
+);
+
+if (duplicate) {
+  message.textContent =
+    "✕ This Poppo ID is already registered as " +
+    (duplicate.category === "rocket" ? "Rocket Host." : "Esports Host.");
+  message.style.color = "#ff5c5c";
+  return;
+}
+
+await fhSaveRocketEsportsHost(host);
+await loadRocketEsportsPanel();
+
+clearTimeout(rocketLookupTimer);
+rocketLookupRequest++;
+
+rocketPoppoInput.value = "";
+rocketNameInput.value = "";
+
+rocketCategoryInput.value = "rocket";
+updateRocketSaveButton();
+
+document.getElementById("rocketReceivingTarget").value = "50";
+document.getElementById("rocketSendingTarget").value = "720000";
+document.getElementById("rocketChargeRate").value = "200";
+document.getElementById("rocketWhatsappNumber").value = "";
+document.getElementById("rocketStatus").value = "active";
+
+
+    message.textContent = "✓ Host saved successfully in Supabase.";
+    message.style.color = "#22c55e";
+  } catch (error) {
+    console.error("Rocket/Esports host save failed:", error);
+    message.textContent = "✕ " + error.message;
+    message.style.color = "#ff5c5c";
+  } finally {
+    rocketSaveButton.disabled = false;
+  }
+});
+
+
+
+async function fhSaveVerifiedHostTransaction(
+  host,
+  type,
+  amount,
+  notes,
+  requestId,
+  selectedWeek = null
+) {
+  if (!requestId) {
+    throw new Error("Transaction request ID missing.");
+  }
+
+  const week = selectedWeek || fhGetPoppoWeek();
+
+  if (!week.start || !week.end) {
+    throw new Error("Invalid selected week.");
+  }
+
+  const record = await fhGetOrCreateRocketWeeklyRecord(
+    host,
+    week
+  );
+
+  async function findExisting() {
+    const transactions = await fhLoadRocketTransactions(record.id);
+
+    return transactions.find(
+      t => t.request_id === requestId
+    );
+  }
+
+  const existing = await findExisting();
+
+  if (existing) {
+    return existing;
+  }
+
+  try {
+    return await fhAddRocketTransaction(
+      record.id,
+      type,
+      amount,
+      notes,
+      requestId
+    );
+  } catch (error) {
+    try {
+      const verified = await findExisting();
+
+      if (verified) return verified;
+    } catch (verificationError) {
+      console.warn(
+        "Transaction verification unavailable:",
+        verificationError
+      );
+    }
+
+    throw error;
+  }
+}
+
+
+async function fhLoadAllRocketWeeklyRecords() {
+  const pageSize = 500;
+  let offset = 0;
+  const allRecords = [];
+
+  while (true) {
+    const rows = await fhSendingRequest(
+      "fh_rocket_weekly_records" +
+      "?select=*" +
+      "&order=week_start.asc" +
+      "&limit=" + pageSize +
+      "&offset=" + offset,
+      { method: "GET" }
+    );
+
+    if (!Array.isArray(rows)) {
+      throw new Error("Unable to load weekly records.");
+    }
+
+    allRecords.push(...rows);
+
+    if (rows.length < pageSize) break;
+
+    offset += pageSize;
+  }
+
+  return allRecords;
+}
+
+async function fhLoadAllRocketSettlements() {
+  const pageSize = 500;
+  let offset = 0;
+  const allSettlements = [];
+
+  while (true) {
+    const rows = await fhSendingRequest(
+      "fh_rocket_settlements" +
+      "?select=*" +
+      "&order=withdrawal_date.asc" +
+      "&limit=" + pageSize +
+      "&offset=" + offset,
+      { method: "GET" }
+    );
+
+    if (!Array.isArray(rows)) {
+      throw new Error("Unable to load settlements.");
+    }
+
+    allSettlements.push(...rows);
+
+    if (rows.length < pageSize) break;
+
+    offset += pageSize;
+  }
+
+  return allSettlements;
+}
+ async function fhGetHostPendingReceiving(hostId) {
+  const hosts = await fhLoadRocketEsportsHosts();
+
+  const summary =
+    await fhCalculateRocketPendingWithdrawals(hosts);
+
+  const weeks = summary.pendingWeeks.filter(
+    week => String(week.poppoId) === String(hostId)
+  );
+
+  const pendingUSD = weeks.reduce(
+    (sum, week) => sum + Number(week.pendingUSD),
+    0
+  );
+
+  return {
+    pendingUSD: Math.round(pendingUSD * 100) / 100,
+    weeks
+  };
+}
+async function fhLoadAdjustedPaymentWeeks() {
+  const pageSize = 500;
+  let offset = 0;
+  const allWeeks = [];
+
+  while (true) {
+    const rows = await fhSendingRequest(
+      "fh_host_payment_weeks" +
+      "?select=weekly_record_id,receiving_deduction_usd,sending_charges_pkr" +
+      "&order=id.asc" +
+      "&limit=" + pageSize +
+      "&offset=" + offset,
+      { method: "GET" }
+    );
+
+    if (!Array.isArray(rows)) {
+      throw new Error("Unable to load payment adjustments.");
+    }
+
+    allWeeks.push(...rows);
+
+    if (rows.length < pageSize) break;
+
+    offset += pageSize;
+  }
+
+  return allWeeks;
+}
+async function fhGetHostSendingCharges(hostId) {
+  const [records, adjustedWeeks] = await Promise.all([
+  fhLoadAllRocketWeeklyRecords(),
+  fhLoadAdjustedPaymentWeeks()
+]);
+  let totalCharges = 0;
+  const weeks = [];
+
+  for (const record of records) {
+    if (String(record.poppo_id) !== String(hostId)) continue;
+
+    const transactions = await fhLoadRocketTransactions(record.id);
+
+    const charges = transactions.reduce(
+      (sum, transaction) =>
+        sum + Number(transaction.sending_charge || 0),
+      0
+    );
+
+    const alreadyAdjusted = adjustedWeeks
+  .filter(w => String(w.weekly_record_id) === String(record.id))
+  .reduce((sum, w) => sum + Number(w.sending_charges_pkr || 0), 0);
+
+const pendingCharges = Math.max(
+  0,
+  Math.round((charges - alreadyAdjusted) * 100) / 100
+);
+
+if (pendingCharges <= 0) continue;
+
+   totalCharges += pendingCharges;
+
+   weeks.push({
+  weeklyRecordId: record.id,
+  start: record.week_start,
+  end: record.week_end,
+ charges: pendingCharges
+});
+  }
+ 
+
+
+  return {
+    totalCharges: Math.round(totalCharges * 100) / 100,
+    weeks
+  };
+}
+/* FH EMPIRE — WITHDRAWAL PAYMENT STATUS UI */
+
+const fhPaymentStatus =
+  document.getElementById("fhWithdrawalPaymentStatus");
+
+const fhPaidAmountBox =
+  document.getElementById("fhWithdrawalPaidAmountBox");
+
+const fhPaidAmountInput =
+  document.getElementById("fhWithdrawalPaidAmount");
+
+fhPaymentStatus.addEventListener("change", () => {
+  const isPaid = fhPaymentStatus.value === "paid";
+
+  fhPaidAmountBox.style.display = isPaid ? "block" : "none";
+if (isPaid && window.fhWithdrawalPreview) {
+  fhPaidAmountInput.value =
+    Number(window.fhWithdrawalPreview.finalPayablePKR).toFixed(2);
+}
+  if (!isPaid) {
+    fhPaidAmountInput.value = "";
+  }
+});
+ 
+/* FH EMPIRE — SAVE HOST WITHDRAWAL */
+/* FH EMPIRE — COPY HOST WITHDRAWAL MESSAGE */
+const fhCopyWithdrawalBtn =
+  document.getElementById("fhCopyWithdrawalMessage");
+
+function fhBuildWithdrawalMessage(preview) {
+  const fmt = value => Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const hostSelect = document.getElementById("fhWithdrawalHost");
+  const hostName = hostSelect.selectedOptions[0]?.textContent.trim() || "Host";
+
+  return [
+    "🚀 FH EMPIRE — WITHDRAWAL DETAILS",
+    "",
+   "👤 Host: " + hostName.replace(/\s*[—–-]\s*\d+\s*$/, ""),
+    "🆔 Poppo ID: " + preview.hostId,
+    "",
+    "💵 Received Withdrawal: $" + fmt(preview.receivedUSD),
+    "➖ Sending Receiving: $" + fmt(preview.receivingDeductionUSD),
+    "💰 Remaining USD: $" + fmt(
+      preview.receivedUSD - preview.receivingDeductionUSD
+    ),
+    "",
+    "💱 Exchange Rate: Rs 295/USD",
+    "💵 Converted Amount: Rs " + fmt(
+      (preview.receivedUSD - preview.receivingDeductionUSD) * 295
+    ),
+    "➖ Sending Charges: Rs " + fmt(preview.sendingChargesPKR),
+    "",
+    "✅ FINAL PAYABLE: Rs " + fmt(preview.finalPayablePKR),
+    "",
+    "🚀 FH EMPIRE"
+  ].join("\n");
+}
+
+fhCopyWithdrawalBtn.addEventListener("click", async () => {
+  const preview = window.fhWithdrawalPreview;
+  if (!preview) {
+    alert("Calculate withdrawal first.");
+    return;
+  }
+
+  const message = fhBuildWithdrawalMessage(preview);
+
+  try {
+    await navigator.clipboard.writeText(message);
+    fhCopyWithdrawalBtn.textContent = "✅ Message Copied!";
+    setTimeout(() => {
+      fhCopyWithdrawalBtn.textContent = "📋 Copy Host Message";
+    }, 2000);
+  } catch (error) {
+    alert("Unable to copy message: " + error.message);
+  }
+});
+const fhUpdateWithdrawalBtn =
+  document.getElementById("fhUpdateWithdrawal");
+
+let fhWithdrawalSaving = false;
+let fhWithdrawalRequestKey = null;
+
+function fhRoundMoney(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+}
+
+function fhResetWithdrawalSave() {
+  window.fhWithdrawalPreview = null;
+  fhWithdrawalRequestKey = null;
+  fhUpdateWithdrawalBtn.disabled = true;
+  document.getElementById("fhWithdrawalUpdateActions").style.display = "none";
+}
+
+document.getElementById("fhWithdrawalHost")
+  .addEventListener("change", fhResetWithdrawalSave);
+
+document.getElementById("fhWithdrawalAmount")
+  .addEventListener("input", fhResetWithdrawalSave);
+
+fhUpdateWithdrawalBtn.addEventListener("click", async () => {
+  if (fhWithdrawalSaving) return;
+
+  const preview = window.fhWithdrawalPreview;
+  const message = document.getElementById("fhWithdrawalUpdateMessage");
+
+  if (!preview) {
+    message.textContent = "✕ Calculate withdrawal first.";
+    return;
+  }
+
+  const payable = fhRoundMoney(preview.finalPayablePKR);
+  const status = fhPaymentStatus.value;
+
+  const paidAmount = status === "paid"
+    ? fhRoundMoney(fhPaidAmountInput.value)
+    : 0;
+
+  if (
+    !Number.isFinite(payable) ||
+    payable < 0 ||
+    (status === "paid" &&
+      (fhPaidAmountInput.value.trim() === "" ||
+       !Number.isFinite(paidAmount) ||
+       paidAmount <= 0 ||
+       paidAmount > payable))
+  ) {
+    message.textContent = "✕ Invalid payable or paid amount.";
+    message.style.color = "#ff7777";
+    return;
+  }
+
+  const weekMap = new Map();
+
+  for (const week of preview.receivingWeeks || []) {
+    const id = String(week.weeklyRecordId);
+
+    if (!id || id === "undefined") {
+      message.textContent = "✕ Receiving week ID missing.";
+      return;
+    }
+
+    weekMap.set(id, {
+      weekly_record_id: id,
+      receiving_deduction_usd: fhRoundMoney(week.pendingUSD),
+      sending_charges_pkr: 0
+    });
+  }
+
+  for (const week of preview.chargeWeeks || []) {
+    const id = String(week.weeklyRecordId);
+
+    if (!id || id === "undefined") {
+      message.textContent = "✕ Sending week ID missing.";
+      return;
+    }
+
+    const entry = weekMap.get(id) || {
+      weekly_record_id: id,
+      receiving_deduction_usd: 0,
+      sending_charges_pkr: 0
+    };
+
+    entry.sending_charges_pkr = fhRoundMoney(week.charges);
+    weekMap.set(id, entry);
+  }
+
+  const weeks = [...weekMap.values()];
+
+  if (!weeks.length) {
+    message.textContent = "✕ No weekly records found.";
+    return;
+  }
+
+  const totalReceiving = fhRoundMoney(
+    weeks.reduce((sum, w) => sum + w.receiving_deduction_usd, 0)
+  );
+
+  const totalCharges = fhRoundMoney(
+    weeks.reduce((sum, w) => sum + w.sending_charges_pkr, 0)
+  );
+
+  if (
+    Math.abs(totalReceiving - preview.receivingDeductionUSD) > 0.01 ||
+    Math.abs(totalCharges - preview.sendingChargesPKR) > 0.01
+  ) {
+    message.textContent = "✕ Weekly totals mismatch. Recalculate.";
+    return;
+  }
+
+  const confirmed = confirm(
+    "Confirm Withdrawal Update?\n\n" +
+    "Host: " + preview.hostId + "\n" +
+    "Received: $" + preview.receivedUSD + "\n" +
+    "Payable: Rs " + payable.toFixed(2) + "\n" +
+    "Paid: Rs " + paidAmount.toFixed(2) + "\n" +
+    "Remaining: Rs " + (payable - paidAmount).toFixed(2)
+  );
+
+  if (!confirmed) return;
+
+  fhWithdrawalSaving = true;
+  fhUpdateWithdrawalBtn.disabled = true;
+  message.textContent = "⏳ Saving withdrawal...";
+  message.style.color = "#ffd700";
+
+  if (!fhWithdrawalRequestKey) {
+    fhWithdrawalRequestKey = crypto.randomUUID();
+  }
+
+  try {
+    const token = getSendingAdminToken();
+
+    if (!token) throw new Error("Admin session expired.");
+
+    const response = await fetch(
+      "https://vmllowldjzwmzsvxccui.supabase.co/rest/v1/rpc/fh_update_host_withdrawal",
+      {
+        method: "POST",
+        headers: {
+          apikey: FH_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          p_request_key: fhWithdrawalRequestKey,
+          p_poppo_id: preview.hostId,
+          p_received_usd: preview.receivedUSD,
+          p_weeks: weeks,
+          p_initial_payment_pkr: paidAmount
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Unable to save withdrawal.");
+    }
+
+    message.textContent = "✓ Withdrawal saved successfully. Batch: " + result;
+    message.style.color = "#22c55e";
+
+    fhResetWithdrawalSave();
+    message.textContent = "✓ Withdrawal saved successfully. Batch: " + result;
+
+   try {
+  await loadRocketEsportsPanel();
+} catch (refreshError) {
+  console.warn("Withdrawal saved, but refresh failed:", refreshError);
+}
+
+  } catch (error) {
+    console.error("Withdrawal update failed:", error);
+    message.textContent = "✕ " + error.message;
+    message.style.color = "#ff7777";
+  } finally {
+    fhWithdrawalSaving = false;
+    fhUpdateWithdrawalBtn.disabled = false;
+    if (!window.fhWithdrawalPreview) {
+      fhUpdateWithdrawalBtn.disabled = true;
+    }
+  }
+});
+async function fhCalculateRocketPendingWithdrawals(hosts) {
+
+
+/* FH EMPIRE — WITHDRAWAL CALCULATOR (PREVIEW ONLY) */
+
+document.getElementById("fhCalculateWithdrawal")
+  ?.addEventListener("click", async () => {
+
+    const hostId = document.getElementById("fhWithdrawalHost").value;
+    const input = document.getElementById("fhWithdrawalAmount");
+    const result = document.getElementById("fhWithdrawalResult");
+
+    result.style.display = "block";
+    result.replaceChildren();
+
+    const receivedUSD = Number(input.value.replace(/,/g, "").trim());
+
+    if (!hostId || !input.value.trim() ||
+        !Number.isFinite(receivedUSD) || receivedUSD <= 0) {
+      result.textContent = "✕ Select a host and enter valid withdrawal USD.";
+      result.style.color = "#ff7777";
+      return;
+    }
+
+    result.textContent = "⏳ Calculating withdrawal...";
+    result.style.color = "#fff";
+
+    try {
+      const [hosts, receiving, charges] = await Promise.all([
+        fhLoadRocketEsportsHosts(),
+        fhGetHostPendingReceiving(hostId),
+        fhGetHostSendingCharges(hostId)
+      ]);
+
+      const host = hosts.find(h => String(h.id) === String(hostId));
+
+      if (!host) throw new Error("Host not found.");
+
+      const remainingUSD = receivedUSD - receiving.pendingUSD;
+      const convertedPKR = remainingUSD * 295;
+      const finalPayable = convertedPKR - charges.totalCharges;
+// FH EMPIRE — Store withdrawal preview for later update
+window.fhWithdrawalPreview = {
+  hostId: String(hostId),
+  receivedUSD,
+  receivingDeductionUSD: receiving.pendingUSD,
+  sendingChargesPKR: charges.totalCharges,
+  finalPayablePKR: finalPayable,
+  receivingWeeks: receiving.weeks,
+ chargeWeeks: charges.weeks,
+calculatedAt: Date.now()
+};
+      const fmt = n => Number(n).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      result.style.color = "#fff";
+      result.style.whiteSpace = "pre-line";
+
+      result.textContent =
+        "💵 FH EMPIRE — WITHDRAWAL PREVIEW\n\n" +
+        "Host: " + host.name + "\n" +
+        "Poppo ID: " + host.id + "\n\n" +
+        "Received Withdrawal: $" + fmt(receivedUSD) + "\n" +
+        "Pending Sending Receiving: −$" + fmt(receiving.pendingUSD) + "\n" +
+        "Remaining USD: $" + fmt(remainingUSD) + "\n" +
+        "Exchange Rate: Rs 295/USD\n" +
+        "Converted Amount: Rs " + fmt(convertedPKR) + "\n" +
+        "Sending Charges: −Rs " + fmt(charges.totalCharges) + "\n\n" +
+        "FINAL HOST PAYABLE: Rs " + fmt(finalPayable) + "\n\n" +
+        "⚠ PREVIEW ONLY — No withdrawal or payment saved.";
+        document.getElementById("fhWithdrawalUpdateActions").style.display = "block";
+       fhWithdrawalRequestKey = null;
+fhUpdateWithdrawalBtn.disabled = false;
+fhCopyWithdrawalBtn.style.display = "block";
+
+    } catch (error) {
+      console.error("Withdrawal calculation error:", error);
+      result.textContent = "✕ " + error.message;
+      result.style.color = "#ff7777";
+    }
+  });
+ const [records, settlements, adjustedWeeks] = await Promise.all([
+  fhLoadAllRocketWeeklyRecords(),
+  fhLoadAllRocketSettlements(),
+  fhLoadAdjustedPaymentWeeks()
+]);
+
+  const hostIds = new Set(hosts.map(h => String(h.id)));
+  const settlementsByWeek = new Map();
+
+  for (const settlement of settlements) {
+    const id = String(settlement.weekly_record_id);
+    settlementsByWeek.set(
+      id,
+      (settlementsByWeek.get(id) || 0) +
+        Number(settlement.withdrawal_usd || 0)
+    );
+  }
+
+  let pendingUSD = 0;
+  const pendingHostIds = new Set();
+  const pendingWeeks = [];
+
+  for (const record of records) {
+    if (!hostIds.has(String(record.poppo_id))) continue;
+
+    const transactions = await fhLoadRocketTransactions(record.id);
+
+    const receivingUSD = transactions.reduce(
+      (sum, t) => sum + Number(t.receiving_points || 0) / 10000,
+      0
+    );
+
+   const alreadyAdjustedUSD = adjustedWeeks
+  .filter(w => String(w.weekly_record_id) === String(record.id))
+  .reduce(
+    (sum, w) => sum + Number(w.receiving_deduction_usd || 0),
+    0
+  );
+
+const withdrawnUSD =
+  (settlementsByWeek.get(String(record.id)) || 0) +
+  alreadyAdjustedUSD;
+    const pending = Math.max(
+      0,
+      Math.round((receivingUSD - withdrawnUSD) * 100) / 100
+    );
+
+    if (pending > 0) {
+      pendingUSD += pending;
+      pendingHostIds.add(String(record.poppo_id));
+
+      pendingWeeks.push({
+        poppoId: record.poppo_id,
+        weeklyRecordId: record.id,
+        weekStart: record.week_start,
+        weekEnd: record.week_end,
+        pendingUSD: pending
+      });
+    }
+  }
+
+  return {
+    pendingUSD: Math.round(pendingUSD * 100) / 100,
+    hostCount: pendingHostIds.size,
+    pendingWeeks
+  };
+}
+
+async function fhRefreshRocketDashboard(hosts) {
+  
+const week = fhGetPoppoWeek();
+
+ // const pendingSummary =
+ // await fhCalculateRocketPendingWithdrawals(hosts);
+  const totals = {
+    target: 0,
+    completed: 0,
+    remaining: 0,
+    targetCompleted: 0,
+    notStarted: 0,
+charges: 0,
+receivingUSD: 0
+  };
+
+  const results = await Promise.all(
+    hosts.map(async host => {
+      const record = await fhLoadRocketWeeklyRecord(
+        host.id,
+        week.start
+      );
+
+      const transactions = record
+        ? await fhLoadRocketTransactions(record.id)
+        : [];
+
+      return { host, record, transactions };
+    })
+  );
+
+  for (const { host, record, transactions } of results) {
+    const target = Number(
+      record ? record.sending_target : host.sendingTarget
+    );
+
+    const sending = transactions.filter(
+      t => t.transaction_type === "sending"
+    );
+
+    const completed = sending.reduce(
+      (sum, t) => sum + Number(t.sending_coins || 0),
+      0
+    );
+
+    const charges = sending.reduce(
+      (sum, t) => sum + Number(t.sending_charge || 0),
+      0
+    );
+
+    totals.target += target;
+    totals.completed += completed;
+    totals.remaining += Math.max(0, target - completed);
+    totals.charges += charges;
+
+const totalReceivingPoints = transactions.reduce(
+  (sum, transaction) =>
+    sum + Number(transaction.receiving_points || 0),
+  0
+);
+
+totals.receivingUSD += totalReceivingPoints / 10000;
+
+    if (target > 0 && completed >= target) {
+      totals.targetCompleted++;
+    }
+
+    if (completed === 0) {
+      totals.notStarted++;
+    }
+  }
+
+  const fmt = value =>
+    Number(value).toLocaleString("en-US", {
+      maximumFractionDigits: 2
+    });
+
+  const update = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+
+  update("rocketWeeklyTarget", fmt(totals.target));
+  update("rocketCompleted", fmt(totals.completed));
+  update("rocketRemaining", fmt(totals.remaining));
+  update("rocketTargetCompleted", fmt(totals.targetCompleted));
+  update("rocketNotStarted", fmt(totals.notStarted));
+ update("rocketTotalCharges", "Loading...");
+ Promise.all([
+  fhLoadAllRocketWeeklyRecords(),
+  fhLoadAllRocketSettlements()
+]).then(async ([records, settlements]) => {
+  const hostIds = new Set(hosts.map(h => String(h.id)));
+  const grouped = new Map();
+  let totalCharges = 0;
+
+  for (const record of records) {
+    if (!hostIds.has(String(record.poppo_id))) continue;
+
+    const transactions = await fhLoadRocketTransactions(record.id);
+
+   const grossCharges = transactions.reduce(
+  (sum, t) => sum + Number(t.sending_charge || 0),
+  0
+);
+
+const adjustedWeeks = await fhLoadAdjustedPaymentWeeks();
+
+const alreadyDeducted = adjustedWeeks
+  .filter(w => String(w.weekly_record_id) === String(record.id))
+  .reduce(
+    (sum, w) => sum + Number(w.sending_charges_pkr || 0),
+    0
+  );
+
+const charges = Math.max(
+  0,
+  Math.round((grossCharges - alreadyDeducted) * 100) / 100
+);
+
+    if (charges <= 0) continue;
+
+    const id = String(record.poppo_id);
+    const host = hosts.find(h => String(h.id) === id);
+
+    if (!grouped.has(id)) {
+      grouped.set(id, {
+        name: host?.name || "Unknown Host",
+        total: 0,
+        weeks: []
+      });
+    }
+
+    const entry = grouped.get(id);
+    entry.total += charges;
+    entry.weeks.push({
+      start: record.week_start,
+      end: record.week_end,
+      charges
+    });
+
+    totalCharges += charges;
+  }
+
+  update(
+    "rocketTotalCharges",
+    "Rs " + fmt(totalCharges) +
+    " · " + grouped.size +
+    (grouped.size === 1 ? " Host" : " Hosts")
+  );
+
+  const amount = document.getElementById("rocketTotalCharges");
+  const card = amount?.closest(".stat");
+
+  if (!card) return;
+
+  card.style.cursor = "pointer";
+  card.title = "Click to view host-wise sending charges";
+
+  let breakdown = document.getElementById("fhChargesBreakdown");
+
+  if (!breakdown) {
+    breakdown = document.createElement("div");
+    breakdown.id = "fhChargesBreakdown";
+    breakdown.hidden = true;
+    breakdown.style.cssText =
+      "margin-top:15px;padding:15px;background:#101010;" +
+      "border:1px solid #ffd700;border-radius:10px;" +
+      "color:#fff;grid-column:1/-1;";
+
+    card.parentElement.insertAdjacentElement("afterend", breakdown);
+  }
+
+  breakdown.replaceChildren();
+
+  const heading = document.createElement("h3");
+  heading.textContent =
+    "💰 Sending Charges — Rs " + fmt(totalCharges) +
+    " · " + grouped.size + " Hosts";
+  heading.style.color = "#ffd700";
+  breakdown.appendChild(heading);
+
+  for (const [id, entry] of grouped) {
+    const box = document.createElement("div");
+    box.style.cssText =
+      "background:#1b1b1b;border:1px solid #403719;" +
+      "border-radius:8px;padding:12px;margin-top:10px;";
+
+    const title = document.createElement("strong");
+    title.textContent =
+      entry.name + " · ID: " + id +
+      " · Rs " + fmt(entry.total) +
+      " · " + entry.weeks.length + " Week(s)";
+    title.style.color = "#ffd700";
+    box.appendChild(title);
+
+    for (const week of entry.weeks) {
+      const line = document.createElement("div");
+      line.textContent =
+        week.start + " to " + week.end +
+        " — Rs " + fmt(week.charges);
+      line.style.cssText =
+        "font-size:12px;color:#ccc;margin-top:8px;";
+      box.appendChild(line);
+    }
+
+    breakdown.appendChild(box);
+  }
+
+ card.onclick = () => {
+  const withdrawals = document.getElementById("fhPendingBreakdown");
+
+  if (withdrawals) withdrawals.hidden = true;
+
+  breakdown.hidden = !breakdown.hidden;
+};
+
+}).catch(error => {
+  console.error("Sending charges calculation error:", error);
+  update("rocketTotalCharges", "Unable to load");
+});
+ 
+update("rocketPendingWithdrawals", "Loading...");
+
+
+fhCalculateRocketPendingWithdrawals(hosts)
+  .then(summary => {
+    update(
+      "rocketPendingWithdrawals",
+      "$" + fmt(summary.pendingUSD) +
+      " · " + fmt(summary.hostCount) +
+      (summary.hostCount === 1 ? " Host" : " Hosts")
+    );
+
+    const amount = document.getElementById("rocketPendingWithdrawals");
+    const card = amount?.closest(".stat");
+
+    if (!card) return;
+
+    card.style.cursor = "pointer";
+    card.title = "Click to view host-wise pending withdrawals";
+
+    let breakdown = document.getElementById("fhPendingBreakdown");
+
+    if (!breakdown) {
+      breakdown = document.createElement("div");
+      breakdown.id = "fhPendingBreakdown";
+      breakdown.hidden = true;
+      breakdown.style.cssText =
+        "margin-top:15px;padding:15px;background:#101010;" +
+        "border:1px solid #ffd700;border-radius:10px;" +
+        "color:#fff;grid-column:1/-1;";
+
+      card.parentElement.insertAdjacentElement("afterend", breakdown);
+    }
+
+    const hostMap = new Map(
+      hosts.map(host => [String(host.id), host.name])
+    );
+
+    const grouped = new Map();
+
+    for (const week of summary.pendingWeeks) {
+      const id = String(week.poppoId);
+
+      if (!grouped.has(id)) {
+        grouped.set(id, {
+          name: hostMap.get(id) || "Unknown Host",
+          total: 0,
+          weeks: []
+        });
+      }
+
+      const entry = grouped.get(id);
+      entry.total += week.pendingUSD;
+      entry.weeks.push(week);
+    }
+
+    breakdown.replaceChildren();
+
+    const heading = document.createElement("h3");
+    heading.textContent =
+      "💵 Pending Withdrawals — $" + fmt(summary.pendingUSD) +
+      " · " + summary.hostCount + " Hosts";
+    heading.style.color = "#ffd700";
+    breakdown.appendChild(heading);
+
+    for (const [id, entry] of grouped) {
+      const box = document.createElement("div");
+      box.style.cssText =
+        "background:#1b1b1b;border:1px solid #403719;" +
+        "border-radius:8px;padding:12px;margin-top:10px;";
+
+      const title = document.createElement("strong");
+      title.textContent =
+        entry.name + " · ID: " + id +
+        " · $" + fmt(entry.total) +
+        " · " + entry.weeks.length + " Week(s)";
+      title.style.color = "#ffd700";
+      box.appendChild(title);
+
+      for (const week of entry.weeks) {
+        const line = document.createElement("div");
+        line.textContent =
+          week.weekStart + " to " + week.weekEnd +
+          " — Pending $" + fmt(week.pendingUSD);
+        line.style.cssText =
+          "font-size:12px;color:#ccc;margin-top:8px;";
+        box.appendChild(line);
+      }
+
+      breakdown.appendChild(box);
+    }
+
+    if (!grouped.size) {
+      const empty = document.createElement("p");
+      empty.textContent = "No pending withdrawals.";
+      breakdown.appendChild(empty);
+    }
+
+card.onclick = () => {
+  const charges = document.getElementById("fhChargesBreakdown");
+
+  if (charges) charges.hidden = true;
+
+  breakdown.hidden = !breakdown.hidden;
+};
+  })
+   .catch(error => {
+    console.error("Pending withdrawals calculation failed:", error);
+    update("rocketPendingWithdrawals", "⚠ Unable to load");
+  });
+
+  try {
+    await fhRefreshPaymentDashboard(hosts);
+  } catch (error) {
+    console.error("Payment dashboard loading failed:", error);
+    update("rocketPendingPayments", "⚠ Unable to load");
+    update("rocketPartialPayments", "⚠ Unable to load");
+    update("rocketClearedPayments", "⚠ Unable to load");
+  }
+}
+/* FH EMPIRE — PAYMENT DASHBOARD */
+
+async function fhRefreshPaymentDashboard(hosts) {
+  const fmt = n => Number(n).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const load = async table =>
+    fhSendingRequest(
+      table + "?select=*&limit=1000",
+      { method: "GET" }
+    );
+
+  const [batches, payments] = await Promise.all([
+    load("fh_host_payment_batches"),
+    load("fh_host_payments")
+  ]);
+
+  const hostMap = new Map(
+    hosts.map(h => [String(h.id), h.name])
+  );
+
+  const paidByBatch = new Map();
+
+  for (const payment of payments) {
+    const id = String(payment.batch_id);
+    paidByBatch.set(
+      id,
+      (paidByBatch.get(id) || 0) + Number(payment.amount_pkr || 0)
+    );
+  }
+
+  const groups = {
+    unpaid: [],
+    partial: [],
+    paid: []
+  };
+
+  for (const batch of batches) {
+    const payable = Number(batch.final_payable_pkr || 0);
+    const paid = Math.min(
+      payable,
+      paidByBatch.get(String(batch.id)) || 0
+    );
+    const remaining = Math.max(0, payable - paid);
+
+    const entry = {
+      name: hostMap.get(String(batch.poppo_id)) || "Unknown Host",
+      id: batch.poppo_id,
+      payable,
+      paid,
+      remaining,
+      date: batch.created_at
+    };
+
+    if (remaining < 0.01) groups.paid.push(entry);
+    else if (paid > 0) groups.partial.push(entry);
+    else groups.unpaid.push(entry);
+  }
+
+  const cards = [
+    ["fhUnpaidCard", "rocketPendingPayments", groups.unpaid, "Unpaid", "remaining"],
+    ["fhPartialCard", "rocketPartialPayments", groups.partial, "Partially Paid", "remaining"],
+    ["fhPaidCard", "rocketClearedPayments", groups.paid, "Cleared Payments", "paid"]
+  ];
+
+  for (const [cardId, valueId, entries, title, field] of cards) {
+    const card = document.getElementById(cardId);
+    const value = document.getElementById(valueId);
+
+    if (!card || !value) continue;
+
+    const total = entries.reduce((sum, e) => sum + e[field], 0);
+
+    value.textContent = "Rs " + fmt(total) + " · " +
+      entries.length + (entries.length === 1 ? " Payment" : " Payments");
+
+    card.onclick = () => {
+      let panel = document.getElementById("fhPaymentBreakdown");
+
+      if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "fhPaymentBreakdown";
+        panel.style.cssText =
+          "margin-top:15px;padding:15px;background:#101010;" +
+          "border:1px solid #ffd700;border-radius:10px;color:#fff;";
+        card.closest(".panel").appendChild(panel);
+      }
+const sameCardOpen =
+  panel.dataset.activeCard === cardId &&
+  panel.style.display === "block";
+
+if (sameCardOpen) {
+  panel.style.display = "none";
+  panel.dataset.activeCard = "";
+  return;
+}
+
+panel.dataset.activeCard = cardId;
+      panel.replaceChildren();
+
+      const heading = document.createElement("h3");
+      heading.textContent = title + " — Rs " + fmt(total);
+      heading.style.color = "#ffd700";
+      panel.appendChild(heading);
+
+      if (!entries.length) {
+        const empty = document.createElement("p");
+        empty.textContent = "No payments found.";
+        panel.appendChild(empty);
+      }
+
+      for (const e of entries) {
+        const line = document.createElement("div");
+        line.style.cssText =
+          "padding:12px;border-bottom:1px solid #333;line-height:1.8;";
+
+        line.textContent =
+          e.name + " (" + e.id + ")" +
+          "\nPayable: Rs " + fmt(e.payable) +
+          " | Paid: Rs " + fmt(e.paid) +
+          " | Remaining: Rs " + fmt(e.remaining);
+
+        line.style.whiteSpace = "pre-line";
+        panel.appendChild(line);
+      }
+
+panel.style.display = "block";
+    };
+  }
+}
+function fhCloseAllHostPanels() {
+  document.querySelectorAll(".fh-host-manual-sending, .fh-host-receiving")
+    .forEach(panel => panel.remove());
+
+  document.querySelectorAll('[data-fh-host-info="true"]')
+    .forEach(panel => {
+      panel.hidden = true;
+    });
+
+  document.querySelectorAll('[data-fh-host-info-button="true"]')
+    .forEach(button => {
+      button.setAttribute("aria-expanded", "false");
+      button.style.color = "#ffd700";
+    });
+}
+
+async function loadRocketEsportsPanel() {
+  const container = document.getElementById("rocketHostList");
+  container.textContent = "Loading saved hosts...";
+
+  try {
+    const hosts = await fhLoadRocketEsportsHosts();
+    const withdrawalHostSelect =
+  document.getElementById("fhWithdrawalHost");
+
+if (withdrawalHostSelect) {
+  withdrawalHostSelect.replaceChildren(
+    new Option("Select Rocket / Esports Host", "")
+  );
+
+  for (const host of hosts) {
+    withdrawalHostSelect.add(
+      new Option(host.name + " — " + host.id, String(host.id))
+    );
+  }
+}
+    await fhRefreshRocketDashboard(hosts);
+
+    document.getElementById("rocketTotalHosts").textContent =
+      hosts.length.toLocaleString("en-US");
+
+    document.getElementById("rocketHostCount").textContent =
+      hosts.filter(h => h.category === "rocket").length.toLocaleString("en-US");
+
+    document.getElementById("esportsHostCount").textContent =
+      hosts.filter(h => h.category === "esports").length.toLocaleString("en-US");
+
+    container.replaceChildren();
+    container.classList.remove("empty");
+
+    if (!hosts.length) {
+      container.textContent = "No Rocket or Esports hosts registered yet.";
+      return;
+    }
+
+    for (const host of hosts) {
+      /* FH EMPIRE — LIVE WEEKLY SENDING STATUS */
+let sendingStatus = "⚪ Not Started";
+let sendingStatusColor = "#aaa";
+
+try {
+  const week = fhGetPoppoWeek();
+  const weeklyRecord = await fhLoadRocketWeeklyRecord(
+    host.id,
+    week.start
+  );
+
+  const transactions = weeklyRecord
+    ? await fhLoadRocketTransactions(weeklyRecord.id)
+    : [];
+
+  const sendingCoins = transactions
+    .filter(t => t.transaction_type === "sending")
+    .reduce((sum, t) => sum + Number(t.sending_coins || 0), 0);
+
+  const sendingTarget = Number(
+    weeklyRecord
+      ? weeklyRecord.sending_target
+      : host.sendingTarget
+  );
+
+  if (sendingTarget > 0 && sendingCoins >= sendingTarget) {
+    sendingStatus = "✅ Sending Complete";
+    sendingStatusColor = "#4ade80";
+  } else if (sendingCoins > 0) {
+    sendingStatus = "⏳ Sending Incomplete";
+    sendingStatusColor = "#facc15";
+  }
+} catch (error) {
+  console.error("Host sending status failed:", host.id, error);
+  sendingStatus = "⚠️ Sending Status Unavailable";
+  sendingStatusColor = "#ff7777";
+}/* FH EMPIRE — HOST PAYMENT STATUS */
+let paymentStatus = "⚪ No Payment Record";
+let paymentStatusColor = "#aaa";
+
+try {
+  const [batches, payments] = await Promise.all([
+    fhSendingRequest(
+      "fh_host_payment_batches?poppo_id=eq." +
+      encodeURIComponent(host.id) + "&select=*",
+      { method: "GET" }
+    ),
+    fhSendingRequest(
+      "fh_host_payments?select=*&limit=1000",
+      { method: "GET" }
+    )
+  ]);
+
+  if (batches.length) {
+    const batchIds = new Set(batches.map(b => String(b.id)));
+
+    const payable = batches.reduce(
+      (sum, b) => sum + Number(b.final_payable_pkr || 0), 0
+    );
+
+    const paid = payments
+      .filter(p => batchIds.has(String(p.batch_id)))
+      .reduce((sum, p) => sum + Number(p.amount_pkr || 0), 0);
+
+    if (payable - paid < 0.01) {
+      paymentStatus = "✅ Paid";
+      paymentStatusColor = "#4ade80";
+    } else if (paid > 0) {
+      paymentStatus = "🟡 Partially Paid";
+      paymentStatusColor = "#facc15";
+    } else {
+      paymentStatus = "🔴 Unpaid";
+      paymentStatusColor = "#ff7777";
+    }
+  }
+} catch (error) {
+  console.error("Host payment status failed:", host.id, error);
+  paymentStatus = "⚠️ Payment Status Unavailable";
+  paymentStatusColor = "#ff7777";
+}
+      const card = document.createElement("article");
+      card.style.cssText =
+        "background:#151515;border:1px solid #3c3523;" +
+        "border-left:3px solid #ffd700;border-radius:10px;" +
+        "padding:14px 16px;margin-bottom:10px;text-align:left;";
+
+      const header = document.createElement("div");
+      header.style.cssText =
+        "display:flex;align-items:center;justify-content:space-between;" +
+        "gap:12px;flex-wrap:wrap;";
+
+      const identity = document.createElement("div");
+      identity.style.cssText = "flex:1;min-width:0;";
+
+      const title = document.createElement("strong");
+      title.textContent =
+        (host.category === "esports" ? "🎮 " : "🚀 ") + host.name;
+      title.style.cssText =
+        "display:block;color:#ffd700;font-size:15px;" +
+        "font-weight:700;overflow-wrap:anywhere;";
+
+      const subtitle = document.createElement("div");
+      subtitle.textContent =
+        "ID: " + host.id + "  •  " +
+        (host.category === "esports" ? "Esports Host" : "Rocket Host");
+      subtitle.style.cssText =
+        "color:#aaa;font-size:12px;margin-top:5px;";
+
+     const sendingStatusLabel = document.createElement("div");
+sendingStatusLabel.textContent = sendingStatus;
+sendingStatusLabel.style.cssText =
+  "font-size:12px;font-weight:700;margin-top:7px;" +
+  "color:" + sendingStatusColor + ";";
+
+const paymentStatusLabel = document.createElement("div");
+paymentStatusLabel.textContent = paymentStatus;
+paymentStatusLabel.style.cssText =
+  "font-size:12px;font-weight:700;margin-top:5px;" +
+  "color:" + paymentStatusColor + ";";
+
+identity.append(
+  title,
+  subtitle,
+  sendingStatusLabel,
+  paymentStatusLabel
+);
+
+      const headerRight = document.createElement("div");
+      headerRight.style.cssText =
+        "display:flex;align-items:center;gap:10px;";
+
+      const badge = document.createElement("span");
+      badge.textContent = host.isActive ? "● Active" : "● Inactive";
+      badge.style.cssText =
+        "font-size:12px;font-weight:700;white-space:nowrap;" +
+        (host.isActive ? "color:#4ade80;" : "color:#ff6666;");
+
+      const infoButton = document.createElement("button");
+      infoButton.dataset.fhHostInfoButton = "true";
+      infoButton.type = "button";
+      infoButton.textContent = "ⓘ";
+      infoButton.title = "View Host Details";
+      infoButton.setAttribute("aria-label", "View Host Details");
+      infoButton.setAttribute("aria-expanded", "false");
+      infoButton.style.cssText =
+        "background:transparent;color:#ffd700;border:0;" +
+        "padding:2px 5px;font-size:21px;cursor:pointer;";
+
+      headerRight.append(badge, infoButton);
+      header.append(identity, headerRight);
+
+      const actions = document.createElement("div");
+      actions.style.cssText =
+        "display:flex;align-items:center;gap:8px;" +
+        "flex-wrap:wrap;margin-top:14px;";
+
+      function makeButton(text, background, color, border) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = text;
+        button.style.cssText =
+          "background:" + background + ";" +
+          "color:" + color + ";" +
+          "border:1px solid " + border + ";" +
+          "border-radius:7px;padding:8px 12px;" +
+          "font-size:12px;font-weight:700;" +
+          "width:auto;min-height:34px;cursor:pointer;";
+        return button;
+      }
+
+      const editButton = makeButton(
+        "✏️ Edit", "#352a0c", "#ffd700", "#b48d22"
+      );
+
+      const sendingButton = makeButton(
+        "➤ Sending", "#352a0c", "#ffd700", "#80651d"
+      );
+
+      const receivingButton = makeButton(
+        "◉ Receiving", "#352a0c", "#ffd700", "#80651d"
+      );
+
+      const statusButton = host.isActive
+        ? makeButton("⏸ Deactivate", "#351919", "#ff7777", "#a63838")
+        : makeButton("▶ Activate", "#143321", "#4ade80", "#238b4b");
+
+      editButton.dataset.hostId = host.id;
+      statusButton.dataset.hostId = host.id;
+
+      const details = document.createElement("div");
+      details.dataset.fhHostInfo = "true";
+      details.hidden = true;
+      details.style.cssText =
+        "margin-top:14px;padding:14px;background:#101010;" +
+        "border:1px solid #4c4024;border-radius:8px;" +
+        "color:#ddd;font-size:12px;line-height:1.9;" +
+        "white-space:pre-line;overflow-wrap:anywhere;";
+
+      details.textContent =
+        "Weekly Sending Target: " +
+        Number(host.sendingTarget).toLocaleString("en-US") +
+        " coins\nReceiving Target: $" +
+        Number(host.receivingTarget).toLocaleString("en-US") +
+        "\nSending Charge: Rs " +
+        Number(host.chargeRate).toLocaleString("en-US") +
+        " / 100K";
+
+     
+infoButton.addEventListener("click", async () => {
+  
+const wasOpen = !details.hidden;
+
+fhCloseAllHostPanels();
+
+if (wasOpen) {
+  return;
+}
+
+
+  details.hidden = false;
+  infoButton.setAttribute("aria-expanded", "true");
+  infoButton.style.color = "#ffffff";
+  details.textContent = "⏳ Loading live weekly report...";
+
+  try {
+    const week = fhGetPoppoWeek();
+
+    const weeklyRecord = await fhLoadRocketWeeklyRecord(
+      host.id,
+      week.start
+    );
+
+    const transactions = weeklyRecord
+      ? await fhLoadRocketTransactions(weeklyRecord.id)
+      : [];
+
+    const receivingTarget = Number(
+      weeklyRecord
+        ? weeklyRecord.receiving_target
+        : host.receivingTarget
+    );
+
+    const sendingTarget = Number(
+      weeklyRecord
+        ? weeklyRecord.sending_target
+        : host.sendingTarget
+    );
+
+    const chargeRate = Number(
+      weeklyRecord
+        ? weeklyRecord.charge_rate
+        : host.chargeRate
+    );
+
+    const sending = transactions.filter(
+      t => t.transaction_type === "sending"
+    );
+
+    const random = transactions.filter(
+      t => t.transaction_type === "random_receiving"
+    );
+
+    const sendingCoins = sending.reduce(
+      (sum, t) => sum + Number(t.sending_coins || 0), 0
+    );
+
+    const sendingPoints = sending.reduce(
+      (sum, t) => sum + Number(t.receiving_points || 0), 0
+    );
+
+    const randomPoints = random.reduce(
+      (sum, t) => sum + Number(t.receiving_points || 0), 0
+    );
+
+    const sendingCharges = sending.reduce(
+      (sum, t) => sum + Number(t.sending_charge || 0), 0
+    );
+
+    const totalPoints = sendingPoints + randomPoints;
+    const targetPoints = receivingTarget * 10000;
+    const remainingPoints = Math.max(0, targetPoints - totalPoints);
+    const remainingSending = Math.max(
+      0, sendingTarget - sendingCoins
+    );
+
+    const progress = targetPoints > 0
+      ? (totalPoints / targetPoints) * 100
+      : 0;
+
+    const fmt = n => Number(n).toLocaleString("en-US", {
+      maximumFractionDigits: 2
+    });
+
+    details.replaceChildren();
+
+    const report = document.createElement("div");
+    report.style.cssText =
+      "display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));" +
+      "gap:10px;";
+
+    function metric(label, value, color = "#ffffff") {
+      const box = document.createElement("div");
+      box.style.cssText =
+        "background:#1b1b1b;border:1px solid #44391e;" +
+        "border-radius:8px;padding:10px;";
+
+      const heading = document.createElement("div");
+      heading.textContent = label;
+      heading.style.cssText =
+        "color:#aaa;font-size:11px;margin-bottom:5px;";
+
+      const number = document.createElement("strong");
+      number.textContent = value;
+      number.style.cssText =
+        "color:" + color + ";font-size:14px;overflow-wrap:anywhere;";
+
+      box.append(heading, number);
+      report.appendChild(box);
+    }
+
+    metric("Weekly Sending Target", fmt(sendingTarget) + " coins");
+    metric("Sending Completed", fmt(sendingCoins) + " coins", "#4ade80");
+    metric("Sending Remaining", fmt(remainingSending) + " coins", "#ffd700");
+    metric("Receiving Target", "$" + fmt(receivingTarget));
+    metric("Sending Receiving", fmt(sendingPoints) + " points");
+    metric("Random Receiving", fmt(randomPoints) + " points");
+    metric("Total Receiving", "$" + fmt(totalPoints / 10000), "#4ade80");
+    metric("Remaining Receiving", fmt(remainingPoints) + " points", "#ffd700");
+    metric("Sending Charges", "Rs " + fmt(sendingCharges), "#ffd700");
+    metric("Charge Rate", "Rs " + fmt(chargeRate) + " / 100K");
+
+    const progressTitle = document.createElement("div");
+    progressTitle.textContent =
+      "Receiving Target Progress — " + progress.toFixed(1) + "%";
+    progressTitle.style.cssText =
+      "color:#ffd700;font-weight:700;margin:15px 0 7px;";
+
+    const progressTrack = document.createElement("div");
+    progressTrack.style.cssText =
+      "height:9px;background:#343434;border-radius:20px;overflow:hidden;";
+
+    const progressFill = document.createElement("div");
+    progressFill.style.cssText =
+      "height:100%;background:#22c55e;border-radius:20px;" +
+      "width:" + Math.min(100, progress) + "%;";
+
+    progressTrack.appendChild(progressFill);
+
+    const footer = document.createElement("div");
+    footer.textContent =
+      "Week: " + week.start + " to " + week.end +
+      "  •  Sending entries: " + sending.length +
+      "  •  Random receiving entries: " + random.length;
+    footer.style.cssText =
+      "color:#aaa;font-size:11px;margin-top:12px;";
+
+    details.append(report, progressTitle, progressTrack, footer);
+
+  } catch (error) {
+    console.error("Host weekly report failed:", error);
+    details.textContent = "✕ Unable to load weekly report: " + error.message;
+    details.style.color = "#ff7777";
+  }
+});
+
+
+      editButton.addEventListener("click", () => {
+        rocketCategoryInput.value = host.category;
+        rocketPoppoInput.value = host.id;
+        rocketNameInput.value = host.name;
+
+        document.getElementById("rocketReceivingTarget").value =
+          host.receivingTarget;
+
+        document.getElementById("rocketSendingTarget").value =
+          host.sendingTarget;
+
+        document.getElementById("rocketChargeRate").value =
+          host.chargeRate;
+
+        document.getElementById("rocketWhatsappNumber").value =
+          host.whatsappNumber || "";
+
+        document.getElementById("rocketStatus").value =
+          host.isActive ? "active" : "inactive";
+
+        rocketPoppoInput.readOnly = true;
+        rocketNameInput.readOnly = true;
+
+        rocketSaveButton.disabled = true;
+        rocketSaveButton.textContent = "✏️ Editing Host";
+
+        document.getElementById("rocketUpdateHost").style.display =
+          "inline-block";
+
+        document.getElementById("rocketCancelEdit").style.display =
+          "inline-block";
+
+        const message = document.getElementById("rocketHostMessage");
+        message.textContent =
+          "✏️ Editing " + host.name + " (" + host.id +
+          "). Changes are not saved yet.";
+        message.style.color = "#ffd700";
+
+        rocketPoppoInput.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+      });
+
+      statusButton.addEventListener("click", async () => {
+        if (rocketSendingSaveInProgress) return;
+
+        const newStatus = !host.isActive;
+        const action = newStatus ? "Activate" : "Deactivate";
+
+        if (!confirm(
+          "Are you sure you want to " + action +
+          " " + host.name + " (" + host.id + ")?"
+        )) return;
+
+        statusButton.disabled = true;
+        statusButton.textContent = "Updating...";
+
+        try {
+          await fhUpdateRocketEsportsHost(host.id, {
+            is_active: newStatus
+          });
+
+        await loadRocketEsportsPanel();
+        } catch (error) {
+          console.error("Host status update failed:", error);
+          alert("Unable to update host status: " + error.message);
+          statusButton.disabled = false;
+          statusButton.textContent = host.isActive
+            ? "⏸ Deactivate"
+            : "▶ Activate";
+        }
+      });
+
+      
+
+/* FH EMPIRE — MANUAL HOST SENDING */
+
+sendingButton.addEventListener("click", () => {
+  
+const wasOpen = !!card.querySelector(".fh-host-manual-sending");
+
+fhCloseAllHostPanels();
+
+if (wasOpen) {
+  return;
+}
+
+let box;
+
+
+  box = document.createElement("div");
+  box.className = "fh-host-manual-sending";
+  box.style.cssText =
+    "margin-top:12px;padding:15px;background:#101010;" +
+    "border:1px solid #80651d;border-radius:9px;";
+
+  const heading = document.createElement("strong");
+  heading.textContent = "➤ Manual Sending — " + host.name;
+  heading.style.cssText =
+    "display:block;color:#FFD700;font-size:14px;margin-bottom:10px;";
+
+const receivingWeekSelect = document.createElement("select");
+
+const currentReceivingWeek = fhGetPoppoWeek();
+
+receivingWeekSelect.style.cssText =
+  "width:100%;padding:11px;margin-bottom:12px;" +
+  "background:#202020;color:#FFD700;" +
+  "border:1px solid #80651d;border-radius:7px;" +
+  "font-size:13px;";
+
+for (let i = 0; i < 12; i++) {
+  const startDate = new Date(
+    currentReceivingWeek.start + "T00:00:00Z"
+  );
+
+  startDate.setUTCDate(startDate.getUTCDate() - i * 7);
+
+  const endDate = new Date(startDate);
+  endDate.setUTCDate(endDate.getUTCDate() + 6);
+
+  const start = startDate.toISOString().slice(0, 10);
+  const end = endDate.toISOString().slice(0, 10);
+
+  const option = document.createElement("option");
+  option.value = start;
+  option.textContent =
+    (i === 0 ? "Current Week" : i === 1 ? "Previous Week" : "Past Week") +
+    " — " + start + " to " + end;
+
+  option.dataset.weekEnd = end;
+  receivingWeekSelect.appendChild(option);
+}
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.inputMode = "numeric";
+  input.placeholder = "Sending Coins e.g. 100,000";
+  input.style.cssText =
+    "width:100%;box-sizing:border-box;padding:11px;" +
+    "background:#202020;color:white;border:1px solid #66551c;" +
+    "border-radius:7px;font-size:14px;";
+
+  const preview = document.createElement("div");
+  preview.style.cssText =
+    "color:#ddd;font-size:12px;line-height:1.9;margin:12px 0;";
+
+  const save = document.createElement("button");
+  save.type = "button";
+  save.textContent = "✓ Save Manual Sending";
+  save.style.cssText =
+    "background:#FFD700;color:#111;border:0;" +
+    "border-radius:7px;padding:10px 15px;" +
+    "font-weight:700;cursor:pointer;";
+
+  const message = document.createElement("p");
+  message.style.cssText = "font-size:12px;margin-top:9px;";
+
+  let saving = false;
+  let requestId = null;
+  let saved = false;
+  let weeklyRate = null;
+
+  const fmt = n => Number(n).toLocaleString("en-US", {
+    maximumFractionDigits: 2
+  });
+
+  function getCoins() {
+    return Number(input.value.replace(/,/g, ""));
+  }
+
+  function updatePreview() {
+    const coins = getCoins();
+    const points = coins * 0.70;
+
+    if (!coins) {
+      preview.textContent = "Enter actual sending coins.";
+      return;
+    }
+
+    const rate = weeklyRate === null
+      ? Number(host.chargeRate)
+      : weeklyRate;
+
+    const charges = coins / 100000 * rate;
+
+    preview.replaceChildren();
+
+    [
+      ["Sending Coins", fmt(coins)],
+      ["Receiving Points", fmt(points)],
+      ["Receiving USD", "$" + fmt(points / 10000)],
+      ["Sending Charges", "Rs " + fmt(charges)],
+      ["Charge Rate", "Rs " + fmt(rate) + " / 100K"]
+    ].forEach(([label, value]) => {
+      const line = document.createElement("div");
+      line.textContent = label + ": " + value;
+      preview.appendChild(line);
+    });
+  }
+
+  input.addEventListener("input", () => {
+    const digits = input.value.replace(/\D/g, "");
+    input.value = digits
+      ? Number(digits).toLocaleString("en-US")
+      : "";
+    updatePreview();
+  });
+
+  save.addEventListener("click", async () => {
+    if (saving || saved) return;
+
+    const coins = getCoins();
+
+    if (
+      !Number.isSafeInteger(coins) ||
+      coins <= 0 ||
+      coins % 10000 !== 0
+    ) {
+      message.textContent =
+        "✕ Sending must be in multiples of 10,000 coins.";
+      message.style.color = "#ff7777";
+      return;
+    }
+
+    saving = true;
+    save.disabled = true;
+    input.disabled = true;
+    receivingWeekSelect.disabled = true;
+    message.textContent = "Checking weekly charge rate...";
+    message.style.color = "#FFD700";
+
+    try {
+     const week = {
+  start: receivingWeekSelect.value,
+  end: receivingWeekSelect.selectedOptions[0].dataset.weekEnd
+};
+      // Read existing record first; no write at this stage.
+      const existing = await fhLoadRocketWeeklyRecord(
+        host.id,
+        week.start
+      );
+const currentWeek = fhGetPoppoWeek();
+
+if (week.start !== currentWeek.start && !existing) {
+  const confirmedRate = Number(host.chargeRate);
+
+  if (confirmedRate !== 200) {
+    throw new Error(
+      "Historical charge rate mismatch. Save blocked."
+    );
+  }
+
+  weeklyRate = confirmedRate;
+}
+      weeklyRate = Number(
+        existing ? existing.charge_rate : host.chargeRate
+      );
+
+      updatePreview();
+
+      const points = coins * 0.70;
+      const charges = coins / 100000 * weeklyRate;
+
+      const approved = confirm(
+        "CONFIRM MANUAL SENDING\n\n" +
+        "Host: " + host.name +
+        "\nPoppo ID: " + host.id +
+        "\nSending: " + fmt(coins) + " coins" +
+        "\nReceiving: " + fmt(points) + " points" +
+        "\nUSD: $" + fmt(points / 10000) +
+        "\nCharges: Rs " + fmt(charges) +
+        "\n\nSave this transaction?"
+      );
+
+      if (!approved) {
+        message.textContent = "Save cancelled.";
+        message.style.color = "#aaa";
+        return;
+      }
+
+      if (!requestId) requestId = crypto.randomUUID();
+
+      message.textContent = "Saving manual sending...";
+
+      const weeklyRecord = existing ||
+       await fhGetOrCreateRocketWeeklyRecord(host, week);
+
+      
+await fhSaveVerifiedHostTransaction(
+  host,
+  "sending",
+  coins,
+ "Manual sending — outside optimizer",
+requestId,
+week
+);
+
+
+      saved = true;
+      message.textContent = "✓ Manual sending saved successfully!";
+      message.style.color = "#4ade80";
+      save.textContent = "✓ Saved";
+
+      details.hidden = true;
+      infoButton.setAttribute("aria-expanded", "false");
+      details.replaceChildren();
+
+    } catch (error) {
+      console.error("Manual sending error:", error);
+      message.textContent =
+        "⚠ Save could not be confirmed. Check transaction history before retrying. " +
+        error.message;
+      message.style.color = "#ffb020";
+    } finally {
+      saving = false;
+
+     if (!saved) {
+  save.disabled = false;
+  input.disabled = false;
+  receivingWeekSelect.disabled = false;
+}
+    }
+  });
+
+ box.append(heading, receivingWeekSelect, input, preview, save, message);
+  actions.insertAdjacentElement("afterend", box);
+});
+
+
+
+
+
+/* FH EMPIRE — HOST RECEIVING MANAGEMENT */
+
+receivingButton.addEventListener("click", () => {
+  
+const wasOpen = !!card.querySelector(".fh-host-receiving");
+
+fhCloseAllHostPanels();
+
+if (wasOpen) {
+  return;
+}
+
+let box;
+
+
+  box = document.createElement("div");
+  box.className = "fh-host-receiving";
+  box.style.cssText =
+    "margin-top:12px;padding:15px;background:#101010;" +
+    "border:1px solid #80651d;border-radius:9px;";
+
+  const heading = document.createElement("strong");
+  heading.textContent = "◉ Add Receiving — " + host.name;
+  heading.style.cssText =
+    "display:block;color:#FFD700;font-size:14px;margin-bottom:10px;";
+
+const receivingWeekSelect = document.createElement("select");
+
+const currentReceivingWeek = fhGetPoppoWeek();
+
+receivingWeekSelect.style.cssText =
+  "width:100%;padding:11px;margin-bottom:12px;" +
+  "background:#202020;color:#FFD700;" +
+  "border:1px solid #80651d;border-radius:7px;" +
+  "font-size:13px;";
+
+for (let i = 0; i < 12; i++) {
+  const startDate = new Date(
+    currentReceivingWeek.start + "T00:00:00Z"
+  );
+
+  startDate.setUTCDate(startDate.getUTCDate() - i * 7);
+
+  const endDate = new Date(startDate);
+  endDate.setUTCDate(endDate.getUTCDate() + 6);
+
+  const start = startDate.toISOString().slice(0, 10);
+  const end = endDate.toISOString().slice(0, 10);
+
+  const option = document.createElement("option");
+  option.value = start;
+  option.dataset.weekEnd = end;
+  option.textContent =
+    (i === 0 ? "Current Week" : i === 1 ? "Previous Week" : "Past Week") +
+    " — " + start + " to " + end;
+
+  receivingWeekSelect.appendChild(option);
+}
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.inputMode = "numeric";
+  input.placeholder = "Receiving Points e.g. 150,000";
+  input.style.cssText =
+    "width:100%;box-sizing:border-box;padding:11px;" +
+    "background:#202020;color:white;border:1px solid #66551c;" +
+    "border-radius:7px;font-size:14px;";
+
+  const preview = document.createElement("p");
+  preview.style.cssText =
+    "color:#aaa;font-size:12px;margin:10px 0;";
+
+  const save = document.createElement("button");
+  save.type = "button";
+  save.textContent = "✓ Save Receiving";
+  save.style.cssText =
+    "background:#FFD700;color:#111;border:0;" +
+    "border-radius:7px;padding:10px 15px;" +
+    "font-weight:700;cursor:pointer;width:auto;";
+
+  const message = document.createElement("p");
+  message.style.cssText = "font-size:12px;margin-top:9px;";
+
+  let saving = false;
+  let requestId = null;
+
+  function getPoints() {
+    return Number(input.value.replace(/,/g, ""));
+  }
+
+  input.addEventListener("input", () => {
+    const digits = input.value.replace(/\D/g, "");
+    input.value = digits
+      ? Number(digits).toLocaleString("en-US")
+      : "";
+
+    const points = getPoints();
+
+    preview.textContent =
+      points > 0
+        ? "Receiving: " + points.toLocaleString("en-US") +
+          " points  •  $" + (points / 10000).toFixed(2)
+        : "Enter actual receiving points.";
+  });
+
+  save.addEventListener("click", async () => {
+    if (saving || save.disabled) return;
+
+    const points = getPoints();
+
+    if (
+      !input.value.trim() ||
+      !Number.isSafeInteger(points) ||
+      points <= 0
+    ) {
+      message.textContent = "✕ Enter valid receiving points.";
+      message.style.color = "#ff7777";
+      return;
+    }
+
+    if (!confirm(
+      "Save receiving for " + host.name +
+      " (" + host.id + ")?\n\n" +
+      points.toLocaleString("en-US") + " points\n" +
+      "$" + (points / 10000).toFixed(2)
+    )) return;
+
+    saving = true;
+    save.disabled = true;
+    input.disabled = true;
+    receivingWeekSelect.disabled = true;
+    message.textContent = "Saving receiving...";
+    message.style.color = "#FFD700";
+
+    try {
+      const selectedReceivingWeek = {
+  start: receivingWeekSelect.value,
+  end: receivingWeekSelect.selectedOptions[0].dataset.weekEnd
+};
+
+const currentWeek = fhGetPoppoWeek();
+
+if (selectedReceivingWeek.start !== currentWeek.start) {
+  const existing = await fhLoadRocketWeeklyRecord(
+    host.id,
+    selectedReceivingWeek.start
+  );
+
+  if (!existing) {
+    throw new Error(
+      "Selected past week ka record nahi mila. Pehle historical weekly settings verify karni hongi."
+    );
+  }
+}
+      if (!requestId) requestId = crypto.randomUUID();
+
+     
+
+     
+await fhSaveVerifiedHostTransaction(
+  host,
+  "random_receiving",
+  points,
+ "Manual host receiving entry",
+requestId,
+{
+  start: receivingWeekSelect.value,
+  end: receivingWeekSelect.selectedOptions[0].dataset.weekEnd
+}
+);
+
+
+      message.textContent = "✓ Receiving saved successfully!";
+      message.style.color = "#4ade80";
+      save.textContent = "✓ Saved";
+
+      // Reload weekly report next time Info is opened
+      details.hidden = true;
+      infoButton.setAttribute("aria-expanded", "false");
+      details.replaceChildren();
+
+    } catch (error) {
+      console.error("Receiving save error:", error);
+      message.textContent =
+        "⚠️ Save could not be confirmed. Check transaction history before retrying. " +
+        error.message;
+      message.style.color = "#ffb020";
+   } finally {
+  saving = false;
+
+  if (save.textContent !== "✓ Saved") {
+    receivingWeekSelect.disabled = false;
+  }
+}
+  });
+
+ box.append(heading, receivingWeekSelect, input, preview, save, message);
+  actions.insertAdjacentElement("afterend", box);
+});
+
+/* FH EMPIRE — COPY HOST FOR SENDER */
+const copySenderButton = makeButton(
+  "📋 Copy for Sender",
+  "#173126",
+  "#4ade80",
+  "#238b4b"
+);
+
+copySenderButton.addEventListener("click", async () => {
+  const amountInput = prompt(
+    "Special sending coins enter karo:",
+    String(host.sendingTarget || 720000)
+  );
+
+  if (amountInput === null) return;
+
+  const coins = Number(amountInput.replace(/,/g, "").trim());
+
+  if (!Number.isSafeInteger(coins) || coins <= 0) {
+    alert("Valid sending coins enter karo.");
+    return;
+  }
+
+  const message = [
+    "🚀 FH EMPIRE — SPECIAL SENDING REQUEST",
+    "",
+    "👤 Host: " + host.name,
+    "🆔 Poppo ID: " + host.id,
+    "🎮 Category: " + (
+      host.category === "esports" ? "Esports" : "Rocket"
+    ),
+    "",
+    "📤 Special Sending: " +
+      coins.toLocaleString("en-US") + " Coins",
+    "",
+    "🚀 FH EMPIRE"
+  ].join("\n");
+
+  try {
+    await navigator.clipboard.writeText(message);
+    copySenderButton.textContent = "✅ Copied!";
+    setTimeout(() => {
+      copySenderButton.textContent = "📋 Copy for Sender";
+    }, 2000);
+  } catch (error) {
+    alert("Copy failed: " + error.message);
+  }
+});
+     actions.append(
+  editButton,
+  sendingButton,
+  receivingButton,
+  copySenderButton,
+  statusButton
+);
+      card.append(header, actions, details);
+      container.appendChild(card);
+    }
+
+  } catch (error) {
+    console.error("Unable to load Rocket/Esports hosts:", error);
+    container.textContent =
+      "Unable to load saved hosts. Check admin session or Supabase connection.";
+  }
+}
+
+
+loadRocketEsportsPanel();
+
+const rocketPoppoInput = document.getElementById("rocketPoppoId");
+document.getElementById("rocketCancelEdit").addEventListener("click", () => {
+  clearTimeout(rocketLookupTimer);
+  rocketLookupRequest++;
+
+  rocketPoppoInput.readOnly = false;
+  rocketNameInput.readOnly = true;
+
+  rocketPoppoInput.value = "";
+  rocketNameInput.value = "";
+
+  rocketCategoryInput.value = "rocket";
+
+  document.getElementById("rocketReceivingTarget").value = "50";
+  document.getElementById("rocketSendingTarget").value = "720000";
+  document.getElementById("rocketChargeRate").value = "200";
+  document.getElementById("rocketWhatsappNumber").value = "";
+  document.getElementById("rocketStatus").value = "active";
+
+  rocketSaveButton.disabled = false;
+  updateRocketSaveButton();
+
+  document.getElementById("rocketUpdateHost").style.display = "none";
+  document.getElementById("rocketCancelEdit").style.display = "none";
+
+  const message = document.getElementById("rocketHostMessage");
+  message.textContent = "✓ Edit cancelled. No changes saved.";
+  message.style.color = "#22c55e";
+});
+const rocketNameInput = document.getElementById("rocketHostName");
+
+document.getElementById("rocketUpdateHost")
+  .addEventListener("click", async () => {
+  
+    const updateButton = document.getElementById("rocketUpdateHost");
+    const message = document.getElementById("rocketHostMessage");
+
+    const id = rocketPoppoInput.value.trim();
+    const receivingTarget = Number(
+      document.getElementById("rocketReceivingTarget").value
+    );
+    const sendingTarget = Number(
+      document.getElementById("rocketSendingTarget").value
+    );
+    const chargeRate = Number(
+      document.getElementById("rocketChargeRate").value
+    );
+const whatsappNumber =
+  document.getElementById("rocketWhatsappNumber").value.trim();
+
+const whatsappDigits = whatsappNumber.replace(/\D/g, "");
+
+if (
+  whatsappNumber &&
+  !/^(03\d{9}|923\d{9}|\+923\d{9})$/.test(
+    whatsappNumber.replace(/[\s-]/g, "")
+  )
+) {
+  message.textContent =
+    "✕ Enter a valid Pakistani WhatsApp number.";
+  message.style.color = "#ff5c5c";
+  return;
+}
+    if (
+      !/^\d{6,}$/.test(id) ||
+      !rocketPoppoInput.readOnly ||
+      !Number.isFinite(receivingTarget) ||
+      receivingTarget <= 0 ||
+      !Number.isSafeInteger(sendingTarget) ||
+      sendingTarget <= 0 ||
+      !Number.isFinite(chargeRate) ||
+      chargeRate < 0
+    ) {
+      message.textContent = "✕ Invalid host details or edit mode.";
+      message.style.color = "#ff5c5c";
+      return;
+    }
+
+    const confirmed = confirm(
+      `Update host ${rocketNameInput.value} (${id})?`
+    );
+    if (!confirmed) return;
+
+    updateButton.disabled = true;
+    message.textContent = "Updating host...";
+    message.style.color = "#ffd700";
+
+    try {
+      await fhUpdateRocketEsportsHost(id, {
+        host_category: rocketCategoryInput.value,
+        receiving_target: receivingTarget,
+        sending_target: sendingTarget,
+        charge_rate: chargeRate,
+        whatsapp_number: whatsappNumber || null,
+        is_active:
+          document.getElementById("rocketStatus").value === "active"
+      });
+
+      await loadRocketEsportsPanel();
+
+      document.getElementById("rocketCancelEdit").click();
+
+      message.textContent = "✓ Host updated successfully.";
+      message.style.color = "#22c55e";
+    } catch (error) {
+      console.error("Host update failed:", error);
+      message.textContent = "✕ " + error.message;
+      message.style.color = "#ff5c5c";
+    } finally {
+      updateButton.disabled = false;
+    }
+  });
+
+const ROCKET_PROFILE_API =
+  "https://vmllowldjzwmzsvxccui.supabase.co/functions/v1/poppo-profile";
+
+let rocketLookupTimer;
+let rocketLookupRequest = 0;
+
+rocketPoppoInput.addEventListener("input", () => {
+  clearTimeout(rocketLookupTimer);
+  const requestId = ++rocketLookupRequest;
+
+  rocketNameInput.value = "";
+  const id = rocketPoppoInput.value.trim();
+
+  if (!/^\d{6,}$/.test(id)) return;
+
+  rocketLookupTimer = setTimeout(async () => {
+    try {
+      const response = await fetch(ROCKET_PROFILE_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ poppoId: id })
+      });
+
+      const data = await response.json();
+
+      if (
+        requestId !== rocketLookupRequest ||
+        rocketPoppoInput.value.trim() !== id
+      ) return;
+
+      if (
+        response.ok &&
+        data.success === true &&
+        String(data.id) === id &&
+        typeof data.nickname === "string" &&
+        data.nickname.trim()
+      ) {
+        rocketNameInput.value = data.nickname.trim();
+      }
+    } catch (error) {
+      console.error("Rocket Poppo verification failed:", error);
+    }
+   }, 450);
+});
+</script>
+
+<!-- FH EMPIRE — SMART SENDING MANAGEMENT -->
+<section id="rocketSmartSending" style="
+  max-width:1100px;
+  margin:30px auto;
+  padding:20px;
+  background:#151515;
+  color:#fff;
+  border:1px solid #5b4a13;
+  border-radius:14px;
+  font-family:Arial,sans-serif;
+">
+  <h2 style="color:#ffd700;margin-top:0;">
+    🚀 Smart Sending Management
+  </h2>
+
+  <p style="color:#aaa;font-size:14px;">
+    Rocket & Esports Weekly Sending Distribution
+  </p>
+
+  <label for="rocketAvailableSending">
+    Available Sending Coins
+  </label>
+
+  
+<input
+  id="rocketAvailableSending"
+  type="text"
+  inputmode="numeric"
+  autocomplete="off"
+  placeholder="Example: 5,000,000"
+  style="
+    display:block;
+    width:100%;
+    box-sizing:border-box;
+    margin:10px 0;
+    padding:13px;
+    border:1px solid #66551c;
+    border-radius:8px;
+    background:#222;
+    color:white;
+  "
+>
+
+  <button
+    id="rocketGenerateSuggestions"
+    type="button"
+    style="
+      background:#ffd700;
+      color:#111;
+      padding:13px 20px;
+      border:0;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+    "
+  >
+    Generate Smart Suggestions
+  </button>
+
+  <p id="rocketSendingMessage"
+     style="color:#aaa;margin-top:15px;">
+    Enter available sending to generate host suggestions.
+  </p>
+
+  <div id="rocketSuggestionsList"></div>
+</section>
+
+<script>
+/* FH EMPIRE — SMART SENDING SUGGESTIONS (READ ONLY) */
+
+const rocketAvailableInput =
+  document.getElementById("rocketAvailableSending");
+
+rocketAvailableInput.addEventListener("input", () => {
+  const input = rocketAvailableInput;
+  const oldValue = input.value;
+  const cursor = input.selectionStart ?? oldValue.length;
+
+  const digitsBeforeCursor =
+    oldValue.slice(0, cursor).replace(/\D/g, "").length;
+
+  const digits = oldValue.replace(/\D/g, "");
+
+  const formatted = digits
+    ? Number(digits).toLocaleString("en-US")
+    : "";
+
+  input.value = formatted;
+
+  let newCursor = 0;
+  let digitCount = 0;
+
+  while (
+    newCursor < formatted.length &&
+    digitCount < digitsBeforeCursor
+  ) {
+    if (/\d/.test(formatted[newCursor])) digitCount++;
+    newCursor++;
+  }
+
+  input.setSelectionRange(newCursor, newCursor);
+});
+let rocketSendingSaveInProgress = false;
+const rocketUnavailableHosts = new Set();
+
+const rocketRestoreHostButton = document.createElement("button");
+rocketRestoreHostButton.type = "button";
+rocketRestoreHostButton.textContent = "🔄 Available Again";
+rocketRestoreHostButton.style.cssText =
+  "background:#16a34a;color:white;border:0;" +
+  "padding:10px 14px;border-radius:8px;" +
+  "font-weight:bold;cursor:pointer;margin:10px 0;";
+
+rocketRestoreHostButton.addEventListener("click", async () => {
+  if (rocketUnavailableHosts.size === 0) {
+    alert("Koi host Unavailable nahi hai.");
+    return;
+  }
+
+  try {
+    const hosts = await fhLoadRocketEsportsHosts();
+
+    const unavailableHosts = hosts.filter(
+      h => rocketUnavailableHosts.has(String(h.id))
+    );
+
+    if (unavailableHosts.length === 0) {
+      alert("Unavailable host list empty hai.");
+      return;
+    }
+
+    const select = document.createElement("select");
+    select.style.cssText =
+      "width:100%;padding:12px;background:#222;" +
+      "color:#fff;border:1px solid #ffd700;" +
+      "border-radius:8px;margin:10px 0;";
+
+    unavailableHosts.forEach(host => {
+      const option = document.createElement("option");
+      option.value = String(host.id);
+      option.textContent = host.name + " (" + host.id + ")";
+      select.appendChild(option);
+    });
+
+    const restore = document.createElement("button");
+    restore.type = "button";
+    restore.textContent = "✓ Restore Selected Host";
+    restore.style.cssText =
+      "background:#16a34a;color:white;border:0;" +
+      "padding:10px 14px;border-radius:8px;cursor:pointer;";
+
+    const panel = document.createElement("div");
+    panel.style.cssText =
+      "background:#181818;border:1px solid #66551c;" +
+      "border-radius:10px;padding:15px;margin:10px 0;";
+
+    const title = document.createElement("strong");
+    title.textContent = "Select Unavailable Host";
+    title.style.color = "#ffd700";
+
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = "Cancel";
+    cancel.style.cssText =
+      "margin-left:10px;padding:10px;background:#444;" +
+      "color:white;border:0;border-radius:8px;cursor:pointer;";
+
+    cancel.addEventListener("click", () => panel.remove());
+
+    restore.addEventListener("click", () => {
+      rocketUnavailableHosts.delete(select.value);
+      panel.remove();
+
+      document
+        .getElementById("rocketGenerateSuggestions")
+        .click();
+    });
+
+    panel.append(title, select, restore, cancel);
+
+    document.getElementById("rocketRestorePanel")
+      ?.remove();
+
+    panel.id = "rocketRestorePanel";
+
+    rocketRestoreHostButton.insertAdjacentElement(
+      "afterend",
+      panel
+    );
+
+  } catch (error) {
+    alert("Hosts load nahi ho sake: " + error.message);
+  }
+});
+
+const rocketSuggestionsButton =
+  document.getElementById("rocketGenerateSuggestions");
+
+rocketSuggestionsButton.insertAdjacentElement(
+  "afterend",
+  rocketRestoreHostButton
+);
+
+document.getElementById("rocketGenerateSuggestions")
+  .addEventListener("click", async () => {
+    const message = document.getElementById("rocketSendingMessage");
+    const list = document.getElementById("rocketSuggestionsList");
+    const button = document.getElementById("rocketGenerateSuggestions");
+
+const available = Number(
+  document.getElementById("rocketAvailableSending")
+    .value.replace(/,/g, "")
+);
+
+
+    if (
+      !Number.isSafeInteger(available) ||
+      available < 10000 ||
+      available % 10000 !== 0
+    ) {
+      message.textContent =
+        "Enter sending in multiples of 10,000 coins.";
+      message.style.color = "#ff5c5c";
+      return;
+    }
+
+    button.disabled = true;
+    list.replaceChildren();
+    message.textContent = "Checking hosts and weekly records...";
+    message.style.color = "#ffd700";
+
+    try {
+     const week = fhGetPoppoWeek();
+
+      const previousDate = new Date(
+        week.start + "T00:00:00Z"
+      );
+      previousDate.setUTCDate(previousDate.getUTCDate() - 7);
+      const previousWeekStart =
+        previousDate.toISOString().slice(0, 10);
+const hosts = await fhLoadRocketEsportsHosts();
+     const eligibleHosts = hosts.filter(
+  h => h.isActive && !rocketUnavailableHosts.has(String(h.id))
+);
+      const candidates = [];
+
+      for (const host of eligibleHosts) {
+        const current = await fhLoadRocketWeeklyRecord(
+          host.id, week.start
+        );
+
+        const previous = await fhLoadRocketWeeklyRecord(
+          host.id, previousWeekStart
+        );
+
+        const currentTransactions = current
+          ? await fhLoadRocketTransactions(current.id)
+          : [];
+
+        const previousTransactions = previous
+          ? await fhLoadRocketTransactions(previous.id)
+          : [];
+
+        const receivingTarget = current
+          ? Number(current.receiving_target)
+          : host.receivingTarget;
+
+        const targetPoints = receivingTarget * 10000;
+
+        const totalPoints = currentTransactions.reduce(
+          (sum, t) => sum + Number(t.receiving_points || 0),
+          0
+        );
+        
+const thisWeekSending = currentTransactions.reduce(
+  (sum, t) => sum +
+    (t.transaction_type === "sending"
+      ? Number(t.sending_coins || 0)
+      : 0),
+  0
+);
+
+const randomReceiving = currentTransactions.reduce(
+  (sum, t) => sum +
+    (t.transaction_type === "random_receiving"
+      ? Number(t.receiving_points || 0)
+      : 0),
+  0
+);
+
+
+        const previousSending = previousTransactions.reduce(
+          (sum, t) => sum +
+            (t.transaction_type === "sending"
+              ? Number(t.sending_coins || 0)
+              : 0),
+          0
+        );
+
+        const remainingPoints = Math.max(
+          0, targetPoints - totalPoints
+        );
+
+        const neededCoins = remainingPoints === 0
+          ? 0
+          : Math.ceil(remainingPoints / 7000) * 10000;
+
+        if (neededCoins > 0) {
+          candidates.push({
+            host,
+            remainingPoints,
+            neededCoins,
+            previousSending,
+            totalPoints,
+thisWeekSending,
+randomReceiving,
+          });
+        }
+      }
+
+      candidates.sort((a, b) =>
+        a.previousSending - b.previousSending ||
+        b.remainingPoints - a.remainingPoints
+      );
+
+      let remaining = available;
+      let count = 0;
+
+      for (const item of candidates) {
+        if (remaining < 10000) break;
+
+        const allocation = Math.min(
+          item.neededCoins,
+          Math.floor(remaining / 10000) * 10000
+        );
+
+        if (allocation < 10000) continue;
+
+        remaining -= allocation;
+        count++;
+
+        const card = document.createElement("div");
+        card.style.cssText =
+          "background:#222;border:1px solid #66551c;" +
+          "border-radius:10px;padding:15px;margin:12px 0;";
+
+        const heading = document.createElement("h3");
+        heading.style.color = "#ffd700";
+        heading.textContent =
+          count + ". " + item.host.name +
+          " (" + item.host.id + ")";
+
+        const details = document.createElement("p");
+        details.style.whiteSpace = "pre-line";
+        
+details.textContent =
+  "Weekly Receiving Target: " +
+  (item.totalPoints + item.remainingPoints).toLocaleString() + " points" +
+
+  "\nPrevious Week Sending: " +
+  item.previousSending.toLocaleString() + " coins" +
+
+  "\nThis Week Sending: " +
+  item.thisWeekSending.toLocaleString() + " coins" +
+
+  "\nThis Week Receiving: " +
+  item.totalPoints.toLocaleString() + " points" +
+
+  "\nRandom Receiving: " +
+  item.randomReceiving.toLocaleString() + " points" +
+
+  "\nRemaining Receiving: " +
+  item.remainingPoints.toLocaleString() + " points" +
+
+  "\n\nSuggested Sending: " +
+  allocation.toLocaleString() + " coins" +
+
+  "\nExpected Receiving: " +
+  (allocation * 0.7).toLocaleString() + " points" +
+
+  "\nExpected USD: $" +
+  (allocation * 0.7 / 10000).toFixed(2);
+
+        card.append(heading, details);
+        
+/* FH EMPIRE — SMART SENDING MESSAGES */
+
+const fmt = n => Number(n).toLocaleString("en-US");
+const receivingPoints = allocation * 0.70;
+const receivingUSD = receivingPoints / 10000;
+
+const hostMessage =
+  `🚀 FH EMPIRE — ${item.host.category.toUpperCase()} HOST\n\n` +
+  `Host: ${item.host.name}\n` +
+  `Poppo ID: ${item.host.id}\n\n` +
+  `Please open your Live / Party.\n\n` +
+  `Gift Coins: ${fmt(allocation)}\n` +
+  `Expected Receiving: ${fmt(receivingPoints)} Points\n` +
+  `Expected USD: $${receivingUSD.toFixed(2)}\n\n` +
+  `Please confirm when ready.`;
+
+const senderMessage =
+  `🚀 FH EMPIRE — SENDING DETAILS\n\n` +
+  `Host Name: ${item.host.name}\n` +
+  `Poppo ID: ${item.host.id}\n` +
+  `Gift Coins: ${fmt(allocation)}\n\n` +
+  `⚠️ NOTE: ONLY LIVE / PARTY SENDING\n` +
+  `Please wait for host confirmation before sending.`;
+
+const actions = document.createElement("div");
+actions.style.cssText =
+  "display:flex;flex-wrap:wrap;gap:9px;margin-top:15px;";
+
+function addMessageButton(label, color, handler) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = label;
+  btn.style.cssText =
+    `background:${color};color:#111;border:0;` +
+    "padding:10px 13px;border-radius:7px;" +
+    "font-weight:bold;cursor:pointer;";
+  btn.addEventListener("click", handler);
+  actions.appendChild(btn);
+}
+
+async function copyRocketMessage(text, label) {
+  try {
+    await navigator.clipboard.writeText(text);
+    alert(label + " copied successfully!");
+  } catch (error) {
+    alert("Copy failed. Please try again.");
+  }
+}
+
+function openRocketWhatsApp(text, number = "") {
+  const url = number
+    ? `https://wa.me/${number}?text=${encodeURIComponent(text)}`
+    : `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+addMessageButton("💬 WhatsApp Host", "#25d366", () => {
+  const raw = String(item.host.whatsappNumber || "")
+    .replace(/\D/g, "");
+
+  let number = raw;
+
+  if (number.startsWith("03") && number.length === 11) {
+    number = "92" + number.slice(1);
+  }
+
+  if (!/^923\d{9}$/.test(number)) {
+    alert("Host WhatsApp number missing or invalid. Edit Host to add it.");
+    return;
+  }
+
+  openRocketWhatsApp(hostMessage, number);
+});
+
+addMessageButton("📋 Copy Host", "#ffd700", () => {
+  copyRocketMessage(hostMessage, "Host message");
+});
+
+addMessageButton("📤 WhatsApp Sender", "#25d366", () => {
+  openRocketWhatsApp(senderMessage);
+});
+
+addMessageButton("📋 Copy Sender", "#ffd700", () => {
+  copyRocketMessage(senderMessage, "Sender message");
+});
+
+/* FH EMPIRE — ADD RANDOM RECEIVING */
+
+const receivingBox = document.createElement("div");
+receivingBox.style.cssText =
+  "margin-top:15px;padding:15px;background:#181818;" +
+  "border:1px solid #66551c;border-radius:9px;";
+
+const receivingLabel = document.createElement("label");
+receivingLabel.textContent = "➕ Add Random Receiving Points";
+receivingLabel.style.cssText =
+  "display:block;color:#ffd700;margin-bottom:10px;";
+
+const receivingInput = document.createElement("input");
+receivingInput.type = "text";
+receivingInput.inputMode = "numeric";
+receivingInput.placeholder = "Example: 150,000";
+receivingInput.style.cssText =
+  "width:100%;box-sizing:border-box;padding:12px;" +
+  "background:#222;color:white;border:1px solid #66551c;" +
+  "border-radius:7px;margin-bottom:10px;";
+
+receivingInput.addEventListener("input", () => {
+  const digits = receivingInput.value.replace(/\D/g, "");
+  receivingInput.value = digits
+    ? Number(digits).toLocaleString("en-US")
+    : "";
+});
+
+const saveReceivingButton = document.createElement("button");
+saveReceivingButton.type = "button";
+saveReceivingButton.textContent = "💾 Save Receiving";
+saveReceivingButton.style.cssText =
+  "background:#ffd700;color:#111;border:0;" +
+  "padding:11px 16px;border-radius:7px;" +
+  "font-weight:bold;cursor:pointer;";
+
+const receivingStatus = document.createElement("p");
+receivingStatus.style.cssText =
+  "font-size:13px;margin-top:10px;color:#aaa;";
+
+saveReceivingButton.addEventListener("click", async () => {
+  const points = Number(receivingInput.value.replace(/,/g, ""));
+
+  if (!Number.isSafeInteger(points) || points <= 0) {
+    receivingStatus.textContent =
+      "✕ Enter valid receiving points.";
+    receivingStatus.style.color = "#ff5c5c";
+    return;
+  }
+
+  const confirmed = confirm(
+    `Add ${points.toLocaleString("en-US")} random receiving points ` +
+    `for ${item.host.name} (${item.host.id})?`
+  );
+
+  if (!confirmed) return;
+
+  saveReceivingButton.disabled = true;
+  receivingStatus.textContent = "Saving receiving...";
+  receivingStatus.style.color = "#ffd700";
+
+  try {
+    const weeklyRecord =
+      await fhGetOrCreateRocketWeeklyRecord(item.host);
+
+    await fhAddRocketTransaction(
+      weeklyRecord.id,
+      "random_receiving",
+      points,
+      "Random receiving added by admin"
+    );
+
+    receivingStatus.textContent =
+      "✓ Random receiving saved successfully.";
+    receivingStatus.style.color = "#22c55e";
+    receivingInput.value = "";
+
+    // Refresh suggestions after successful receiving save
+    document.getElementById("rocketGenerateSuggestions").click();
+
+  } catch (error) {
+    console.error("Random receiving save failed:", error);
+    receivingStatus.textContent = "✕ " + error.message;
+    receivingStatus.style.color = "#ff5c5c";
+  } finally {
+    saveReceivingButton.disabled = false;
+  }
+});
+
+receivingBox.append(
+  receivingLabel,
+  receivingInput,
+  saveReceivingButton,
+  receivingStatus
+);
+
+
+/* FH EMPIRE — DONE SENDING UI */
+
+const doneBox = document.createElement("div");
+doneBox.style.cssText =
+  "margin-top:15px;padding:15px;background:#181818;" +
+  "border:1px solid #66551c;border-radius:9px;";
+
+const doneLabel = document.createElement("label");
+doneLabel.textContent = "🚀 Actual Sending Coins";
+doneLabel.style.cssText =
+  "display:block;color:#ffd700;margin-bottom:10px;";
+
+const doneInput = document.createElement("input");
+doneInput.type = "text";
+doneInput.inputMode = "numeric";
+doneInput.value = allocation.toLocaleString("en-US");
+doneInput.style.cssText =
+  "width:100%;box-sizing:border-box;padding:12px;" +
+  "background:#222;color:white;border:1px solid #66551c;" +
+  "border-radius:7px;margin-bottom:10px;";
+
+doneInput.addEventListener("input", () => {
+  const digits = doneInput.value.replace(/\D/g, "");
+  doneInput.value = digits
+    ? Number(digits).toLocaleString("en-US")
+    : "";
+});
+
+const doneButton = document.createElement("button");
+doneButton.type = "button";
+doneButton.textContent = "✅ Done Sending";
+doneButton.style.cssText =
+  "background:#22c55e;color:#111;border:0;" +
+  "padding:11px 16px;border-radius:7px;" +
+  "font-weight:bold;cursor:pointer;";
+
+const doneStatus = document.createElement("p");
+doneStatus.style.cssText =
+  "font-size:13px;margin-top:10px;color:#aaa;";
+
+let sendingRequestId = null;
+doneButton.addEventListener("click", async () => {
+
+if (rocketSendingSaveInProgress) return;
+
+  const actualCoins = Number(
+    doneInput.value.replace(/,/g, "")
+  );
+
+  if (
+    !Number.isSafeInteger(actualCoins) ||
+    actualCoins < 10000 ||
+    actualCoins % 10000 !== 0
+  ) {
+    doneStatus.textContent =
+      "✕ Sending must be in multiples of 10,000 coins.";
+    doneStatus.style.color = "#ff5c5c";
+    return;
+  }
+
+  
+const availableInput = document.getElementById(
+  "rocketAvailableSending"
+);
+
+const latestWinning = Number(
+  availableInput.value.replace(/,/g, "")
+);
+
+if (
+  !Number.isSafeInteger(latestWinning) ||
+  latestWinning < 0 ||
+  actualCoins > latestWinning
+) {
+  doneStatus.textContent =
+    "✕ Actual sending exceeds sender's remaining winning.";
+  doneStatus.style.color = "#ff5c5c";
+  return;
+}
+
+
+  const confirmed = confirm(
+    "FH EMPIRE — CONFIRM SENDING\n\n" +
+    "Host: " + item.host.name + "\n" +
+    "Poppo ID: " + item.host.id + "\n" +
+    "Actual Sending: " +
+    actualCoins.toLocaleString("en-US") +
+    " coins\n" +
+    "Expected Receiving: " +
+    (actualCoins * 0.7).toLocaleString("en-US") +
+    " points\n\n" +
+    "Save this sending permanently?"
+  );
+
+  if (!confirmed) return;
+rocketSendingSaveInProgress = true;
+  doneButton.disabled = true;
+  doneInput.disabled = true;
+  doneButton.textContent = "Saving...";
+  doneStatus.textContent = "Saving confirmed sending...";
+  doneStatus.style.color = "#ffd700";
+
+  try {
+    const weeklyRecord =
+      await fhGetOrCreateRocketWeeklyRecord(item.host);
+
+   if (!sendingRequestId) {
+  sendingRequestId = crypto.randomUUID();
+}
+
+await fhAddRocketTransaction(
+  weeklyRecord.id,
+  "sending",
+  actualCoins,
+  "Confirmed sending added by admin",
+  sendingRequestId
+);
+    // Deduct actual sending from sender's available winning
+    const availableInput = document.getElementById(
+      "rocketAvailableSending"
+    );
+
+    const currentWinning = Number(
+      availableInput.value.replace(/,/g, "")
+    );
+
+    const remainingWinning = Math.max(
+      0,
+      currentWinning - actualCoins
+    );
+
+    availableInput.value =
+      remainingWinning.toLocaleString("en-US");
+doneButton.disabled = true;
+doneInput.disabled = true;
+doneButton.textContent = "✅ Sending Saved";
+    doneStatus.textContent =
+      "✓ Sending saved successfully!";
+    doneStatus.style.color = "#22c55e";
+rocketSendingSaveInProgress = false;
+    document
+      .getElementById("rocketGenerateSuggestions")
+      .click();
+
+  
+} catch (error) {
+  console.error("Done Sending failed:", error);
+
+  // Check whether Supabase saved the transaction
+  let savedTransaction = null;
+
+  if (sendingRequestId) {
+    try {
+      const rows = await fhSendingRequest(
+        "fh_rocket_transactions?request_id=eq." +
+          encodeURIComponent(sendingRequestId) +
+          "&select=id,sending_coins",
+        { method: "GET" }
+      );
+
+      savedTransaction = rows[0] || null;
+    } catch (checkError) {
+      console.error("Sending verification failed:", checkError);
+    }
+  }
+
+  if (savedTransaction) {
+    const availableInput = document.getElementById(
+      "rocketAvailableSending"
+    );
+
+    const currentWinning = Number(
+      availableInput.value.replace(/,/g, "")
+    );
+
+    availableInput.value = Math.max(
+      0,
+      currentWinning - Number(savedTransaction.sending_coins)
+    ).toLocaleString("en-US");
+
+    doneStatus.textContent =
+      "✓ Sending verified and saved successfully!";
+    doneStatus.style.color = "#22c55e";
+    doneButton.disabled = true;
+    doneInput.disabled = true;
+    doneButton.textContent = "✅ Sending Saved";
+
+    rocketSendingSaveInProgress = false;
+    document.getElementById("rocketGenerateSuggestions").click();
+    return;
+  }
+
+  doneStatus.textContent =
+    "⚠️ Saving could not be verified. Do not retry yet. " +
+    error.message;
+  doneStatus.style.color = "#ffb020";
+
+  doneButton.disabled = true;
+  doneInput.disabled = true;
+  doneButton.textContent = "⚠️ Verify Sending";
+
+  rocketSendingSaveInProgress = false;
+}
+});
+
+
+doneBox.append(
+  doneLabel,
+  doneInput,
+  doneButton,
+  doneStatus
+);
+
+/* FH EMPIRE — UPDATE SENDING UI */
+
+const updateSendingBox = document.createElement("div");
+updateSendingBox.style.cssText =
+  "margin-top:12px;padding:12px;background:#181818;" +
+  "border:1px solid #66551c;border-radius:9px;";
+
+const updateSendingButton = document.createElement("button");
+updateSendingButton.type = "button";
+updateSendingButton.textContent = "✏️ Update Sending";
+updateSendingButton.style.cssText =
+  "background:#d4a017;color:#111;border:0;" +
+  "padding:11px 14px;border-radius:7px;" +
+  "font-weight:bold;cursor:pointer;";
+
+const updateSendingList = document.createElement("div");
+
+updateSendingButton.addEventListener("click", async () => {
+  updateSendingButton.disabled = true;
+  updateSendingList.textContent = "Loading sending records...";
+
+  try {
+    const weekRecord = await fhLoadRocketWeeklyRecord(
+      item.host.id,
+      week.start
+    );
+
+    if (!weekRecord) {
+      updateSendingList.textContent =
+        "Is host ki current week mein koi sending nahi.";
+      return;
+    }
+
+    const transactions = await fhLoadRocketTransactions(
+      weekRecord.id
+    );
+
+    const sendingRecords = transactions.filter(
+      t => t.transaction_type === "sending"
+    );
+
+    updateSendingList.replaceChildren();
+
+    if (sendingRecords.length === 0) {
+      updateSendingList.textContent =
+        "Is host ki current week mein koi sending nahi.";
+      return;
+    }
+
+    const select = document.createElement("select");
+    select.style.cssText =
+      "width:100%;padding:10px;margin-top:10px;" +
+      "background:#222;color:white;border:1px solid #ffd700;";
+
+    sendingRecords.forEach(t => {
+      const option = document.createElement("option");
+      option.value = t.id;
+      option.textContent =
+        Number(t.sending_coins).toLocaleString("en-US") +
+        " coins — " +
+        new Date(t.transaction_date).toLocaleString();
+      select.appendChild(option);
+    });
+
+    updateSendingList.appendChild(select);
+const newCoinsLabel = document.createElement("p");
+newCoinsLabel.textContent = "New Sending Coins:";
+newCoinsLabel.style.cssText =
+  "color:#ffd700;margin:12px 0 6px;";
+
+const newCoinsInput = document.createElement("input");
+newCoinsInput.type = "text";
+newCoinsInput.inputMode = "numeric";
+newCoinsInput.placeholder = "Enter corrected coins";
+newCoinsInput.style.cssText =
+  "width:100%;padding:10px;background:#222;" +
+  "color:white;border:1px solid #ffd700;" +
+  "border-radius:7px;box-sizing:border-box;";
+
+const selectedInfo = document.createElement("p");
+selectedInfo.style.color = "#aaa";
+
+const refreshSelected = () => {
+  const selected = sendingRecords.find(
+    t => String(t.id) === select.value
+  );
+
+  if (!selected) return;
+
+  const oldCoins = Number(selected.sending_coins);
+
+  selectedInfo.textContent =
+    "Old Sending: " + oldCoins.toLocaleString("en-US") +
+    " coins";
+
+  newCoinsInput.value = oldCoins.toLocaleString("en-US");
+};
+
+newCoinsInput.addEventListener("input", () => {
+  const digits = newCoinsInput.value.replace(/\D/g, "");
+  newCoinsInput.value = digits
+    ? Number(digits).toLocaleString("en-US")
+    : "";
+});
+
+select.addEventListener("change", refreshSelected);
+
+updateSendingList.append(
+  selectedInfo,
+  newCoinsLabel,
+  newCoinsInput
+);
+
+refreshSelected();
+  } catch (error) {
+    updateSendingList.textContent =
+      "Error: " + error.message;
+  } finally {
+    updateSendingButton.disabled = false;
+  }
+});
+
+updateSendingBox.append(
+  updateSendingButton,
+  updateSendingList
+);
+
+/* FH EMPIRE — TEMPORARY HOST UNAVAILABLE */
+
+const unavailableBox = document.createElement("div");
+unavailableBox.style.cssText =
+  "margin-top:12px;padding:12px;background:#181818;" +
+  "border:1px solid #66551c;border-radius:9px;";
+
+const unavailableButton = document.createElement("button");
+unavailableButton.type = "button";
+unavailableButton.textContent = "🚫 Host Unavailable — Suggest Other";
+unavailableButton.style.cssText =
+  "background:#ef4444;color:white;border:0;" +
+  "padding:11px 14px;border-radius:7px;" +
+  "font-weight:bold;cursor:pointer;";
+
+const unavailableStatus = document.createElement("p");
+unavailableStatus.style.cssText =
+  "font-size:13px;color:#aaa;margin-top:9px;";
+
+unavailableButton.addEventListener("click", () => {
+  const confirmed = confirm(
+    item.host.name + " (" + item.host.id + ")" +
+    " ko is session mein unavailable mark karein?"
+  );
+
+  if (!confirmed) return;
+
+  rocketUnavailableHosts.add(String(item.host.id));
+
+  document
+    .getElementById("rocketGenerateSuggestions")
+    .click();
+});
+
+unavailableBox.append(
+  unavailableButton,
+  unavailableStatus
+);
+card.append(
+  heading,
+  details,
+  actions,
+  receivingBox,
+  doneBox,
+  updateSendingBox,
+  unavailableBox
+);
+
+        list.appendChild(card);
+      }
+
+      message.textContent =
+        count + " host suggestions generated. " +
+        "Remaining sending: " +
+        remaining.toLocaleString() + " coins.";
+
+      message.style.color = "#22c55e";
+
+    } catch (error) {
+      console.error("Smart sending error:", error);
+      message.textContent = "✕ " + error.message;
+      message.style.color = "#ff5c5c";
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
