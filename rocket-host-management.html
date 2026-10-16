@@ -1287,10 +1287,12 @@ receivingUSD: 0
       (sum, t) => sum + Number(t.sending_charge || 0),
       0
     );
-
-    totals.target += target;
-    totals.completed += completed;
-    totals.remaining += Math.max(0, target - completed);
+console.log("HOST STATUS CHECK:", host.id, host.name, host.status);
+  if (host.isActive === true) {
+  totals.target += target;
+  totals.completed += completed;
+  totals.remaining += Math.max(0, target - completed);
+}
     totals.charges += charges;
 
 const totalReceivingPoints = transactions.reduce(
