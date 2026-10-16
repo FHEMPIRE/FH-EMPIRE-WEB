@@ -1,11 +1,25 @@
 self.addEventListener("push", event => {
-    const data = event.data ? event.data.json() : {};
+    let data = {};
+
+    try {
+        data = event.data ? event.data.json() : {};
+    } catch (error) {
+        console.error("Invalid push payload:", error);
+    }
 
     const title = data.title || "FH EMPIRE";
+
     const options = {
         body: data.body || "You have a new notification.",
         icon: "images/logo.png",
         badge: "images/logo.png",
+
+        tag: data.orderId
+            ? `fh-order-${data.orderId}`
+            : (data.tag || "fh-general"),
+
+        renotify: false,
+
         data: {
             url: data.url || "admin.html"
         }
