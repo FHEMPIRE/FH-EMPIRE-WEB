@@ -881,12 +881,16 @@ let fhWithdrawalRequestKey = null;
 function fhRoundMoney(value) {
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 }
-
 function fhResetWithdrawalSave() {
   window.fhWithdrawalPreview = null;
   fhWithdrawalRequestKey = null;
   fhUpdateWithdrawalBtn.disabled = true;
+
   document.getElementById("fhWithdrawalUpdateActions").style.display = "none";
+
+  document.getElementById("fhWithdrawalPaidAmount").value = "";
+
+  document.getElementById("fhCopyWithdrawalMessage").style.display = "none";
 }
 
 document.getElementById("fhWithdrawalHost")
@@ -1038,7 +1042,31 @@ fhUpdateWithdrawalBtn.addEventListener("click", async () => {
     message.textContent = "✓ Withdrawal saved successfully. Batch: " + result;
     message.style.color = "#22c55e";
 
-    fhResetWithdrawalSave();
+   fhResetWithdrawalSave();
+
+// Clear inputs after successful save
+document.getElementById("fhWithdrawalAmount").value = "";
+
+const paidAmountInput =
+  document.getElementById("fhWithdrawalPaidAmount");
+
+if (paidAmountInput) {
+  paidAmountInput.value = "";
+}
+
+// Hide previous preview and copy button
+const previewBox = document.getElementById("fhWithdrawalResult");
+if (previewBox) {
+  previewBox.replaceChildren();
+  previewBox.style.display = "none";
+}
+
+const copyButton =
+  document.getElementById("fhCopyWithdrawalMessage");
+
+if (copyButton) {
+  copyButton.style.display = "none";
+}
     message.textContent = "✓ Withdrawal saved successfully. Batch: " + result;
 
    try {
