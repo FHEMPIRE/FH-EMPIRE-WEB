@@ -136,8 +136,10 @@ $("normalCoinsTotal").textContent =
     for (const record of list) {
      const host = allHosts.find(h => h.id === record.hostId);
 
+
 const historyHostName =
-  record.hostName || host?.name || "Unknown Host";
+  host?.name || record.hostName || "Unknown Host";
+
 
 const historyHostId = record.hostId;
 
@@ -1293,8 +1295,17 @@ function renderRewardAdjustments() {
     const received = record.received ??
       (Number(record.expected) - Number(record.minus));
 
-    details.textContent =
-      `${record.hostName} | ${record.date} | ` +
+    
+const latestHost = hosts().find(
+  host => String(host.id) === String(record.hostId)
+);
+
+const displayHostName =
+  latestHost?.name || record.hostName || "Unknown Host";
+
+details.textContent =
+  `${displayHostName} | ${record.date} | ` +
+
       `Level: ${record.level || "Old Record"} | ` +
       `Expected: ${rewardFmt(record.expected)} | ` +
       `Received: ${rewardFmt(received)} | ` +
@@ -1466,6 +1477,16 @@ rewardElement("saveRewardAdjustment")?.addEventListener(
 refreshRewardHosts();
 renderRewardAdjustments();
 updateRewardCollectionPreview();
+
+ 
+ 
+window.addEventListener("fh-hosts-updated", () => {
+  refreshHosts();
+  refreshRewardHosts();
+  renderHistory();
+  renderRewardAdjustments();
+  updateRewardCollectionPreview();
+});
 
   console.log("FH EMPIRE — Sending Records loaded.");
 })();

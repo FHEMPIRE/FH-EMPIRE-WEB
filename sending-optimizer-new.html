@@ -489,10 +489,25 @@ body.sending-optimizer-page {
     <p id="hostMessage"></p>
   </section>
 
-  <section class="optimizer-panel">
-    <h2>Saved Hosts</h2>
-    <div id="savedHosts" class="saved-host-grid"></div>
-  </section>
+<section class="optimizer-panel">
+  <h2>Saved Hosts</h2>
+
+  <button
+    type="button"
+    id="refreshAllHostNamesBtn"
+    style="margin-bottom:15px;"
+  >
+    🔄 Refresh All Host Names
+  </button>
+
+  <p
+    id="refreshHostNamesStatus"
+    style="color:#aaa;font-size:13px;"
+  ></p>
+
+  <div id="savedHosts" class="saved-host-grid"></div>
+</section>
+
   
 <!-- STEP 2: PAID SENDING RECORDS -->
 <section class="optimizer-panel" id="sendingRecordsSection">
@@ -938,6 +953,82 @@ poppoIdInput.addEventListener("input", () => {
   }, 450);
 });
 
+const refreshNamesBtn = document.getElementById("refreshAllHostNamesBtn");
+const refreshNamesStatus = document.getElementById("refreshHostNamesStatus");
+
+refreshNamesBtn.addEventListener("click", async () => {
+  refreshNamesBtn.disabled = true;
+
+  let updated = 0;
+  let failed = 0;
+
+  try {
+    const savedHosts = getHosts();
+
+    for (let i = 0; i < savedHosts.length; i++) {
+      const host = savedHosts[i];
+
+      refreshNamesStatus.textContent =
+        `Checking ${i + 1} / ${savedHosts.length} hosts...`;
+
+      try {
+        const response = await fetch(PROFILE_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ poppoId: String(host.id) })
+        });
+
+        if (!response.ok) throw new Error("Profile request failed");
+
+        const data = await response.json();
+
+        if (
+          data.success !== true ||
+          String(data.id) !== String(host.id) ||
+          typeof data.nickname !== "string" ||
+          !data.nickname.trim()
+        ) {
+          failed++;
+          continue;
+        }
+
+        const latestName = data.nickname.trim();
+
+        if (latestName === host.name) continue;
+
+        const updatedHost = { ...host, name: latestName };
+
+        await fhSaveHost(updatedHost);
+
+        const currentHosts = getHosts();
+        const index = currentHosts.findIndex(
+          item => String(item.id) === String(host.id)
+        );
+
+        if (index !== -1) {
+          currentHosts[index] = {
+            ...currentHosts[index],
+            name: latestName
+          };
+          saveHosts(currentHosts);
+        }
+
+        updated++;
+        renderHosts();
+        window.dispatchEvent(new Event("fh-hosts-updated"));
+      } catch (error) {
+        console.error("Host name refresh failed:", host.id, error);
+        failed++;
+      }
+    }
+
+    refreshNamesStatus.textContent =
+      `✓ Completed: ${updated} updated, ${failed} failed.`;
+  } finally {
+    refreshNamesBtn.disabled = false;
+  }
+});
+
 function renderHosts() {
   const hosts = getHosts();
   savedHostsBox.replaceChildren();
@@ -1098,8 +1189,11 @@ try {
   const wasEditing = Boolean(editingId);
   const hostToSave = hosts.find(host => host.id === id);
 
-  await fhSaveHost(hostToSave);
-  saveHosts(hosts);
+ 
+await fhSaveHost(hostToSave);
+saveHosts(hosts);
+
+window.dispatchEvent(new Event("fh-hosts-updated"));
 
     resetForm();
     poppoIdInput.readOnly = false;
