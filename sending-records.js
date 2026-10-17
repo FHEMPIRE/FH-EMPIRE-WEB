@@ -117,6 +117,167 @@ $("normalCoinsTotal").textContent =
   }
 
   function renderHistory() {
+ const cards = document.getElementById("sendingHistoryCards");
+
+if (cards) {
+  const hostFilter = document.getElementById("historyHostFilter");
+  const typeFilter = document.getElementById("historyTypeFilter");
+  const dateFilter = document.getElementById("historyDateFilter");
+  const summary = document.getElementById("sendingHistorySummary");
+
+  const allHosts = hosts();
+  const allRecords = [...records()].sort((a, b) =>
+    b.date.localeCompare(a.date)
+  );
+
+  // Populate host filter without losing selection
+  if (hostFilter) {
+    const selected = hostFilter.value;
+    hostFilter.replaceChildren(new Option("All Hosts", ""));
+
+    const hostIds = [...new Set(allRecords.map(r => String(r.hostId)))];
+
+    hostIds.forEach(id => {
+      const host = allHosts.find(h => String(h.id) === id);
+      const record = allRecords.find(r => String(r.hostId) === id);
+
+      hostFilter.add(new Option(
+        `${host?.name || record?.hostName || id} (${id})`,
+        id
+      ));
+    });
+
+    hostFilter.value = selected;
+  }
+
+  const filtered = allRecords.filter(record => {
+    const host = allHosts.find(
+      h => String(h.id) === String(record.hostId)
+    );
+
+    return (
+      (!hostFilter?.value ||
+        String(record.hostId) === hostFilter.value) &&
+      (!typeFilter?.value ||
+        host?.type === typeFilter.value) &&
+      (!dateFilter?.value ||
+        record.date === dateFilter.value)
+    );
+  });
+
+  // Update totals
+  if (summary) {
+    const values = [
+      filtered.length,
+      filtered.reduce((sum, r) => sum + Number(r.sending || 0), 0),
+      filtered.reduce((sum, r) => sum + Number(r.sending || 0) * 0.7, 0),
+      filtered.reduce((sum, r) => sum + Number(r.purchaseCost || 0), 0)
+    ];
+
+    summary.querySelectorAll("strong").forEach((el, index) => {
+      el.textContent =
+        (index === 3 ? "Rs " : "") + format(values[index]);
+    });
+  }
+
+  cards.replaceChildren();
+
+  if (!filtered.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "No records found for selected filters.";
+    empty.style.color = "#aaa";
+    cards.appendChild(empty);
+  }
+
+  filtered.forEach(record => {
+    const host = allHosts.find(
+      h => String(h.id) === String(record.hostId)
+    );
+
+    const card = document.createElement("div");
+    card.className = "fh-history-card";
+
+    const heading = document.createElement("strong");
+    heading.textContent =
+      host?.name || record.hostName || "Unknown Host";
+
+    const details = document.createElement("div");
+    details.style.cssText =
+      "font-size:12px;color:#aaa;margin:8px 0;line-height:1.8;";
+    details.textContent =
+      `ID: ${record.hostId} | Date: ${record.date}`;
+
+    const stats = document.createElement("div");
+    stats.style.cssText =
+      "font-size:13px;line-height:2;";
+    stats.textContent =
+      `Sending: ${format(record.sending)} | ` +
+      `Receiving: ${format(record.sending * 0.7)} | ` +
+      `Cost: Rs ${format(record.purchaseCost)} | ` +
+      `Status: ${record.saleStatus}`;
+// Record Action Buttons
+const actions = document.createElement("div");
+actions.style.cssText = `
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid #333;
+`;
+
+// Edit Button
+const editBtn = document.createElement("button");
+editBtn.type = "button";
+editBtn.textContent = "✏️ Edit";
+editBtn.style.cssText = `
+  flex:1;
+  background:#ffd700;
+  color:#111;
+  border:none;
+  border-radius:8px;
+  padding:10px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+`;
+
+editBtn.addEventListener("click", () => {
+  document.getElementById("closeSendingHistory")?.click();
+  editRecord(record.id);
+});
+
+// Delete Button
+const deleteBtn = document.createElement("button");
+deleteBtn.type = "button";
+deleteBtn.textContent = "🗑 Delete";
+deleteBtn.style.cssText = `
+  flex:1;
+  background:#351818;
+  color:#ff8888;
+  border:1px solid #703030;
+  border-radius:8px;
+  padding:10px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+`;
+
+deleteBtn.addEventListener("click", () => {
+  deleteRecord(record.id);
+});
+
+actions.style.marginTop = "auto";
+
+actions.append(editBtn, deleteBtn);
+card.append(heading, details, stats, actions);
+cards.appendChild(card);
+  });
+
+  // Refresh when any filter changes
+  [hostFilter, typeFilter, dateFilter].forEach(filter => {
+    if (filter) filter.onchange = renderHistory;
+  });
+}
     const body = $("sendingHistoryBody");
     body.replaceChildren();
 

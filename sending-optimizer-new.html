@@ -427,6 +427,190 @@ body.sending-optimizer-page {
   }
 }
 
+/* FH EMPIRE — RESPONSIVE SENDING HISTORY */
+
+.fh-history-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, .86);
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.fh-history-modal {
+  width: 100%;
+  max-width: 1040px;
+  max-height: 92dvh;
+  background: #101010;
+  border: 1px solid #665300;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 18px 60px rgba(0,0,0,.6);
+  box-sizing: border-box;
+}
+
+.fh-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 20px;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.fh-history-header h2 {
+  color: #ffd700;
+  font-size: 19px;
+  margin: 0;
+}
+
+.fh-history-header p {
+  color: #888;
+  font-size: 11px;
+  margin: 5px 0 0;
+}
+
+.fh-history-close {
+  flex: 0 0 36px;
+  width: 36px !important;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 !important;
+  background: #252525;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.fh-history-content {
+  padding: 18px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.fh-history-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.fh-history-filters select,
+.fh-history-filters input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: #191919;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 12px;
+}
+
+.fh-history-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.fh-history-stat {
+  background: #191919;
+  border: 1px solid #333;
+  border-radius: 9px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.fh-history-stat span {
+  display: block;
+  color: #999;
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.fh-history-stat strong {
+  display: block;
+  color: #ffd700;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.fh-history-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 650px) {
+  .fh-history-overlay {
+    padding: 8px;
+  }
+
+  .fh-history-modal {
+    max-height: 96dvh;
+    border-radius: 12px;
+  }
+
+  .fh-history-header {
+    padding: 13px;
+  }
+
+  .fh-history-header h2 {
+    font-size: 16px;
+  }
+
+  .fh-history-content {
+    padding: 12px;
+  }
+
+  .fh-history-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  #historyDateFilter {
+    grid-column: 1 / -1;
+  }
+
+  .fh-history-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fh-history-stat {
+    padding: 10px;
+  }
+
+  .fh-history-stat strong {
+    font-size: 14px;
+  }
+
+  .fh-history-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Equal height Sending History cards */
+.fh-history-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.fh-history-card > div:last-child {
+  margin-top: auto;
+}
 </style>
 </head>
 
@@ -682,28 +866,82 @@ body.sending-optimizer-page {
 <section class="optimizer-panel">
   <h2>4 · Sending History</h2>
 
-  <div style="overflow-x:auto;">
-    <table style="width:100%;border-collapse:collapse;">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Host</th>
-          <th>Sending</th>
-          <th>Receiving</th>
-          <th>Purchase Cost</th>
-          <th>Sale Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-
-      <tbody id="sendingHistoryBody">
-        <tr>
-          <td colspan="7">No sending records yet.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <button type="button" id="openSendingHistory"
+    style="background:#ffd700;color:#111;border:0;
+    padding:12px 18px;border-radius:8px;
+    font-weight:700;cursor:pointer;">
+    📋 View Sending Records
+  </button>
 </section>
+
+<!-- SENDING HISTORY POPUP -->
+<div id="sendingHistoryPopup" class="fh-history-overlay">
+
+  <div class="fh-history-modal">
+
+    <div class="fh-history-header">
+      <div>
+        <h2>📋 Sending Records</h2>
+        <p>FH EMPIRE · Sending Management</p>
+      </div>
+
+      <button type="button" id="closeSendingHistory"
+        class="fh-history-close" aria-label="Close">
+        ✕
+      </button>
+    </div>
+
+    <div class="fh-history-content">
+
+      <div id="sendingHistoryFilters" class="fh-history-filters">
+        <select id="historyHostFilter">
+          <option value="">All Hosts</option>
+        </select>
+
+        <select id="historyTypeFilter">
+          <option value="">All Types</option>
+          <option value="salarybase">Salary Base</option>
+          <option value="halfhalf">Half-Half</option>
+          <option value="rocket">Rocket</option>
+          <option value="star">Star</option>
+        </select>
+
+        <input type="date" id="historyDateFilter">
+      </div>
+
+      <div id="sendingHistorySummary" class="fh-history-summary">
+        <div class="fh-history-stat">
+          <span>Total Records</span>
+          <strong>—</strong>
+        </div>
+        <div class="fh-history-stat">
+          <span>Total Sending</span>
+          <strong>—</strong>
+        </div>
+        <div class="fh-history-stat">
+          <span>Total Receiving</span>
+          <strong>—</strong>
+        </div>
+        <div class="fh-history-stat">
+          <span>Purchase Cost</span>
+          <strong>—</strong>
+        </div>
+      </div>
+
+      <div id="sendingHistoryCards" class="fh-history-cards">
+        <p style="color:#aaa;">Loading sending records...</p>
+      </div>
+
+      <!-- Keep original tbody for existing sending-records.js -->
+      <table style="display:none;">
+        <tbody id="sendingHistoryBody"></tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+
+
 
 <section id="rewardAdjustmentSection" class="optimizer-panel reward-panel">
   <h2>6 · Daily Reward Collection</h2>
@@ -1550,6 +1788,36 @@ async function initializeHosts() {
 initializeHosts();
 </script>
 <script src="sending-records.js"></script>
+
+<script>
+(() => {
+  const popup = document.getElementById("sendingHistoryPopup");
+  const openBtn = document.getElementById("openSendingHistory");
+  const closeBtn = document.getElementById("closeSendingHistory");
+
+  function closePopup() {
+    popup.style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  openBtn.addEventListener("click", () => {
+    popup.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  });
+
+  closeBtn.addEventListener("click", closePopup);
+
+  popup.addEventListener("click", event => {
+    if (event.target === popup) closePopup();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && popup.style.display === "flex") {
+      closePopup();
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
