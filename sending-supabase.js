@@ -221,6 +221,7 @@ async function fhLoadRocketEsportsHosts() {
 
 async function fhUpdateRocketEsportsHost(poppoId, changes) {
   const allowedFields = [
+    "host_name",
     "host_category",
     "receiving_target",
     "sending_target",

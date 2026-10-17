@@ -428,7 +428,20 @@
 </section>
 <section class="panel">
   <h2>🚀 Rocket & 🎮 Esports Saved Hosts</h2>
+<button
+  type="button"
+  id="rocketRefreshAllHostNamesBtn"
+  style="margin-bottom:15px;background:#ffd700;color:#111;
+  border:0;border-radius:8px;padding:11px 16px;
+  font-weight:700;cursor:pointer;"
+>
+  🔄 Refresh All Host Names
+</button>
 
+<p
+  id="rocketRefreshHostNamesStatus"
+  style="color:#aaa;font-size:13px;"
+></p>
   <div id="rocketHostList" class="empty">
     No Rocket or Esports hosts registered yet.
   </div>
@@ -2249,6 +2262,11 @@ if (wasOpen) {
 
 
       editButton.addEventListener("click", () => {
+  hideRocketPopup();
+
+  rocketCategoryInput.value = host.category;
+  rocketPoppoInput.value = host.id;
+  rocketNameInput.value = host.name;  
         rocketCategoryInput.value = host.category;
         rocketPoppoInput.value = host.id;
         rocketNameInput.value = host.name;
@@ -2307,11 +2325,14 @@ if (wasOpen) {
         statusButton.textContent = "Updating...";
 
         try {
-          await fhUpdateRocketEsportsHost(host.id, {
-            is_active: newStatus
-          });
+         await fhUpdateRocketEsportsHost(host.id, {
+  is_active: newStatus
+});
 
-        await loadRocketEsportsPanel();
+hideRocketPopup();
+popup.remove();
+
+await loadRocketEsportsPanel();
         } catch (error) {
           console.error("Host status update failed:", error);
           alert("Unable to update host status: " + error.message);
@@ -2836,9 +2857,82 @@ copySenderButton.addEventListener("click", async () => {
   receivingButton,
   copySenderButton,
   statusButton
-);
-      card.append(header, actions, details);
-      container.appendChild(card);
+);// FH EMPIRE — Compact Rocket Host Card + Popup
+const popup = document.createElement("div");
+popup.style.cssText =
+  "display:none;position:fixed;inset:0;z-index:99999;" +
+  "background:rgba(0,0,0,.85);padding:15px;" +
+  "align-items:center;justify-content:center;";
+
+const modal = document.createElement("div");
+modal.style.cssText =
+  "background:#151515;border:1px solid #80651d;" +
+  "border-radius:14px;width:100%;max-width:650px;" +
+  "max-height:90vh;overflow-y:auto;padding:18px;" +
+  "box-sizing:border-box;color:white;";
+
+const popupHeader = document.createElement("div");
+popupHeader.style.cssText =
+  "display:flex;justify-content:space-between;" +
+  "align-items:center;gap:12px;margin-bottom:15px;";
+
+const popupTitle = document.createElement("strong");
+popupTitle.textContent = host.name + " (" + host.id + ")";
+popupTitle.style.cssText =
+  "color:#ffd700;font-size:16px;overflow-wrap:anywhere;";
+
+const closePopup = document.createElement("button");
+closePopup.type = "button";
+closePopup.textContent = "✕";
+closePopup.style.cssText =
+  "background:#333;color:white;border:0;" +
+  "border-radius:7px;padding:8px 12px;cursor:pointer;";
+
+function hideRocketPopup() {
+  popup.style.display = "none";
+  document.body.style.overflow = "";
+}
+
+closePopup.addEventListener("click", hideRocketPopup);
+
+popup.addEventListener("click", event => {
+  if (event.target === popup) hideRocketPopup();
+});
+
+popupHeader.append(popupTitle, closePopup);
+modal.append(popupHeader, details, actions);
+popup.appendChild(modal);
+document.body.appendChild(popup);
+
+// Keep card compact
+card.style.cssText =
+  "background:#151515;border:1px solid #66551c;" +
+  "border-radius:10px;padding:12px;margin-bottom:0;" +
+  "text-align:left;";
+
+// Show live sending status on compact host card
+sendingStatusLabel.remove();
+paymentStatusLabel.remove();
+
+identity.appendChild(sendingStatusLabel);
+
+// Hide popup's report until info is clicked
+details.hidden = true;
+
+infoButton.addEventListener("click", () => {
+  popup.style.display = "flex";
+  document.body.style.overflow = "hidden";
+});
+
+// Open popup by clicking card
+card.addEventListener("click", event => {
+  if (event.target.closest("button")) return;
+  popup.style.display = "flex";
+  document.body.style.overflow = "hidden";
+});
+
+card.appendChild(header);
+container.appendChild(card);
     }
 
   } catch (error) {
@@ -2850,7 +2944,104 @@ copySenderButton.addEventListener("click", async () => {
 
 
 loadRocketEsportsPanel();
+// FH EMPIRE — Refresh All Rocket & Esports Host Names
+const rocketRefreshNamesBtn =
+  document.getElementById("rocketRefreshAllHostNamesBtn");
 
+const rocketRefreshNamesStatus =
+  document.getElementById("rocketRefreshHostNamesStatus");
+
+rocketRefreshNamesBtn.addEventListener("click", async () => {
+  if (rocketRefreshNamesBtn.disabled) return;
+
+  rocketRefreshNamesBtn.disabled = true;
+
+  let updated = 0;
+  let failed = 0;
+  let unchanged = 0;
+
+  try {
+    const hosts = await fhLoadRocketEsportsHosts();
+
+    for (let i = 0; i < hosts.length; i++) {
+      const host = hosts[i];
+
+      rocketRefreshNamesStatus.textContent =
+        `Checking ${i + 1} / ${hosts.length} hosts...`;
+
+      try {
+        const response = await fetch(ROCKET_PROFILE_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            poppoId: String(host.id)
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("Profile request failed");
+        }
+
+        const data = await response.json();
+
+        if (
+          data.success !== true ||
+          String(data.id) !== String(host.id) ||
+          typeof data.nickname !== "string" ||
+          !data.nickname.trim()
+        ) {
+          failed++;
+          continue;
+        }
+
+        const latestName = data.nickname.trim();
+
+        if (latestName === host.name) {
+          unchanged++;
+          continue;
+        }
+
+        // Update only the host name in Supabase
+        await fhUpdateRocketEsportsHost(host.id, {
+          host_name: latestName
+        });
+
+        updated++;
+
+      } catch (error) {
+        console.error(
+          "Rocket host name refresh failed:",
+          host.id,
+          error
+        );
+        failed++;
+      }
+    }
+
+    // Refresh cards and dashboard after all checks
+    await loadRocketEsportsPanel();
+
+    rocketRefreshNamesStatus.textContent =
+      `✓ Completed: ${updated} updated, ` +
+      `${unchanged} unchanged, ${failed} failed.`;
+
+    rocketRefreshNamesStatus.style.color =
+      failed ? "#facc15" : "#4ade80";
+
+  } catch (error) {
+    console.error("Rocket names refresh failed:", error);
+
+    rocketRefreshNamesStatus.textContent =
+      "✕ " + error.message;
+
+    rocketRefreshNamesStatus.style.color = "#ff7777";
+
+  } finally {
+    rocketRefreshNamesBtn.disabled = false;
+  }
+});
 const rocketPoppoInput = document.getElementById("rocketPoppoId");
 document.getElementById("rocketCancelEdit").addEventListener("click", () => {
   clearTimeout(rocketLookupTimer);
