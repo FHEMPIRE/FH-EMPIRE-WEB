@@ -889,6 +889,36 @@ function resetForm() {
   addHostBtn.textContent = "+ Add Host";
 }
 
+function editHost(id) {
+  const host = getHosts().find(
+    item => String(item.id) === String(id)
+  );
+
+  if (!host) {
+    showMessage("Host not found.", "#ff5c5c");
+    return;
+  }
+
+  resetForm();
+
+  editingId = String(host.id);
+  verifiedId = String(host.id);
+
+  poppoIdInput.value = host.id;
+  poppoIdInput.readOnly = true;
+
+  hostNameInput.value = host.name;
+  hostTypeInput.value = host.type;
+
+  verifyResult.textContent = "✓ Saved Host";
+  verifyResult.style.color = "#22c55e";
+
+  addHostBtn.disabled = false;
+  addHostBtn.textContent = "Update Host";
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 async function verifyPoppoId(id, requestId) {
   verifyResult.textContent = "Checking Poppo account...";
   verifyResult.style.color = "#ffd700";
@@ -1048,113 +1078,377 @@ function renderHosts() {
     star: "Star"
   };
 
+  const grid = document.createElement("div");
+  grid.style.cssText =
+    "display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:10px;";
+
   hosts.forEach(host => {
     const card = document.createElement("div");
-    card.className = "host-card";
+    card.style.cssText =
+      "background:#101010;border:1px solid #655200;border-radius:10px;" +
+      "padding:10px 12px;display:flex;align-items:center;" +
+      "justify-content:space-between;gap:10px;min-width:0;";
+
+    const info = document.createElement("div");
+    info.style.cssText = "min-width:0;flex:1;";
 
     const name = document.createElement("strong");
     name.textContent = host.name;
+    name.style.cssText =
+      "display:block;color:#ffd700;font-size:13px;" +
+      "overflow-wrap:anywhere;";
 
-    const id = document.createElement("p");
-    id.textContent = "Poppo ID: " + host.id;
+    const meta = document.createElement("div");
+    meta.textContent =
+      host.id + " · " + (typeLabels[host.type] || host.type);
+    meta.style.cssText =
+      "color:#aaa;font-size:11px;margin-top:4px;overflow-wrap:anywhere;";
 
-    const type = document.createElement("p");
-    type.textContent =
-      "Host Type: " + (typeLabels[host.type] || host.type);
+    info.append(name, meta);
 
-    const editBtn = document.createElement("button");
-    editBtn.className = "host-action";
-    editBtn.textContent = "Edit Host";
-    editBtn.addEventListener("click", () => editHost(host.id));
+    const viewBtn = document.createElement("button");
+    viewBtn.type = "button";
+    viewBtn.textContent = "ⓘ";
+    viewBtn.title = "View Host Details";
+    viewBtn.style.cssText =
+      "background:#28220a;color:#ffd700;border:1px solid #655200;" +
+      "border-radius:8px;padding:7px 11px;font-size:19px;" +
+      "cursor:pointer;width:auto;flex-shrink:0;";
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "host-action delete-action";
-    deleteBtn.textContent = "Delete";
-    deleteBtn.addEventListener("click", () => deleteHost(host.id));
+    viewBtn.addEventListener("click", () => openHostPopup(host.id));
 
-   
-const statusBtn = document.createElement("button");
-statusBtn.className = "host-action";
-
-const isActive = host.isActive !== false;
-
-statusBtn.textContent = isActive
-  ? "🟢 Active — Set Inactive"
-  : "🔴 Inactive — Set Active";
-
-statusBtn.addEventListener("click", async () => {
-  const updatedHost = {
-    ...host,
-    isActive: !isActive
-  };
-
-  statusBtn.disabled = true;
-
-  try {
-    await fhSaveHost(updatedHost);
-
-    const hosts = getHosts().map(item =>
-      item.id === host.id ? updatedHost : item
-    );
-
-    saveHosts(hosts);
-    renderHosts();
-
-    showMessage(
-      updatedHost.isActive
-        ? "✓ Host activated successfully."
-        : "✓ Host deactivated successfully.",
-      "#22c55e"
-    );
-  } catch (error) {
-    console.error("Unable to update host status:", error);
-    statusBtn.disabled = false;
-    showMessage("Unable to update host status.", "#ff5c5c");
-  }
-});
-
-card.append(name, id, type, statusBtn, editBtn, deleteBtn);
-
-    savedHostsBox.appendChild(card);
+    card.append(info, viewBtn);
+    grid.appendChild(card);
   });
+
+  savedHostsBox.appendChild(grid);
 }
 
-function editHost(id) {
-  const host = getHosts().find(item => item.id === id);
+function openHostPopup(hostId) {
+  const host = getHosts().find(h => String(h.id) === String(hostId));
   if (!host) return;
 
-  resetForm();
+  document.getElementById("fhHostPopupOverlay")?.remove();
 
-  editingId = host.id;
-  verifiedId = host.id;
-  poppoIdInput.value = host.id;
-  poppoIdInput.readOnly = true;
-  hostNameInput.value = host.name;
-  hostTypeInput.value = host.type;
-  verifyResult.textContent = "✓ Saved Host";
-  verifyResult.style.color = "#22c55e";
-  addHostBtn.disabled = false;
-  addHostBtn.textContent = "Update Host";
+  const typeLabels = {
+    salarybase: "Salary Base",
+    halfhalf: "Half-Half",
+    rocket: "Rocket",
+    star: "Star"
+  };
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
+  const overlay = document.createElement("div");
+  overlay.id = "fhHostPopupOverlay";
+  overlay.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,.82);" +
+    "z-index:99999;display:flex;align-items:center;" +
+    "justify-content:center;padding:15px;box-sizing:border-box;";
 
-async function deleteHost(id) {
-  if (!confirm("Are you sure you want to delete this host?")) return;
+  const modal = document.createElement("div");
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-label", "Host Details");
+  modal.style.cssText =
+    "background:#151515;border:1px solid #806700;border-radius:14px;" +
+    "padding:18px;width:100%;max-width:440px;max-height:85vh;" +
+    "overflow-y:auto;box-sizing:border-box;color:white;";
 
-  try {
-    await fhDeleteHost(id);
+  const header = document.createElement("div");
+  header.style.cssText =
+    "display:flex;justify-content:space-between;align-items:flex-start;gap:12px;";
 
-    saveHosts(getHosts().filter(host => host.id !== id));
-    resetForm();
-    poppoIdInput.readOnly = false;
-    renderHosts();
+  const identity = document.createElement("div");
 
-    showMessage("✓ Host deleted successfully.", "#22c55e");
-  } catch (error) {
-    console.error("Unable to delete host:", error);
-    showMessage("Unable to delete host from Supabase.", "#ff5c5c");
+  const title = document.createElement("strong");
+  title.textContent = host.name;
+  title.style.cssText =
+    "display:block;color:#ffd700;font-size:17px;overflow-wrap:anywhere;";
+
+  const subtitle = document.createElement("div");
+  subtitle.textContent =
+    host.id + " · " + (typeLabels[host.type] || host.type);
+  subtitle.style.cssText = "color:#aaa;font-size:12px;margin-top:5px;";
+
+  identity.append(title, subtitle);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "×";
+  closeBtn.type = "button";
+  closeBtn.setAttribute("aria-label", "Close popup");
+  closeBtn.style.cssText =
+    "background:transparent;color:#fff;border:0;" +
+    "font-size:27px;cursor:pointer;width:auto;padding:0 5px;";
+
+  const close = () => {
+    overlay.remove();
+    document.removeEventListener("keydown", onKeyDown);
+  };
+
+  const onKeyDown = event => {
+    if (event.key === "Escape") close();
+  };
+
+  document.addEventListener("keydown", onKeyDown);
+  closeBtn.addEventListener("click", close);
+
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) close();
+  });
+
+  header.append(identity, closeBtn);
+
+  const divider = document.createElement("div");
+  divider.style.cssText =
+    "height:1px;background:#3a321b;margin:15px 0;";
+
+ 
+  // FH EMPIRE — LIVE 7-DAY HOST REWARD REPORT
+  const rewards = document.createElement("div");
+  rewards.style.cssText =
+    "background:#202020;border:1px solid #393939;" +
+    "border-radius:9px;padding:13px;text-align:left;" +
+    "font-size:12px;color:#ddd;";
+
+  const rewardTitle = document.createElement("strong");
+  rewardTitle.textContent = "📊 7-Day Reward & Sending Report";
+  rewardTitle.style.cssText =
+    "display:block;color:#ffd700;font-size:14px;margin-bottom:13px;";
+
+  rewards.appendChild(rewardTitle);
+
+  const fmt = n => Math.round(n).toLocaleString("en-US");
+
+  function reportRow(label, value, highlight = false) {
+    const row = document.createElement("div");
+    row.style.cssText =
+      "display:flex;justify-content:space-between;" +
+      "align-items:center;gap:10px;padding:7px 0;" +
+      "border-bottom:1px solid #343434;";
+
+    const left = document.createElement("span");
+    left.textContent = label;
+    left.style.color = "#aaa";
+
+    const right = document.createElement("strong");
+    right.textContent = value;
+    right.style.cssText =
+      "color:" + (highlight ? "#ffd700" : "#fff") + ";" +
+      "text-align:right;overflow-wrap:anywhere;";
+
+    row.append(left, right);
+    rewards.appendChild(row);
   }
+
+  if (!["salarybase", "halfhalf"].includes(host.type)) {
+    reportRow("Reward Status", "Not applicable");
+  } else if (
+    !window.FHSendingRecords ||
+    typeof window.FHSendingRecords.rollingReceiving !== "function"
+  ) {
+    reportRow("Reward Status", "Sending records not loaded");
+  } else {
+    const api = window.FHSendingRecords;
+    const today = api.poppoToday();
+
+    const shiftDate = (date, days) => {
+      const d = new Date(date + "T00:00:00Z");
+      d.setUTCDate(d.getUTCDate() + days);
+      return d.toISOString().slice(0, 10);
+    };
+
+    const levels = [
+      { level: "S", target: 50000000, daily: 480000 },
+      { level: "A", target: 22000000, daily: 280000 },
+      { level: "B", target: 10000000, daily: 150000 },
+      { level: "C", target: 7000000, daily: 120000 },
+      { level: "D", target: 4000000, daily: 84000 },
+      { level: "E", target: 2000000, daily: 54000 },
+      { level: "F", target: 1200000, daily: 36000 },
+      { level: "G", target: 900000, daily: 27000 },
+      { level: "H", target: 300000, daily: 10000 },
+      { level: "I", target: 150000, daily: 6000 }
+    ];
+
+    const getLevel = receiving =>
+      levels.find(l => receiving >= l.target) || null;
+
+    const getNext = receiving =>
+      [...levels].reverse().find(l => receiving < l.target) || null;
+
+    const history = api.records();
+    const currentReceiving = api.rollingReceiving(host.id);
+    const current = getLevel(currentReceiving);
+    const next = getNext(currentReceiving);
+
+    reportRow("Current 7-Day Receiving", fmt(currentReceiving) + " points");
+  reportRow(
+  "Current Reward Level",
+  current
+    ? current.level + " — " +
+      fmt(current.daily / (["I", "H"].includes(current.level) ? 2 : 3)) +
+      " pts/hour"
+    : "Below I",
+  true
+);
+    reportRow("Current Daily Reward", fmt(current?.daily || 0) + " points");
+   reportRow(
+  "Next Reward Level",
+  next
+    ? next.level + " — " +
+      fmt(next.daily / (["I", "H"].includes(next.level) ? 2 : 3)) +
+      " pts/hour"
+    : "Maximum S",
+  true
+);
+
+    const neededReceiving = next
+      ? Math.max(0, next.target - currentReceiving)
+      : 0;
+
+  const neededSending = Math.ceil((neededReceiving / 0.7) / 10000) * 10000;
+    reportRow(
+      "Sending Required for Next Level",
+      next ? fmt(neededSending) + " coins" : "Maximum reached",
+      true
+    );
+
+    const heading = document.createElement("strong");
+    heading.textContent = "📅 Next 7 Poppo Days";
+    heading.style.cssText =
+      "display:block;color:#ffd700;margin:16px 0 7px;";
+    rewards.appendChild(heading);
+
+    let totalRewardPoints = 0;
+
+    for (let day = 0; day < 7; day++) {
+      const date = shiftDate(today, day);
+      const firstDay = shiftDate(date, -6);
+
+      const receiving = history
+        .filter(r =>
+          String(r.hostId) === String(host.id) &&
+          r.date >= firstDay &&
+          r.date <= date
+        )
+        .reduce(
+          (sum, r) => sum + Number(r.sending || 0) * 0.7,
+          0
+        );
+
+      const level = getLevel(receiving);
+      const dailyReward = level?.daily || 0;
+
+      totalRewardPoints += dailyReward;
+
+      reportRow(
+        "Day " + (day + 1) + " · " + date,
+        (level?.level || "Below I") + " — " +
+        fmt(dailyReward) + " pts"
+      );
+    }
+
+    reportRow("Total 7-Day Reward", fmt(totalRewardPoints) + " points", true);
+    reportRow(
+      "Total Reward USD",
+      "$" + (totalRewardPoints / 10000).toFixed(2),
+      true
+    );
+
+    const note = document.createElement("p");
+    note.textContent =
+      "Projection assumes no additional sending. " +
+      "Reward is estimated from saved sending records only.";
+    note.style.cssText =
+      "color:#999;font-size:10px;line-height:1.6;margin:10px 0 0;";
+    rewards.appendChild(note);
+  }
+
+
+  const actions = document.createElement("div");
+  actions.style.cssText =
+    "display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;";
+
+  function makeButton(label, background, color) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.style.cssText =
+      "background:" + background + ";color:" + color + ";" +
+      "border:0;border-radius:7px;padding:10px 12px;" +
+      "font-size:12px;font-weight:700;cursor:pointer;width:auto;";
+    return button;
+  }
+
+  const editBtn = makeButton("✏️ Edit", "#ffd700", "#111");
+  editBtn.addEventListener("click", () => {
+    close();
+    editHost(host.id);
+  });
+
+  const isActive = host.isActive !== false;
+  const statusBtn = makeButton(
+    isActive ? "⏸ Set Inactive" : "▶ Set Active",
+    "#303030",
+    "#ffd700"
+  );
+
+  statusBtn.addEventListener("click", async () => {
+    const updatedHost = { ...host, isActive: !isActive };
+    statusBtn.disabled = true;
+
+    try {
+      await fhSaveHost(updatedHost);
+
+      saveHosts(getHosts().map(item =>
+        String(item.id) === String(host.id) ? updatedHost : item
+      ));
+
+      close();
+      renderHosts();
+
+      showMessage(
+        updatedHost.isActive
+          ? "✓ Host activated successfully."
+          : "✓ Host deactivated successfully.",
+        "#22c55e"
+      );
+    } catch (error) {
+      console.error("Unable to update host status:", error);
+      statusBtn.disabled = false;
+      showMessage("Unable to update host status.", "#ff5c5c");
+    }
+  });
+
+  const deleteBtn = makeButton("🗑 Delete", "#451b1b", "#ff8888");
+  deleteBtn.addEventListener("click", async () => {
+    if (!confirm("Are you sure you want to delete this host?")) return;
+
+    deleteBtn.disabled = true;
+
+    try {
+      await fhDeleteHost(host.id);
+
+      saveHosts(getHosts().filter(item =>
+        String(item.id) !== String(host.id)
+      ));
+
+      resetForm();
+      poppoIdInput.readOnly = false;
+      close();
+      renderHosts();
+      showMessage("✓ Host deleted successfully.", "#22c55e");
+    } catch (error) {
+      console.error("Unable to delete host:", error);
+      deleteBtn.disabled = false;
+      showMessage("Unable to delete host from Supabase.", "#ff5c5c");
+    }
+  });
+
+  actions.append(editBtn, statusBtn, deleteBtn);
+  modal.append(header, divider, rewards, actions);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  closeBtn.focus();
 }
 
 
@@ -1163,49 +1457,81 @@ addHostBtn.addEventListener("click", async () => {
   const name = hostNameInput.value.trim();
   const type = hostTypeInput.value;
 
-  if (!id || id !== verifiedId || !name) {
-    showMessage("Please verify Poppo ID first.", "#ff5c5c");
+  if (!id || !name || !type) {
+    showMessage("Please complete all host details.", "#ff5c5c");
     return;
   }
 
-  const hosts = getHosts();
-
-  if (editingId) {
-    const index = hosts.findIndex(host => host.id === editingId);
-    if (index === -1) return;
-
-    hosts[index] = { ...hosts[index], name, type };
-  } else {
-    if (hosts.some(host => host.id === id)) {
-      showMessage("This Poppo ID is already saved.", "#ff5c5c");
-      return;
-    }
-
-    hosts.push({ id, name, type });
+  if (String(verifiedId) !== id) {
+    showMessage("Please verify the Poppo ID first.", "#ff5c5c");
+    return;
   }
 
- 
-try {
-  const wasEditing = Boolean(editingId);
-  const hostToSave = hosts.find(host => host.id === id);
+  const existingHosts = getHosts();
+  const isEditing = Boolean(editingId);
 
- 
-await fhSaveHost(hostToSave);
-saveHosts(hosts);
+  if (isEditing && String(editingId) !== id) {
+    showMessage("Host ID cannot be changed while editing.", "#ff5c5c");
+    return;
+  }
 
-window.dispatchEvent(new Event("fh-hosts-updated"));
+  const existingHost = existingHosts.find(
+    host => String(host.id) === id
+  );
+
+  if (!isEditing && existingHost) {
+    showMessage("This host is already saved.", "#ff5c5c");
+    return;
+  }
+
+  const hostToSave = {
+    id,
+    name,
+    type,
+    isActive: existingHost
+      ? existingHost.isActive !== false
+      : true
+  };
+
+  addHostBtn.disabled = true;
+
+  try {
+    await fhSaveHost(hostToSave);
+
+    const updatedHosts = getHosts();
+
+    const index = updatedHosts.findIndex(
+      host => String(host.id) === id
+    );
+
+    if (index >= 0) {
+      updatedHosts[index] = hostToSave;
+    } else {
+      updatedHosts.push(hostToSave);
+    }
+
+    saveHosts(updatedHosts);
+    window.dispatchEvent(new Event("fh-hosts-updated"));
 
     resetForm();
     poppoIdInput.readOnly = false;
     renderHosts();
 
     showMessage(
-      wasEditing ? "✓ Host updated successfully" : "✓ Host added successfully",
+      isEditing
+        ? "✓ Host updated successfully."
+        : "✓ New host added successfully.",
       "#22c55e"
     );
   } catch (error) {
-    console.error(error);
-    showMessage("Unable to save host.", "#ff5c5c");
+    console.error("Unable to save host:", error);
+
+    showMessage(
+      "Unable to save host. Please check the console.",
+      "#ff5c5c"
+    );
+
+    addHostBtn.disabled = false;
   }
 });
 
