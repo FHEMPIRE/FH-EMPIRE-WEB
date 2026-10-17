@@ -7,12 +7,16 @@ const FH_SENDING_API = `${FH_SUPABASE_URL}/rest/v1`;
 function getSendingAdminToken() {
   return localStorage.getItem("fh_admin_access_token");
 }
-
 async function fhSendingRequest(table, options = {}) {
   const token = getSendingAdminToken();
 
+  function redirectToAdmin() {
+    window.location.replace("admin.html");
+  }
+
   if (!token) {
-    throw new Error("Admin login required. Please login again.");
+    redirectToAdmin();
+    throw new Error("Admin session expired. Redirecting...");
   }
 
   const response = await fetch(`${FH_SENDING_API}/${table}`, {
@@ -25,6 +29,11 @@ async function fhSendingRequest(table, options = {}) {
     }
   });
 
+  if (response.status === 401) {
+    redirectToAdmin();
+    throw new Error("Admin session expired. Redirecting...");
+  }
+
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`Supabase error: ${error}`);
@@ -35,7 +44,6 @@ async function fhSendingRequest(table, options = {}) {
   const body = await response.text();
   return body ? JSON.parse(body) : null;
 }
-
 async function fhLoadHosts() {
   const rows = await fhSendingRequest(
     "fh_sending_hosts?select=poppo_id,host_name,host_type,is_active&order=created_at.asc",
