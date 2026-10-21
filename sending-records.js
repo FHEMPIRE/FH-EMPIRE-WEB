@@ -714,30 +714,66 @@ const rolling = Math.max(
 
   set("rewardCoins", fmt(rewardCoins));
 }
-  // Rolling 7-day receiving, including current Poppo date
-  function rollingReceiving(hostId) {
-    const today = poppoToday();
-    const firstDay = dateShift(today, -6);
+// FH EMPIRE — External Gift Receiving
+let externalGiftRecords = [];
 
-    return records()
-      .filter(r =>
-        r.hostId === hostId &&
-        r.date >= firstDay &&
-        r.date <= today
-      )
-      .reduce((sum, r) => sum + r.sending * 0.7, 0);
+async function loadOptimizerExternalGifts() {
+  try {
+    externalGiftRecords = await fhLoadExternalGifts();
+    console.log("✓ External Gifts loaded:", externalGiftRecords.length);
+  } catch (error) {
+    console.error("External Gifts loading failed:", error);
+    externalGiftRecords = [];
   }
+}
+
+function giftReceivingForPeriod(hostId, fromDate, toDate) {
+  return externalGiftRecords
+    .filter(gift =>
+      String(gift.host_poppo_id) === String(hostId) &&
+      String(gift.gift_date).slice(0, 10) >= fromDate &&
+      String(gift.gift_date).slice(0, 10) <= toDate
+    )
+    .reduce(
+      (sum, gift) => sum + Number(gift.received_points || 0),
+      0
+    );
+}
+  // Rolling 7-day receiving, including current Poppo date
+ function rollingReceiving(hostId) {
+  const today = poppoToday();
+  const firstDay = dateShift(today, -6);
+
+  const paidReceiving = records()
+    .filter(r =>
+      String(r.hostId) === String(hostId) &&
+      r.date >= firstDay &&
+      r.date <= today
+    )
+    .reduce(
+      (sum, r) => sum + Number(r.sending || 0) * 0.7,
+      0
+    );
+
+  const giftReceiving = giftReceivingForPeriod(
+    hostId,
+    firstDay,
+    today
+  );
+
+  return paidReceiving + giftReceiving;
+}
 
   // Available for future reward-level integration
-  window.FHSendingRecords = {
-    hosts,
-    records,
-    rollingReceiving,
-    poppoToday,
-    refreshHosts,
-    renderHistory
-  };
-
+ window.FHSendingRecords = {
+  hosts,
+  records,
+  rollingReceiving,
+  giftReceivingForPeriod,
+  poppoToday,
+  refreshHosts,
+  renderHistory
+};
   $("sendingDate").max = poppoToday();
 
   ["sendingPoints", "sendingPurchaseRate"].forEach(id => {
@@ -749,14 +785,59 @@ const rolling = Math.max(
     clearForm();
     showMessage("");
   });
+// FH EMPIRE — Record Type Open / Close
+const sendingRecordType = document.getElementById("sendingRecordType");
+const paidSendingForm = document.getElementById("paidSendingForm");
+const externalGiftOpenPanel = document.getElementById("externalGiftOpenPanel");
+const openExternalGiftCalculator = document.getElementById("openExternalGiftCalculator");
 
+function updateSendingRecordType() {
+  const isExternal = sendingRecordType.value === "external";
+
+  paidSendingForm.style.setProperty(
+  "display",
+  isExternal ? "none" : "block",
+  "important"
+);
+  externalGiftOpenPanel.style.display = isExternal ? "" : "none";
+}
+
+sendingRecordType.addEventListener("change", updateSendingRecordType);
+updateSendingRecordType();
+
+openExternalGiftCalculator.addEventListener("click", () => {
+  const modal = document.getElementById("externalGiftPopup");
+  const frame = document.getElementById("externalGiftFrame");
+
+  frame.src = "sending-dashboard.html#externalGiftSection";
+  modal.style.display = "block";
+  document.body.style.overflow = "hidden";
+});
+
+document.getElementById("closeExternalGiftPopup")
+  .addEventListener("click", () => {
+    document.getElementById("externalGiftPopup").style.display = "none";
+    document.body.style.overflow = "";
+  });
+// FH EMPIRE — Refresh receiving after External Gift save
+window.addEventListener("message", async (event) => {
+  if (event.origin !== window.location.origin) return;
+  if (event.data?.type !== "FH_EXTERNAL_GIFT_SAVED") return;
+
+  await loadOptimizerExternalGifts();
+
+  preview();
+  renderHosts();
+
+  console.log("✓ External Gift receiving refreshed");
+});
   refreshHosts();
 clearForm();
 
 async function initializeSendingHistory() {
   try {
     const cloudRecords = await fhLoadSendingRecords();
-
+await loadOptimizerExternalGifts();
     save(cloudRecords);
     renderHistory();
 
@@ -852,16 +933,24 @@ const savedHosts = hosts().filter(h =>
       const targetDate = dateShift(today, day);
       const startDate = dateShift(targetDate, -6);
 
-      const receiving = history
-        .filter(r =>
-          String(r.hostId) === String(host.id) &&
-          r.date >= startDate &&
-          r.date <= targetDate
-        )
-        .reduce(
-          (sum, r) => sum + Number(r.sending) * 0.7,
-          0
-        );
+     const paidReceiving = history
+  .filter(r =>
+    String(r.hostId) === String(host.id) &&
+    r.date >= startDate &&
+    r.date <= targetDate
+  )
+  .reduce(
+    (sum, r) => sum + Number(r.sending || 0) * 0.7,
+    0
+  );
+
+const giftReceiving = giftReceivingForPeriod(
+  host.id,
+  startDate,
+  targetDate
+);
+
+const receiving = paidReceiving + giftReceiving;
 
       historical.push(receiving);
     }
@@ -1139,6 +1228,7 @@ selected.forEach((item, index) => {
       `${index + 1}. ${item.host.name} (${item.host.id})`;
 
     const details = document.createElement("p");
+    
     details.innerHTML = `
       <strong>Send Now:</strong> ${fmt(result.sending)}<br>
       <strong>Expected Receiving:</strong>
@@ -1297,6 +1387,48 @@ const rewardFmt = n => Number(n).toLocaleString("en-US");
 
 let editingRewardId = null;
 
+async function loadRewardAdjustmentsFromSupabase() {
+  try {
+    const remoteRecords = await fhLoadRewardAdjustments();
+
+    if (!Array.isArray(remoteRecords)) {
+      throw new Error("Invalid reward records response.");
+    }
+
+    const localRecords = getRewardAdjustments();
+
+    // Same host + date ko ek hi record samjho.
+    const merged = new Map();
+
+    localRecords.forEach(record => {
+      const key = `${record.hostId}|${record.date}`;
+      merged.set(key, record);
+    });
+
+    // Supabase ko latest shared source samjho.
+    // Existing local-only records preserve rahenge.
+    remoteRecords.forEach(record => {
+      const key = `${record.hostId}|${record.date}`;
+      merged.set(key, record);
+    });
+
+    saveRewardAdjustments([...merged.values()]);
+    renderRewardAdjustments();
+
+    console.log(
+      "FH Reward Sync Complete:",
+      remoteRecords.length,
+      "Supabase records"
+    );
+
+    return remoteRecords;
+
+  } catch (error) {
+    console.error("Reward Loading Error:", error);
+    return null;
+  }
+}
+
 function getRewardAdjustments() {
   try {
     const data = JSON.parse(
@@ -1314,7 +1446,19 @@ function saveRewardAdjustments(data) {
     JSON.stringify(data)
   );
 }
+async function syncRewardAdjustmentToSupabase(record) {
+  if (typeof fhSaveRewardAdjustment !== "function") {
+    throw new Error("Supabase reward helper not available.");
+  }
 
+  await fhSaveRewardAdjustment(record);
+
+  console.log(
+    "Reward synced to Supabase:",
+    record.hostId,
+    record.date
+  );
+}
 function refreshRewardHosts() {
   const select = rewardElement("rewardHost");
   if (!select) return;
@@ -1371,9 +1515,128 @@ function getSelectedRewardInfo() {
     rolling,
     level: level?.level || "No Level",
     expected,
-    perTask: expected / 3
+   perTask: expected / (["S", "A"].includes(level?.level) ? 4 : 3)
   };
 }
+
+function updateAdvancedHourlyInputs() {
+  const mode = rewardElement("rewardMode")?.value;
+  const section = rewardElement("advancedHourlySection");
+  const container = rewardElement("hourlyRewardInputs");
+  const info = getSelectedRewardInfo();
+
+  if (!section || !container) return;
+
+  section.style.display =
+    mode === "advanced" ? "block" : "none";
+
+  container.replaceChildren();
+
+  if (mode !== "advanced" || !info) return;
+
+  const hours = ["S", "A"].includes(info.level) ? 4 : 3;
+
+  for (let hour = 1; hour <= hours; hour++) {
+    const field = document.createElement("div");
+    field.className = "reward-field";
+
+    const label = document.createElement("label");
+    label.textContent = `Hour ${hour} — Collected Points`;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "0";
+    input.step = "1";
+    input.id = `rewardHour${hour}`;
+    input.placeholder = `Example: ${info.perTask}`;
+    input.value = String(info.perTask);
+
+    field.append(label, input);
+    container.append(field);
+  }
+}
+
+function updateAdvancedHourlyInputs() {
+  const mode = rewardElement("rewardMode")?.value;
+  const section = rewardElement("advancedHourlySection");
+  const container = rewardElement("hourlyRewardInputs");
+  const info = getSelectedRewardInfo();
+
+  if (!section || !container) return;
+
+  section.style.display =
+    mode === "advanced" ? "block" : "none";
+
+  container.replaceChildren();
+
+  if (mode !== "advanced" || !info) return;
+
+  const hours = ["S", "A"].includes(info.level) ? 4 : 3;
+
+  const currentLevelIndex = REWARD_LEVELS.findIndex(
+    level => level.level === info.level
+  );
+
+  for (let hour = 1; hour <= hours; hour++) {
+    const field = document.createElement("div");
+    field.className = "reward-field";
+
+    const label = document.createElement("label");
+    label.textContent = `Hour ${hour} — Reward`;
+
+    const select = document.createElement("select");
+    select.id = `rewardHour${hour}`;
+
+    select.add(new Option(
+      `Current Reward — ${rewardFmt(info.perTask)}`,
+      "current"
+    ));
+
+    select.add(new Option("Higher Reward", "higher"));
+    select.add(new Option("Missed Reward — 0", "missed"));
+
+    const higherLevel = document.createElement("select");
+    higherLevel.id = `rewardHigherLevel${hour}`;
+    higherLevel.style.display = "none";
+
+    higherLevel.add(new Option("Select Higher Level", ""));
+
+    REWARD_LEVELS
+      .slice(0, Math.max(0, currentLevelIndex))
+      .forEach(level => {
+        const levelHours =
+          ["S", "A"].includes(level.level) ? 4 : 3;
+
+        const points = level.daily / levelHours;
+
+        higherLevel.add(new Option(
+          `Level ${level.level} — ${rewardFmt(points)} Points`,
+          level.level
+        ));
+      });
+
+    
+select.addEventListener("change", () => {
+  higherLevel.style.display =
+    select.value === "higher" ? "block" : "none";
+
+  updateRewardCollectionSummary();
+});
+
+higherLevel.addEventListener("change", () => {
+  updateRewardCollectionSummary();
+});
+
+
+    field.append(label, select, higherLevel);
+    container.append(field);
+  }
+}
+
+rewardElement("rewardMode")?.addEventListener("change", () => {
+  updateAdvancedHourlyInputs();
+  updateRewardCollectionSummary();
+});
 
 function updateRewardCollectionPreview() {
   const info = getSelectedRewardInfo();
@@ -1389,16 +1652,23 @@ function updateRewardCollectionPreview() {
   } else {
     dropdown.add(new Option("Select received reward", ""));
 
-    for (let tasks = 0; tasks <= 3; tasks++) {
+   const maxTasks = ["S", "A"].includes(info.level) ? 4 : 3;
+
+for (let tasks = 0; tasks <= maxTasks; tasks++) {
       dropdown.add(new Option(
         `${rewardFmt(info.perTask * tasks)} Points — ${tasks} Task${tasks === 1 ? "" : "s"}`,
         String(tasks)
       ));
     }
 
-    if (["0", "1", "2", "3"].includes(previous)) {
-      dropdown.value = previous;
-    }
+   if (
+  previous !== "" &&
+  Number.isInteger(Number(previous)) &&
+  Number(previous) >= 0 &&
+  Number(previous) <= maxTasks
+) {
+  dropdown.value = previous;
+}
   }
 
   rewardElement("rewardLevelDisplay").textContent =
@@ -1411,37 +1681,151 @@ function updateRewardCollectionPreview() {
     rewardFmt(info?.expected || 0);
 
   updateRewardCollectionSummary();
+  updateAdvancedHourlyInputs();
 }
+
 
 function updateRewardCollectionSummary() {
   const info = getSelectedRewardInfo();
+  const mode = rewardElement("rewardMode")?.value || "normal";
   const tasksRaw = rewardElement("rewardReceivedTasks")?.value;
 
-  const received = info && ["0", "1", "2", "3"].includes(tasksRaw)
-    ? info.perTask * Number(tasksRaw)
-    : 0;
-
   const expected = info?.expected || 0;
-  const missed = Math.max(0, expected - received);
+  let received = 0;
+  let valid = false;
+
+  if (info && mode === "advanced") {
+    const hours = ["S", "A"].includes(info.level) ? 4 : 3;
+    valid = true;
+
+    for (let hour = 1; hour <= hours; hour++) {
+      const choice = rewardElement(`rewardHour${hour}`)?.value;
+
+      if (choice === "current") {
+        received += info.perTask;
+
+      } else if (choice === "higher") {
+        const selectedLevel =
+          rewardElement(`rewardHigherLevel${hour}`)?.value;
+
+        const level = REWARD_LEVELS.find(
+          item => item.level === selectedLevel
+        );
+
+        if (!level) {
+          valid = false;
+          continue;
+        }
+
+        const levelHours =
+          ["S", "A"].includes(level.level) ? 4 : 3;
+
+        received += level.daily / levelHours;
+
+      } else if (choice === "missed") {
+        received += 0;
+
+      } else {
+        valid = false;
+      }
+    }
+
+  } else if (info) {
+    const maxTasks = ["S", "A"].includes(info.level) ? 4 : 3;
+
+    valid =
+      tasksRaw !== "" &&
+      Number.isInteger(Number(tasksRaw)) &&
+      Number(tasksRaw) >= 0 &&
+      Number(tasksRaw) <= maxTasks;
+
+    if (valid) {
+      received = info.perTask * Number(tasksRaw);
+    }
+  }
+
+  // Incomplete selection ko zero received na samjho.
+  const missed = valid
+    ? Math.max(0, expected - received)
+    : 0;
 
   rewardElement("rewardSummaryExpected").textContent =
     rewardFmt(expected);
 
   rewardElement("rewardSummaryReceived").textContent =
-    rewardFmt(received);
+    valid ? rewardFmt(received) : "—";
 
   rewardElement("rewardSummaryMissed").textContent =
-    rewardFmt(missed);
+    valid ? rewardFmt(missed) : "—";
+
+
+const extra = valid ? Math.max(0, received - expected) : 0;
+
+const extraElement = rewardElement("rewardSummaryExtra");
+
+if (extraElement) {
+  extraElement.textContent =
+    valid ? rewardFmt(extra) : "—";
 }
 
+}
+document.getElementById("rewardHistoryHost")
+  ?.addEventListener("change", renderRewardAdjustments);
+
+document.getElementById("rewardHistoryDate")
+  ?.addEventListener("change", renderRewardAdjustments);
 function renderRewardAdjustments() {
   const container = rewardElement("rewardAdjustmentHistory");
   if (!container) return;
 
   container.replaceChildren();
 
-  const data = getRewardAdjustments().sort(
-    (a, b) => String(b.date).localeCompare(String(a.date))
+  const hostFilter = rewardElement("rewardHistoryHost");
+const dateFilter = rewardElement("rewardHistoryDate");
+
+const allRecords = getRewardAdjustments();
+
+if (hostFilter) {
+  const selectedHost = hostFilter.value;
+
+  const uniqueHosts = [
+    ...new Set(allRecords.map(r => String(r.hostId)))
+  ];
+
+  hostFilter.replaceChildren(new Option("All Hosts", ""));
+
+  uniqueHosts.forEach(hostId => {
+    const host = hosts().find(
+      h => String(h.id) === hostId
+    );
+
+    const record = allRecords.find(
+      r => String(r.hostId) === hostId
+    );
+
+    hostFilter.add(
+      new Option(
+        host?.name || record?.hostName || hostId,
+        hostId
+      )
+    );
+  });
+
+  hostFilter.value = selectedHost;
+}
+
+const selectedHost = hostFilter?.value || "";
+const selectedDate = dateFilter?.value || "";
+
+const data = allRecords
+  .filter(record =>
+    (!selectedHost ||
+      String(record.hostId) === selectedHost) &&
+    (!selectedDate ||
+      String(record.date) === selectedDate)
+  )
+  .sort((a, b) =>
+    String(b.date).localeCompare(String(a.date))
   );
 
   if (!data.length) {
@@ -1452,7 +1836,32 @@ function renderRewardAdjustments() {
   data.forEach(record => {
     const card = document.createElement("div");
     const details = document.createElement("p");
+card.style.cssText = `
+  background: #141414;
+  border: 1px solid #665000;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+  transition: 0.2s ease;
+`;
 
+details.style.cssText = `
+  color: #eeeeee;
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+`;
+
+card.addEventListener("mouseenter", () => {
+  card.style.borderColor = "#ffcc00";
+  card.style.boxShadow = "0 0 12px rgba(255,204,0,0.12)";
+});
+
+card.addEventListener("mouseleave", () => {
+  card.style.borderColor = "#665000";
+  card.style.boxShadow = "none";
+});
     const received = record.received ??
       (Number(record.expected) - Number(record.minus));
 
@@ -1464,87 +1873,442 @@ const latestHost = hosts().find(
 const displayHostName =
   latestHost?.name || record.hostName || "Unknown Host";
 
-details.textContent =
-  `${displayHostName} | ${record.date} | ` +
+const categoryNames = {
+  host: "Host Mistake",
+  technical: "Technical / Poppo Issue",
+  emergency: "Genuine Emergency",
+  other: "Other / Manual Review"
+};
 
-      `Level: ${record.level || "Old Record"} | ` +
-      `Expected: ${rewardFmt(record.expected)} | ` +
-      `Received: ${rewardFmt(received)} | ` +
-      `Missed: ${rewardFmt(record.minus)} | ` +
-      `Reason: ${record.reason || "None"}`;
+const rewardInfo = document.createElement("div");
+
+rewardInfo.style.cssText = `
+  color: #eeeeee;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+`;
+
+const infoRow = (label, value) => {
+  const row = document.createElement("div");
+  row.style.cssText = `
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid #292929;
+  `;
+
+  const left = document.createElement("span");
+  left.textContent = label;
+  left.style.color = "#aaaaaa";
+
+  const right = document.createElement("strong");
+  right.textContent = value;
+  right.style.cssText = `
+    color: #ffffff;
+    text-align: right;
+    overflow-wrap: anywhere;
+  `;
+
+  row.append(left, right);
+  return row;
+};
+
+const title = document.createElement("div");
+title.textContent = displayHostName;
+title.style.cssText = `
+  color: #ffcc00;
+  font-size: 16px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+`;
+
+const subtitle = document.createElement("div");
+subtitle.textContent =
+  `Poppo ID: ${record.hostId} | ${record.date} | Level: ${record.level || "N/A"}`;
+
+subtitle.style.cssText = `
+  color: #aaaaaa;
+  font-size: 11px;
+  margin: 5px 0 14px;
+  overflow-wrap: anywhere;
+`;
+
+const stats = document.createElement("div");
+stats.style.cssText = `
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+`;
+
+[
+  ["Expected", record.expected, "#ffcc00"],
+  ["Received", received, "#22c55e"],
+  ["Missed", record.minus, "#ef4444"]
+].forEach(([label, value, color]) => {
+  const box = document.createElement("div");
+  box.style.cssText = `
+    background: #1b1b1b;
+    border: 1px solid #48402a;
+    border-radius: 8px;
+    padding: 10px 5px;
+    text-align: center;
+    min-width: 0;
+  `;
+
+  const heading = document.createElement("div");
+  heading.textContent = label;
+  heading.style.cssText = `
+    font-size: 10px;
+    color: #aaaaaa;
+    margin-bottom: 5px;
+  `;
+
+  const number = document.createElement("strong");
+  number.textContent = rewardFmt(value);
+  number.style.cssText = `
+    color: ${color};
+    font-size: clamp(11px, 2vw, 16px);
+    overflow-wrap: anywhere;
+  `;
+
+  box.append(heading, number);
+  stats.append(box);
+});
+
+rewardInfo.append(
+  title,
+  subtitle,
+  stats,
+  infoRow("Missed Reason", record.reason || "None"),
+  infoRow(
+    "Category",
+    categoryNames[record.deductionReason] || "None"
+  ),
+  infoRow(
+    "Salary Deduction",
+    record.deductionApproved === true
+      ? "Approved"
+      : "Not Approved"
+  ),
+  infoRow(
+    "Deduction Amount",
+    `Rs ${Number(record.deductionAmount || 0).toLocaleString("en-PK")}`
+  )
+);
+
+details.replaceChildren(rewardInfo);
 
     const edit = document.createElement("button");
     edit.type = "button";
     edit.textContent = "Edit";
     edit.style.marginRight = "10px";
 
-    edit.addEventListener("click", () => {
-      if (record.tasks === undefined) {
+edit.addEventListener("click", () => {
+  if (record.tasks === undefined) {
+    rewardElement("rewardAdjustmentMessage").textContent =
+      "Old manual record cannot be edited here.";
+    return;
+  }
+
+  refreshRewardHosts();
+
+  rewardElement("rewardHost").value = String(record.hostId);
+  rewardElement("rewardDate").value = record.date;
+
+  const mode = record.rewardMode === "advanced"
+    ? "advanced"
+    : "normal";
+
+  rewardElement("rewardMode").value = mode;
+
+  // Host, date aur mode ke mutabiq inputs create karo.
+  updateRewardCollectionPreview();
+  updateAdvancedHourlyInputs();
+
+  if (mode === "advanced") {
+    const savedHours = Array.isArray(record.hourlyRewards)
+      ? record.hourlyRewards
+      : [];
+
+    if (!savedHours.length) {
+      rewardElement("rewardAdjustmentMessage").textContent =
+        "Hourly details missing. Cannot edit this record safely.";
+      return;
+    }
+
+    for (const item of savedHours) {
+      const hour = Number(item.hour);
+      const select = rewardElement(`rewardHour${hour}`);
+      const higherLevel =
+        rewardElement(`rewardHigherLevel${hour}`);
+
+      if (!select) {
         rewardElement("rewardAdjustmentMessage").textContent =
-          "Old manual record cannot be edited here. Delete it and create a new daily record.";
+          `Hour ${hour} input unavailable. Edit cancelled.`;
         return;
       }
 
-      refreshRewardHosts();
+      select.value = item.choice;
 
-      rewardElement("rewardHost").value = String(record.hostId);
-      rewardElement("rewardDate").value = record.date;
+      if (item.choice === "higher" && higherLevel) {
+        higherLevel.style.display = "block";
+        higherLevel.value = item.level || "";
+      } else if (higherLevel) {
+        higherLevel.style.display = "none";
+      }
+    }
 
-      updateRewardCollectionPreview();
+  } else {
+    rewardElement("rewardReceivedTasks").value =
+      String(record.tasks);
+  }
 
-      rewardElement("rewardReceivedTasks").value =
-        String(record.tasks);
+  rewardElement("rewardMinusReason").value =
+    record.reason || "";
 
-      rewardElement("rewardMinusReason").value =
-        record.reason || "";
+const deductionSelect =
+  rewardElement("rewardDeductionReason");
 
-      editingRewardId = record.id;
-      updateRewardCollectionSummary();
+if (deductionSelect) {
+  deductionSelect.value =
+    record.deductionReason || "none";
+}
 
-      rewardElement("rewardAdjustmentMessage").textContent =
-        "Editing record. Click Save to update.";
+const approvalCheckbox =
+  rewardElement("rewardDeductionApproved");
 
-      rewardElement("rewardAdjustmentSection")
-        .scrollIntoView({ behavior: "smooth" });
-    });
+if (approvalCheckbox) {
+  approvalCheckbox.checked =
+    record.deductionApproved === true;
+}
+
+  editingRewardId = record.id;
+
+  updateRewardCollectionSummary();
+
+  rewardElement("rewardAdjustmentMessage").textContent =
+    "Editing record. Click Save to update.";
+
+  rewardElement("rewardAdjustmentSection")
+    .scrollIntoView({ behavior: "smooth" });
+});
 
     const remove = document.createElement("button");
     remove.type = "button";
     remove.textContent = "Delete";
+remove.addEventListener("click", async () => {
+  if (!confirm("Delete this reward record?")) return;
 
-    remove.addEventListener("click", () => {
-      if (!confirm("Delete this reward record?")) return;
+  remove.disabled = true;
+  remove.textContent = "Deleting...";
 
-      saveRewardAdjustments(
-        getRewardAdjustments().filter(r => r.id !== record.id)
-      );
+  try {
+    await fhDeleteRewardAdjustment(record.hostId, record.date);
 
-      if (editingRewardId === record.id) {
-        editingRewardId = null;
-      }
+    saveRewardAdjustments(
+      getRewardAdjustments().filter(r =>
+        !(
+          String(r.hostId) === String(record.hostId) &&
+          r.date === record.date
+        )
+      )
+    );
 
-      renderRewardAdjustments();
-    });
+   if (editingRewardId === record.id) {
+  editingRewardId = null;
+
+  rewardElement("rewardHost").value = "";
+  rewardElement("rewardDate").value = "";
+  rewardElement("rewardReceivedTasks").value = "";
+  rewardElement("rewardMinusReason").value = "";
+  rewardElement("rewardDeductionReason").value = "none";
+  rewardElement("rewardDeductionApproved").checked = false;
+
+  updateRewardCollectionPreview();
+
+  rewardElement("rewardAdjustmentMessage").textContent =
+    "Record deleted. Form reset.";
+}
+
+    renderRewardAdjustments();
+
+  } catch (error) {
+    console.error("Reward Delete Error:", error);
+    alert("Reward delete failed: " + error.message);
+
+    remove.disabled = false;
+    remove.textContent = "Delete";
+  }
+});
 
     card.append(details, edit, remove);
     container.append(card);
   });
 }
 
-function saveRewardAdjustmentRecord() {
+const FH_DEDUCTION_SELLING_RATE = 2900;
+const FH_DAILY_DEDUCTION_CAP = 1000;
+const FH_MONTHLY_DEDUCTION_CAP = 2500;
+
+function calculateRewardDeduction(missedPoints) {
+  const points = Math.max(0, Number(missedPoints) || 0);
+
+  const grossUSD = points / 10000;
+
+  const feeUSD = grossUSD >= 65
+    ? 1
+    : grossUSD * 0.015;
+
+  const coins = Math.max(0, grossUSD - feeUSD) * 9900;
+
+  const lossPKR =
+    (coins / 100000) * FH_DEDUCTION_SELLING_RATE;
+
+  return Math.min(
+    FH_DAILY_DEDUCTION_CAP,
+    Math.round(lossPKR)
+  );
+}
+
+function calculateMonthlyDeduction(
+  hostId,
+  date,
+  proposedAmount,
+  records,
+  editingId = null
+) {
+  const month = String(date).slice(0, 7);
+
+  const existingTotal = records
+    .filter(record =>
+      String(record.hostId) === String(hostId) &&
+      String(record.date).slice(0, 7) === month &&
+      record.id !== editingId &&
+      record.deductionApproved === true
+    )
+    .reduce(
+      (sum, record) =>
+        sum + Number(record.deductionAmount || 0),
+      0
+    );
+
+  const remaining = Math.max(
+    0,
+    FH_MONTHLY_DEDUCTION_CAP - existingTotal
+  );
+
+  return Math.min(
+    Math.max(0, Number(proposedAmount) || 0),
+    remaining
+  );
+}
+
+async function saveRewardAdjustmentRecord() {
   const info = getSelectedRewardInfo();
+  const mode = rewardElement("rewardMode")?.value || "normal";
   const tasksRaw = rewardElement("rewardReceivedTasks")?.value;
-  const reason = rewardElement("rewardMinusReason")?.value.trim();
+  const reason = rewardElement("rewardMinusReason")?.value.trim() || "";
+  const deductionReason =
+  rewardElement("rewardDeductionReason")?.value || "none";
   const message = rewardElement("rewardAdjustmentMessage");
 
-  if (!info || !["0", "1", "2", "3"].includes(tasksRaw)) {
-    message.textContent =
-      "Please select host, date and received reward.";
+  if (!info) {
+    message.textContent = "Please select host and date.";
     return;
   }
 
-  const tasks = Number(tasksRaw);
-  const received = info.perTask * tasks;
+  const maxTasks = ["S", "A"].includes(info.level) ? 4 : 3;
+
+  let tasks = 0;
+  let received = 0;
+  let hourlyRewards = null;
+
+  if (mode === "advanced") {
+    hourlyRewards = [];
+
+    for (let hour = 1; hour <= maxTasks; hour++) {
+      const choice = rewardElement(`rewardHour${hour}`)?.value;
+
+      if (!["current", "higher", "missed"].includes(choice)) {
+        message.textContent = `Hour ${hour}: Select reward.`;
+        return;
+      }
+
+      let points = 0;
+      let selectedLevel = null;
+
+      if (choice === "current") {
+        points = info.perTask;
+        selectedLevel = info.level;
+      }
+
+      if (choice === "higher") {
+        selectedLevel =
+          rewardElement(`rewardHigherLevel${hour}`)?.value;
+
+        const level = REWARD_LEVELS.find(
+          item => item.level === selectedLevel
+        );
+
+        const currentIndex = REWARD_LEVELS.findIndex(
+          item => item.level === info.level
+        );
+
+        const higherIndex = REWARD_LEVELS.findIndex(
+          item => item.level === selectedLevel
+        );
+
+        if (
+          !level ||
+          currentIndex < 0 ||
+          higherIndex < 0 ||
+          higherIndex >= currentIndex
+        ) {
+          message.textContent =
+            `Hour ${hour}: Select a valid higher level.`;
+          return;
+        }
+
+        const levelHours =
+          ["S", "A"].includes(level.level) ? 4 : 3;
+
+        points = level.daily / levelHours;
+      }
+
+      hourlyRewards.push({
+        hour,
+        choice,
+        level: selectedLevel,
+        points
+      });
+
+      received += points;
+    }
+
+    tasks = hourlyRewards.filter(
+      item => item.choice !== "missed"
+    ).length;
+
+  } else {
+    if (
+      tasksRaw === "" ||
+      !Number.isInteger(Number(tasksRaw)) ||
+      Number(tasksRaw) < 0 ||
+      Number(tasksRaw) > maxTasks
+    ) {
+      message.textContent =
+        "Please select received reward.";
+      return;
+    }
+
+    tasks = Number(tasksRaw);
+    received = info.perTask * tasks;
+  }
+
   const minus = info.expected - received;
 
   if (minus > 0 && !reason) {
@@ -1553,7 +2317,14 @@ function saveRewardAdjustmentRecord() {
     return;
   }
 
+if (minus > 0 && deductionReason === "none") {
+  message.textContent =
+    "Please select missed reward category.";
+  return;
+}
+
   const data = getRewardAdjustments();
+
 
   const duplicate = data.some(record =>
     String(record.hostId) === String(info.host.id) &&
@@ -1567,6 +2338,31 @@ function saveRewardAdjustmentRecord() {
     return;
   }
 
+  // FH EMPIRE — Salary Deduction Details
+  // Existing records ke liye default: no deduction.
+  
+ const deductionApproved =
+  rewardElement("rewardDeductionApproved")?.checked === true &&
+  deductionReason === "host" &&
+  minus > 0 &&
+  String(info.host.type).toLowerCase() === "salarybase";
+
+const deductionAmount =
+  deductionReason === "host" &&
+  minus > 0 &&
+  String(info.host.type).toLowerCase() === "salarybase"
+    ? calculateRewardDeduction(minus)
+    : 0;
+    
+const finalDeductionAmount = deductionApproved
+  ? calculateMonthlyDeduction(
+      info.host.id,
+      info.date,
+      deductionAmount,
+      data,
+      editingRewardId
+    )
+  : 0;
   const record = {
     id: editingRewardId || (
       crypto.randomUUID
@@ -1582,11 +2378,18 @@ function saveRewardAdjustmentRecord() {
     tasks,
     received,
     minus,
-    reason: minus > 0 ? reason : ""
+    reason: minus > 0 ? reason : "",
+    rewardMode: mode,
+   hourlyRewards,
+deductionReason,
+deductionApproved,
+deductionAmount: finalDeductionAmount
   };
 
   if (editingRewardId) {
-    const index = data.findIndex(r => r.id === editingRewardId);
+    const index = data.findIndex(
+      item => item.id === editingRewardId
+    );
 
     if (index === -1) {
       message.textContent = "Original record not found.";
@@ -1598,17 +2401,48 @@ function saveRewardAdjustmentRecord() {
     data.push(record);
   }
 
-  saveRewardAdjustments(data);
-  editingRewardId = null;
+  const saveButton = rewardElement("saveRewardAdjustment");
+
+  try {
+    if (saveButton) saveButton.disabled = true;
+
+    await syncRewardAdjustmentToSupabase(record);
+
+    saveRewardAdjustments(data);
+    editingRewardId = null;
+
+  } catch (error) {
+    console.error("Reward Supabase Save Error:", error);
+    message.textContent =
+      "Reward save failed: " + error.message;
+    return;
+
+  } finally {
+    if (saveButton) saveButton.disabled = false;
+  }
 
   rewardElement("rewardReceivedTasks").value = "";
   rewardElement("rewardMinusReason").value = "";
+  const deductionSelect =
+  rewardElement("rewardDeductionReason");
+
+if (deductionSelect) {
+  deductionSelect.value = "none";
+}
+
+const approvalCheckbox =
+  rewardElement("rewardDeductionApproved");
+
+if (approvalCheckbox) {
+  approvalCheckbox.checked = false;
+}
 
   message.textContent = "Reward record saved successfully.";
 
   updateRewardCollectionSummary();
   renderRewardAdjustments();
 }
+
 
 rewardElement("rewardHost")?.addEventListener(
   "focus",
@@ -1638,7 +2472,7 @@ rewardElement("saveRewardAdjustment")?.addEventListener(
 refreshRewardHosts();
 renderRewardAdjustments();
 updateRewardCollectionPreview();
-
+loadRewardAdjustmentsFromSupabase();
  
  
 window.addEventListener("fh-hosts-updated", () => {
@@ -1647,6 +2481,8 @@ window.addEventListener("fh-hosts-updated", () => {
   renderHistory();
   renderRewardAdjustments();
   updateRewardCollectionPreview();
+ 
+  
 });
 
   console.log("FH EMPIRE — Sending Records loaded.");

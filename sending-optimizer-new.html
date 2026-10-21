@@ -612,6 +612,83 @@ body.sending-optimizer-page {
   margin-top: auto;
 }
 </style>
+<style>
+/* FH EMPIRE — Reward Records Popup */
+
+.fh-reward-popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.85);
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.fh-reward-popup-content {
+  width: 100%;
+  max-width: 1050px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #101010;
+  border: 1px solid #665000;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 0 30px rgba(255, 204, 0, 0.12);
+}
+
+.fh-reward-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+}
+
+.fh-reward-popup-header h3 {
+  margin: 0 0 5px;
+  color: #ffcc00;
+}
+
+.fh-reward-popup-header small {
+  color: #999;
+}
+
+.fh-reward-popup-header button {
+  background: #ffcc00;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 13px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#rewardAdjustmentHistory {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#rewardAdjustmentHistory > div {
+  min-width: 0;
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 650px) {
+  .fh-reward-popup-content {
+    padding: 12px;
+    max-height: 95vh;
+  }
+
+  #rewardAdjustmentHistory {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 
 <body class="sending-optimizer-page">
@@ -631,6 +708,16 @@ body.sending-optimizer-page {
   <p class="optimizer-subtitle">Poppo Sending Optimizer</p>
 
   <a href="admin.html" class="back-admin">← Back to Admin</a>
+  <a
+  href="sending-dashboard.html"
+  class="back-admin"
+  style="display:inline-block;margin:10px 0;
+  background:#ffd700;color:#111;
+  padding:11px 18px;border-radius:8px;
+  text-decoration:none;font-weight:700;"
+>
+  📊 View Sending Dashboard
+</a>
 
   <section class="optimizer-panel optimizer-banner">
     <h2>Sending Optimizer</h2>
@@ -696,13 +783,19 @@ body.sending-optimizer-page {
 <!-- STEP 2: PAID SENDING RECORDS -->
 <section class="optimizer-panel" id="sendingRecordsSection">
 
-  <h2>3 · Record Paid Sending</h2>
+ <h2>3 · Record Sending / External Gift</h2>
+
+<label for="sendingRecordType">Record Type</label>
+<select id="sendingRecordType">
+  <option value="paid">Paid Sending (Default)</option>
+  <option value="external">External Gift</option>
+</select>
 
   <p style="color:#aaa;font-size:13px;">
     Record sending from 1 October 2026 onwards.
     Rolling rewards use only the latest 7 Poppo days.
   </p>
-
+<div id="paidSendingForm">
   <input type="hidden" id="editingSendingId">
 
   <label>Select Host</label>
@@ -858,10 +951,65 @@ body.sending-optimizer-page {
     Clear
   </button>
 
-  <p id="sendingMessage"></p>
+ <p id="sendingMessage"></p>
 
+</div><!-- End Paid Sending Form -->
+
+<div id="externalGiftOpenPanel" style="display:none;margin-top:16px;">
+  <p style="color:#aaa;">
+    External Gift receiving is counted directly in the host's
+    rolling 7-day receiving. No agency share or sender cost.
+  </p>
+
+  <button type="button" id="openExternalGiftCalculator">
+    🎁 Open External Gift Calculator
+  </button>
+</div>
+<!-- FH EMPIRE — External Gift Popup -->
+<div id="externalGiftPopup" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  z-index:999999;
+  padding:20px;
+  box-sizing:border-box;
+">
+
+  <div style="
+    max-width:1050px;
+    height:95%;
+    margin:auto;
+    background:#111;
+    border:1px solid #ffd700;
+    border-radius:14px;
+    overflow:hidden;
+    position:relative;
+  ">
+
+    <button type="button" id="closeExternalGiftPopup" style="
+      position:absolute;
+      right:12px;
+      top:10px;
+      z-index:10;
+      background:#ffd700;
+      color:#111;
+      border:0;
+      border-radius:8px;
+      padding:8px 14px;
+      cursor:pointer;
+      width:auto;
+    ">✕ Close</button>
+
+    <iframe
+      id="externalGiftFrame"
+      title="External Gift Calculator"
+      style="width:100%;height:100%;border:0;"
+    ></iframe>
+
+  </div>
+</div>
 </section>
-
 <!-- SENDING HISTORY -->
 <section class="optimizer-panel">
   <h2>4 · Sending History</h2>
@@ -996,10 +1144,94 @@ body.sending-optimizer-page {
     </div>
   </div>
 
+<div class="reward-field">
+  <label for="rewardDeductionReason">
+    Missed Reward Category
+  </label>
+
+  <select id="rewardDeductionReason">
+    <option value="none">Select Category</option>
+    <option value="host">Host Mistake</option>
+    <option value="technical">Technical / Poppo Issue</option>
+    <option value="emergency">Genuine Emergency</option>
+    <option value="other">Other / Manual Review</option>
+  </select>
+</div>
+
+<div class="reward-field">
+  <label class="fh-deduction-option">
+    <input
+      type="checkbox"
+      id="rewardDeductionApproved"
+    >
+    <span>Approve Salary Deduction</span>
+  </label>
+  <small style="color:#999;">
+    Salary Base hosts only • Verified host mistake
+  </small>
+</div>
+
+<style>
+.reward-field label.fh-deduction-option {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 0 6px !important;
+  text-align: left !important;
+}
+
+.reward-field .fh-deduction-option input#rewardDeductionApproved {
+  all: revert !important;
+  appearance: auto !important;
+  display: inline-block !important;
+  position: static !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+ accent-color: #22c55e !important;
+  cursor: pointer;
+}
+
+.reward-field .fh-deduction-option span {
+  display: inline !important;
+  width: auto !important;
+  flex: none !important;
+  color: #ffcc00;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+</style>
+
+
+
+<div class="reward-field" style="margin:15px 0;">
+  <label for="rewardMode">Reward Calculation Mode</label>
+  <select id="rewardMode">
+    <option value="normal">Normal Daily Reward</option>
+    <option value="advanced">Advanced Hourly Adjustment</option>
+  </select>
+</div>
+
+<div id="advancedHourlySection" style="display:none; margin:15px 0;">
+  <h3>Advanced Hourly Rewards</h3>
+  <p>Enter actual collected points for each hour.</p>
+
+  <div class="reward-form-grid" id="hourlyRewardInputs"></div>
+</div>
+
   <div class="reward-summary">
     <div>Expected: <strong id="rewardSummaryExpected">0</strong></div>
     <div>Received: <strong id="rewardSummaryReceived">0</strong></div>
     <div>Missed: <strong id="rewardSummaryMissed">0</strong></div>
+    <div>Extra: <strong id="rewardSummaryExtra">0</strong></div>
   </div>
 
   <button type="button" id="saveRewardAdjustment" class="reward-save-btn">
@@ -1007,9 +1239,51 @@ body.sending-optimizer-page {
   </button>
 
   <p id="rewardAdjustmentMessage"></p>
+<button
+  type="button"
+  id="viewRewardRecordsBtn"
+  onclick="document.getElementById('rewardRecordsPopup').style.display='flex'"
+  style="margin-top:15px;"
+>
+  📋 View Reward Records
+</button>
 
-  <h3>Reward Collection History</h3>
-  <div id="rewardAdjustmentHistory"></div>
+<div id="rewardRecordsPopup" class="fh-reward-popup">
+  <div class="fh-reward-popup-content">
+
+    <div class="fh-reward-popup-header">
+      <div>
+        <h3>🎁 Reward Collection Records</h3>
+        <small>FH EMPIRE — Reward Management</small>
+      </div>
+
+      <button
+        type="button"
+        onclick="document.getElementById('rewardRecordsPopup').style.display='none'"
+      >✕</button>
+    </div>
+<div class="fh-reward-filters" style="
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px;
+">
+  <div>
+    <label for="rewardHistoryHost">Select Host</label>
+    <select id="rewardHistoryHost" style="width:100%">
+      <option value="">All Hosts</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="rewardHistoryDate">Select Date</label>
+    <input type="date" id="rewardHistoryDate" style="width:100%">
+  </div>
+</div>
+    <div id="rewardAdjustmentHistory"></div>
+
+  </div>
+</div>
 </section>
 
 <!-- FH EMPIRE MAXIMUM PROFIT OPTIMIZER -->
@@ -1562,16 +1836,23 @@ function openHostPopup(hostId) {
       const date = shiftDate(today, day);
       const firstDay = shiftDate(date, -6);
 
-      const receiving = history
-        .filter(r =>
-          String(r.hostId) === String(host.id) &&
-          r.date >= firstDay &&
-          r.date <= date
-        )
-        .reduce(
-          (sum, r) => sum + Number(r.sending || 0) * 0.7,
-          0
-        );
+     const paidReceiving = history
+  .filter(r =>
+    String(r.hostId) === String(host.id) &&
+    r.date >= firstDay &&
+    r.date <= date
+  )
+  .reduce(
+    (sum, r) => sum + Number(r.sending || 0) * 0.7,
+    0
+  );
+
+const giftReceiving =
+  typeof api.giftReceivingForPeriod === "function"
+    ? api.giftReceivingForPeriod(host.id, firstDay, date)
+    : 0;
+
+const receiving = paidReceiving + giftReceiving;
 
       const level = getLevel(receiving);
       const dailyReward = level?.daily || 0;

@@ -1,0 +1,2638 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sending Dashboard | FH EMPIRE</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0b0b0d;
+      color: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+    .dashboard {
+      max-width: 1250px;
+      margin: auto;
+      padding: 24px 16px 50px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    h1 { color: #ffd700; margin: 0 0 7px; font-size: 26px; }
+    h2 { color: #ffd700; font-size: 18px; margin: 0 0 18px; }
+    .muted { color: #a1a1aa; font-size: 13px; margin: 0; }
+    .back {
+      color: #111;
+      background: #ffd700;
+      padding: 11px 15px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .panel {
+      background: #151518;
+      border: 1px solid #373027;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 22px;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: end;
+    }
+    .field { flex: 1; min-width: 150px; }
+    label {
+      display: block;
+      color: #bbb;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+    select, input {
+      width: 100%;
+      padding: 12px;
+      background: #202024;
+      color: white;
+      border: 1px solid #514526;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    .metric {
+      background: #19191d;
+      border: 1px solid #42391e;
+      border-radius: 12px;
+      padding: 19px;
+      min-width: 0;
+    }
+    .metric .name { color: #aaa; font-size: 12px; }
+    .metric .value {
+      display: block;
+      margin-top: 12px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .metric .value.gold { color: #ffd700; }
+    .metric .value.green { color: #4ade80; }
+    .metric .value.red { color: #fb7185; }
+    .section-title { margin: 25px 0 14px; }
+    .note { color: #aaa; font-size: 12px; line-height: 1.6; }
+    @media (max-width: 600px) {
+      .dashboard { padding: 16px 11px; }
+      h1 { font-size: 21px; }
+      .panel { padding: 14px; }
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .metric { padding: 12px; }
+      .metric .value { font-size: 17px; }
+      .field { min-width: 100%; }
+    }
+    
+/* ==========================================
+   FH EMPIRE — SETTLEMENT WORKSPACE
+========================================== */
+
+.fh-settlement-workspace {
+  margin: 26px 0;
+  padding: 24px;
+  background: linear-gradient(145deg, #1b1b20, #111216);
+  border: 1px solid #403622;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.2);
+}
+
+.fh-sw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 20px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #34302a;
+}
+
+.fh-sw-eyebrow {
+  color: #d9b65d;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.fh-sw-header h3 {
+  color: #fff;
+  font-size: 21px;
+  margin: 7px 0;
+}
+
+.fh-sw-header p,
+.fh-sw-footnote {
+  color: #999;
+  font-size: 12px;
+  margin: 0;
+}
+
+.fh-sw-header-icon {
+  font-size: 28px;
+}
+
+.fh-sw-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 20px;
+}
+
+.fh-sw-field {
+  min-width: 0;
+}
+
+.fh-sw-field label {
+  display: block;
+  color: #c7c7c7;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  margin-bottom: 9px;
+}
+
+.fh-sw-field select,
+.fh-sw-field input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 13px;
+  background: #202126;
+  color: #fff;
+  border: 1px solid #504631;
+  border-radius: 9px;
+  font-size: 13px;
+  outline: none;
+}
+
+.fh-sw-field select:focus,
+.fh-sw-field input:focus {
+  border-color: #e3bb60;
+}
+
+.fh-sw-custom {
+  grid-column: 1 / -1;
+  padding: 15px;
+  background: #1d1e22;
+  border: 1px solid #353535;
+  border-radius: 10px;
+}
+
+.fh-sw-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #ddd;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.fh-sw-toggle input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #d9b65d;
+}
+
+.fh-sw-date-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 15px;
+  margin-top: 17px;
+}
+
+.fh-sw-result {
+  margin-top: 22px;
+  padding: 20px;
+  background: #18191d;
+  border: 1px solid #49402c;
+  border-radius: 12px;
+}
+
+.fh-sw-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  color: #eee;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.fh-sw-preview-tag {
+  color: #e5c46d;
+  border: 1px solid #766137;
+  background: #302817;
+  padding: 5px 9px;
+  border-radius: 5px;
+  font-size: 10px;
+}
+
+#settlementPreviewStatus {
+  margin: 16px 0 0;
+  color: #c5c5c5;
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.fh-sw-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.fh-sw-actions button {
+  flex: 1;
+  padding: 13px;
+  border-radius: 9px;
+  border: 0;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#previewSettlementBtn {
+  background: linear-gradient(135deg, #f0cb75, #bd8d31);
+  color: #171717;
+}
+
+#confirmSettlementBtn {
+  background: #257a4e;
+  color: #fff;
+}
+
+#confirmSettlementBtn:disabled {
+  background: #34363b;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.fh-sw-footnote {
+  margin-top: 15px;
+  text-align: center;
+}
+
+@media (max-width: 650px) {
+  .fh-settlement-workspace {
+    padding: 16px;
+  }
+
+  .fh-sw-form,
+  .fh-sw-date-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fh-sw-actions {
+    flex-direction: column;
+  }
+}
+
+/* FH EMPIRE — External Gift Records Modal */
+
+.fh-gift-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.fh-gift-modal-box {
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #101010;
+  border: 1px solid #b88a00;
+  border-radius: 16px;
+  padding: 22px;
+  box-sizing: border-box;
+  color: #fff;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+
+.fh-gift-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #333;
+}
+
+.fh-gift-modal-header h3 {
+  margin: 0 0 8px;
+  color: #ffcc00;
+  font-size: 20px;
+}
+
+.fh-gift-modal-header p {
+  margin: 0;
+  color: #aaa;
+  font-size: 13px;
+}
+
+#closeExternalGiftModal {
+  background: #ffcc00;
+  color: #111;
+  border: none;
+  border-radius: 9px;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.fh-gift-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+
+.fh-gift-filters label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ddd;
+  font-size: 13px;
+}
+
+.fh-gift-filters select,
+.fh-gift-filters input {
+  width: 100%;
+  padding: 12px;
+  background: #181818;
+  border: 1px solid #444;
+  border-radius: 9px;
+  color: #fff;
+  box-sizing: border-box;
+  color-scheme: dark;
+}
+
+#externalGiftModalRecords {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 650px) {
+  .fh-gift-modal-box {
+    padding: 16px;
+  }
+
+  .fh-gift-filters,
+  #externalGiftModalRecords {
+    grid-template-columns: 1fr;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <main class="dashboard">
+    <header class="topbar">
+      <div>
+        <h1>📊 FH EMPIRE</h1>
+        <p class="muted">Sending & Financial Dashboard</p>
+      </div>
+      <a class="back" href="sending-optimizer-new.html">
+        ← Back to Sending Optimizer
+      </a>
+    </header>
+
+    <section class="panel">
+      <h2>📅 Report Filters</h2>
+      <div class="filters">
+        <div class="field">
+          <label for="periodFilter">Report Period</label>
+          <select id="periodFilter">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="custom">Custom Dates</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="hostTypeFilter">Host Type</label>
+          <select id="hostTypeFilter">
+            <option value="all">Salary Base + Half-Half</option>
+            <option value="salarybase">Salary Base</option>
+            <option value="halfhalf">Half-Half</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="field">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate">
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title">📤 Sending Overview</h2>
+    <div class="cards">
+      <div class="metric"><span class="name">Total Sending</span><strong class="value gold" id="totalSending">—</strong></div>
+      <div class="metric"><span class="name">Total Receiving</span><strong class="value" id="totalReceiving">—</strong></div>
+      <div class="metric"><span class="name">Sending Records</span><strong class="value" id="totalRecords">—</strong></div>
+      <div class="metric"><span class="name">Total Hosts</span><strong class="value" id="totalHosts">—</strong></div>
+    </div>
+
+    <h2 class="section-title">💰 Financial Overview</h2>
+    <div class="cards">
+      <div class="metric"><span class="name">Sender Purchase Cost</span><strong class="value red" id="purchaseCost">—</strong></div>
+      <div class="metric"><span class="name">Coins Sales Revenue</span><strong class="value green" id="salesRevenue">—</strong></div>
+      <div class="metric"><span class="name">Trading Cash Difference</span><strong class="value gold" id="tradingMargin">—</strong></div>
+      <div class="metric"><span class="name">Agency Share (Estimated)</span><strong class="value" id="agencyShare">—</strong></div>
+    </div>
+
+<h2 class="section-title">🎁 Daily Reward Overview</h2>
+<div class="cards">
+  <div class="metric">
+    <span class="name">Expected Reward (Estimated)</span>
+    <strong class="value gold" id="rewardExpected">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Received Reward (Estimated / Adjusted)</span>
+    <strong class="value green" id="rewardReceived">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Missed Reward</span>
+    <strong class="value red" id="rewardMissed">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Extra Reward</span>
+    <strong class="value green" id="rewardExtra">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">FH EMPIRE Reward Share (Estimated)</span>
+    <strong class="value gold" id="rewardAgency">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Half-Half Hosts Reward Share (Estimated)</span>
+    <strong class="value" id="rewardHalfHalf">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Eligible Host-Days (Estimated)</span>
+    <strong class="value" id="rewardCountedDays">—</strong>
+  </div>
+</div>
+
+    <h2 class="section-title">🪙 Coins Inventory</h2>
+    <div class="cards">
+      <div class="metric"><span class="name">Coins Sold (Recorded)</span><strong class="value green" id="coinsSold">—</strong></div>
+      <div class="metric"><span class="name">Unsold Coins (Estimated)</span><strong class="value gold" id="unsoldCoins">—</strong></div>
+      <div class="metric"><span class="name">Reward Coins (7-Day Withdrawal Estimated)</span><strong class="value gold" id="rewardCoins">—</strong></div>
+      <div class="metric">
+  <span class="name">Normal Coins (Estimated)</span>
+  <strong class="value gold" id="normalCoins">—</strong>
+</div>
+      <div class="metric"><span class="name">Salary Base Payouts</span><strong class="value" id="salaryPayouts">—</strong></div>
+      <div class="metric"><span class="name">Half-Half Payouts</span><strong class="value" id="halfHalfPayouts">—</strong></div>
+    </div>
+<!-- FH EMPIRE — HOST SETTLEMENT MANAGEMENT -->
+<section class="panel" id="hostSettlementSection" style="margin-top:24px;">
+
+  <h2>💳 Host Settlement Management</h2>
+
+  <p class="note">
+    Manage Salary Base monthly settlements and Half-Half
+    weekly settlements, payments, advances and balances.
+  </p>
+<div class="cards">
+  <div class="metric">
+    <span class="name">💰 Total Payable</span>
+    <strong class="value gold" id="settlementTotalPayable">Rs 0.00</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">✅ Total Paid</span>
+    <strong class="value green" id="settlementTotalPaid">Rs 0.00</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">⏳ Remaining Balance</span>
+    <strong class="value red" id="settlementRemaining">Rs 0.00</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">💳 Outstanding Advances</span>
+    <strong class="value gold" id="settlementAdvances">Rs 0.00</strong>
+  </div>
+</div>
+  </div>
+
+  <div style="margin-top:20px;">
+
+<!-- FH EMPIRE — PROFESSIONAL SETTLEMENT WORKSPACE -->
+<div class="fh-settlement-workspace">
+
+  <div class="fh-sw-header">
+    <div>
+      <span class="fh-sw-eyebrow">FH EMPIRE • FINANCE</span>
+      <h3>Settlement Workspace</h3>
+      <p>Calculate, review and manage host settlements.</p>
+    </div>
+    <span class="fh-sw-header-icon">💳</span>
+  </div>
+
+  <div class="fh-sw-form">
+
+    <div class="fh-sw-field">
+      <label for="settlementHost">SELECT HOST</label>
+      <select id="settlementHost">
+        <option value="">Choose a host...</option>
+      </select>
+    </div>
+
+    <div class="fh-sw-field">
+      <label for="settlementPeriod">SETTLEMENT PERIOD</label>
+      <input type="month" id="settlementPeriod">
+    </div>
+
+    <div class="fh-sw-custom">
+      <label class="fh-sw-toggle" for="settlementCustomRange">
+        <input type="checkbox" id="settlementCustomRange">
+        <span>📅 Use Custom Date Range</span>
+      </label>
+
+      <div id="settlementCustomDates" style="display:none;">
+        <div class="fh-sw-date-grid">
+          <div class="fh-sw-field">
+            <label for="settlementFromDate">FROM DATE</label>
+            <input type="date" id="settlementFromDate">
+          </div>
+
+          <div class="fh-sw-field">
+            <label for="settlementToDate">TO DATE</label>
+            <input type="date" id="settlementToDate">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="fh-sw-result">
+    <div class="fh-sw-result-header">
+      <span>🧾 Settlement Summary</span>
+      <span class="fh-sw-preview-tag">PREVIEW</span>
+    </div>
+
+    <p id="settlementPreviewStatus">
+      Select a host and settlement period to calculate payable.
+    </p>
+  </div>
+
+  <div class="fh-sw-actions">
+    <button type="button" id="previewSettlementBtn">
+      🔍 Preview Settlement
+    </button>
+
+    <button type="button" id="confirmSettlementBtn" disabled>
+      ✓ Confirm Settlement
+    </button>
+  </div>
+
+  <p class="fh-sw-footnote">
+    Calculations are estimates until reviewed and confirmed.
+  </p>
+
+</div>
+
+<!-- FH EMPIRE — EXTERNAL GIFT CALCULATOR -->
+<div class="fh-settlement-workspace" id="externalGiftSection">
+
+  <div class="fh-sw-header">
+    <div>
+      <span class="fh-sw-eyebrow">FH EMPIRE • HOST PAYMENTS</span>
+      <h3>🎁 External Gift Calculator</h3>
+      <p>Calculate host payment for receiving from other senders.</p>
+    </div>
+    <span class="fh-sw-header-icon">🎁</span>
+  </div>
+
+  <div class="fh-sw-form">
+
+    <div class="fh-sw-field">
+      <label for="externalGiftHost">SELECT HOST</label>
+      <select id="externalGiftHost">
+        <option value="">Choose a host...</option>
+      </select>
+    </div>
+
+    <div class="fh-sw-field">
+      <label for="externalGiftPoints">RECEIVED POINTS</label>
+      <input
+        type="number"
+        id="externalGiftPoints"
+        min="0"
+        step="1"
+        placeholder="e.g. 42000"
+      >
+    </div>
+
+<div class="fh-sw-field" style="margin-top:14px;">
+  <label for="externalGiftDate">GIFT DATE (POPPO)</label>
+  <input
+    type="date"
+    id="externalGiftDate"
+  >
+</div>
+
+  </div>
+
+  <div class="fh-sw-result">
+    <div class="fh-sw-result-header">
+      <span>💰 Payment Calculation</span>
+      <span class="fh-sw-preview-tag">PREVIEW</span>
+    </div>
+
+    <p id="externalGiftResult">
+      Select a host and enter received points.
+    </p>
+  </div>
+
+  <div class="fh-sw-actions">
+    <button type="button" id="calculateExternalGiftBtn">
+      🧮 Calculate Payment
+    </button>
+    
+<!-- FH EMPIRE — Save External Gift -->
+<div class="fh-sw-actions" style="margin-top:12px;">
+  <button
+    type="button"
+    id="saveExternalGiftBtn"
+    disabled
+    style="width:100%;"
+  >
+    💾 Save Gift Record
+  </button>
+</div>
+
+  </div>
+
+  <p class="fh-sw-footnote">
+    Rate: Rs 295/USD • Calculation only — no payment recorded.
+  </p>
+
+</div>
+
+<!-- FH EMPIRE — External Gift Records -->
+<div class="fh-sw-result" style="margin-top:24px;">
+  <div class="fh-sw-result-header">
+    <span>🎁 External Gift Records</span>
+    <span class="fh-sw-preview-tag">LIVE RECORDS</span>
+  </div>
+
+  <button
+    type="button"
+    id="viewExternalGiftRecordsBtn"
+    style="margin-top:16px;padding:12px 20px;background:#ffcc00;color:#111;border:0;border-radius:10px;font-weight:700;cursor:pointer;"
+  >
+    📋 View Gift Records
+  </button>
+
+  <div id="externalGiftRecordsList" style="display:none;"></div>
+  
+<!-- FH EMPIRE — External Gift Records Popup -->
+<div id="externalGiftModal" class="fh-gift-modal" style="display:none;">
+  <div class="fh-gift-modal-box">
+
+    <div class="fh-gift-modal-header">
+      <div>
+        <h3>🎁 External Gift Records</h3>
+        <p>FH EMPIRE — Gift Payment Management</p>
+      </div>
+      <button type="button" id="closeExternalGiftModal">✕</button>
+    </div>
+
+    <div class="fh-gift-filters">
+      <div>
+        <label>Select Host</label>
+        <select id="externalGiftFilterHost">
+          <option value="">All Hosts</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Select Date</label>
+        <input type="date" id="externalGiftFilterDate">
+      </div>
+    </div>
+
+    <div id="externalGiftModalRecords">
+      Loading gift records...
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+
+    <h3>📑 Settlement Records</h3>
+
+    <div id="settlementRecordsList" class="note">
+      No settlement records loaded yet.
+    </div>
+
+  </div>
+
+</section>
+    <section class="panel" style="margin-top:24px;">
+      <h2>📋 Dashboard Notes</h2>
+      <p class="note">
+        Salary Base and Half-Half hosts only. Rocket and Esports
+        records are excluded. Financial figures will be calculated
+        from verified saved records. Estimated inventory and agency
+        earnings are not treated as realized profit.
+      </p>
+      <p class="muted" id="dashboardStatus">
+        Dashboard layout ready. Live data connection pending.
+      </p>
+    </section>
+   </main>
+
+  <!-- FH EMPIRE — Existing Supabase Connection -->
+  <script src="sending-supabase.js"></script>
+
+  <!-- Admin Access Check -->
+  <script>
+    if (!localStorage.getItem("fh_admin_access_token")) {
+      window.location.replace("login.html");
+    }
+  </script>
+
+<script>
+"use strict";
+
+// FH EMPIRE — Sending Dashboard (Read Only)
+(async function loadSendingDashboard() {
+  const status = document.getElementById("dashboardStatus");
+  const fmt = value => Math.round(value).toLocaleString("en-US");
+  const money = value =>
+    "Rs " + Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+  try {
+    status.textContent = "Loading live sending records...";
+
+    const allRecords = await fhLoadSendingRecords();
+
+const allRewardRecords = await fhLoadRewardAdjustments();
+// FH EMPIRE — Load Host Settlement Records
+const settlementData = await fhLoadHostSettlementData();
+// FH EMPIRE — Verified settlement preview data
+let pendingSettlement = null;
+// ==========================================
+// FH EMPIRE — EXTERNAL GIFTS CONNECTION TEST
+// READ ONLY
+// ==========================================
+
+const externalGiftRecords = await fhLoadExternalGifts();
+
+// ==========================================
+// FH EMPIRE — EXTERNAL GIFT PAYMENTS TEST
+// READ ONLY
+// ==========================================
+
+const externalGiftPayments =
+  await fhLoadExternalGiftPayments();
+
+console.log(
+  "FH External Gift Payments:",
+  externalGiftPayments.length,
+  externalGiftPayments
+);
+console.log(
+  "FH External Gift Records:",
+  externalGiftRecords.length,
+  externalGiftRecords
+);
+const giftList = document.getElementById("externalGiftRecordsList");
+
+if (giftList) {
+  giftList.innerHTML = "";
+
+  if (!externalGiftRecords.length) {
+    giftList.textContent = "No external gift records found.";
+  } else {
+   // FH EMPIRE — Professional Gift Records Container
+const giftTable = document.createElement("div");
+
+giftTable.style.display = "grid";
+giftTable.style.gridTemplateColumns =
+  "repeat(auto-fit, minmax(min(100%, 260px), 1fr))";
+giftTable.style.gap = "14px";
+giftTable.style.width = "100%";
+
+   
+externalGiftRecords.forEach(gift => {
+ 
+// FH EMPIRE — Professional External Gift Card
+const card = document.createElement("div");
+
+card.style.cssText = `
+  background:#181818;
+  border:1px solid #66520c;
+  border-radius:12px;
+  padding:16px;
+  color:#fff;
+  min-width:0;
+`;
+
+const grossUSD = Number(gift.gross_usd || 0);
+const feeUSD = Number(gift.withdrawal_fee_usd || 0);
+const netUSD = Number(gift.net_usd || 0);
+const payablePKR = Number(gift.payable_pkr || 0);
+
+const details = document.createElement("div");
+details.style.cssText = "display:grid;gap:10px;margin-bottom:16px;";
+
+const addDetail = (label, value, color = "#fff") => {
+  const line = document.createElement("div");
+  line.style.cssText = "display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #333;padding-bottom:8px;";
+
+  const labelEl = document.createElement("span");
+  labelEl.textContent = label;
+  labelEl.style.color = "#aaa";
+
+  const valueEl = document.createElement("strong");
+  valueEl.textContent = value;
+  valueEl.style.color = color;
+  valueEl.style.textAlign = "right";
+  valueEl.style.overflowWrap = "anywhere";
+
+  line.append(labelEl, valueEl);
+  details.appendChild(line);
+};
+
+
+
+// FH EMPIRE — External Gift Host Identity
+const giftHost = (JSON.parse(
+  localStorage.getItem("fh_optimizer_new_hosts_v1") || "[]"
+)).find(host =>
+  String(host.id).trim() ===
+  String(gift.host_poppo_id).trim()
+);
+
+const hostName = giftHost?.name || "Unknown Host";
+
+const hostHeading = document.createElement("div");
+hostHeading.style.cssText = `
+  padding:12px 14px;
+  margin-bottom:14px;
+  background:#211c0c;
+  border:1px solid #806512;
+  border-radius:10px;
+  text-align:center;
+`;
+
+const hostNameEl = document.createElement("div");
+hostNameEl.textContent = hostName;
+hostNameEl.style.cssText = `
+  color:#ffcc00;
+  font-size:16px;
+  font-weight:700;
+  overflow-wrap:anywhere;
+`;
+
+const hostIdEl = document.createElement("div");
+hostIdEl.textContent = "Poppo ID: " + gift.host_poppo_id;
+hostIdEl.style.cssText = `
+  color:#bbb;
+  font-size:12px;
+  margin-top:6px;
+`;
+
+hostHeading.append(hostNameEl, hostIdEl);
+card.appendChild(hostHeading);
+
+addDetail("Gift Date", String(gift.gift_date || "").slice(0,10));
+addDetail("Received Points", Number(gift.received_points || 0).toLocaleString(), "#ffcc00");
+addDetail("Gross USD", "$" + grossUSD.toFixed(2));
+addDetail("Withdrawal Fee", "$" + feeUSD.toFixed(2));
+addDetail("Net USD", "$" + netUSD.toFixed(2), "#4ade80");
+addDetail("Payable Amount", "Rs " + payablePKR.toLocaleString("en-PK", {minimumFractionDigits:2,maximumFractionDigits:2}), "#ffcc00");
+
+card.appendChild(details);
+
+const actionCell = document.createElement("div");
+actionCell.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;";
+
+  const editBtn = document.createElement("button");
+  editBtn.type = "button";
+  editBtn.textContent = "✏️ Edit";
+  editBtn.style.marginRight = "8px";
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.textContent = "🗑️ Delete";
+
+  // FH EMPIRE — Professional Action Buttons
+  [editBtn, deleteBtn].forEach(btn => {
+    btn.style.padding = "9px 15px";
+    btn.style.borderRadius = "8px";
+    btn.style.fontSize = "13px";
+    btn.style.fontWeight = "600";
+    btn.style.cursor = "pointer";
+    btn.style.transition = "all 0.2s ease";
+    btn.style.whiteSpace = "nowrap";
+  });
+
+  editBtn.style.background = "#17375b";
+  editBtn.style.color = "#d7ebff";
+  editBtn.style.border = "1px solid #3279ce";
+
+  deleteBtn.style.background = "#481d29";
+  deleteBtn.style.color = "#ffe0e3";
+  deleteBtn.style.border = "1px solid #c64a5a";
+
+  editBtn.addEventListener("mouseenter", () => {
+    if (!editBtn.disabled) editBtn.style.background = "#24568d";
+  });
+  editBtn.addEventListener("mouseleave", () => {
+    editBtn.style.background = "#17375b";
+  });
+
+  deleteBtn.addEventListener("mouseenter", () => {
+    if (!deleteBtn.disabled) deleteBtn.style.background = "#713040";
+  });
+  deleteBtn.addEventListener("mouseleave", () => {
+    deleteBtn.style.background = "#481d29";
+  });
+
+  
+  // FH EMPIRE — External Gift Payment Safety
+  const totalPaid = externalGiftPayments
+    .filter(payment =>
+      String(payment.external_gift_id) === String(gift.id)
+    )
+    .reduce((sum, payment) =>
+      sum + Number(payment.amount_pkr || 0), 0
+    );
+
+  const isPaid = totalPaid > 0;
+
+  editBtn.disabled = isPaid;
+  deleteBtn.disabled = isPaid;
+
+  if (isPaid) {
+    editBtn.title = "Locked: payment already recorded";
+    deleteBtn.title = "Locked: payment already recorded";
+  }
+
+editBtn.addEventListener("click", async () => {
+  if (isPaid) return;
+
+  const hostId = prompt(
+    "Edit Host Poppo ID:",
+    gift.host_poppo_id
+  );
+  if (hostId === null) return;
+
+  const giftDate = prompt(
+    "Edit Gift Date (YYYY-MM-DD):",
+    String(gift.gift_date).slice(0, 10)
+  );
+  if (giftDate === null) return;
+
+  const pointsInput = prompt(
+    "Edit Received Points:",
+    gift.received_points
+  );
+  if (pointsInput === null) return;
+
+  const points = Number(pointsInput);
+
+  if (
+    !/^\d+$/.test(hostId.trim()) ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(giftDate) ||
+    !Number.isSafeInteger(points) ||
+    points <= 0
+  ) {
+    alert("❌ Invalid Host ID, Date or Points.");
+    return;
+  }
+
+  const grossUSD = points / 10000;
+  const feeUSD = grossUSD < 65
+    ? grossUSD * 0.015
+    : 1;
+  const netUSD = Math.max(0, grossUSD - feeUSD);
+  const rate = Number(gift.usd_pkr_rate) || 295;
+  const payablePKR = netUSD * rate;
+
+  try {
+    // Fresh payment check before editing
+    const latestPayments = await fhLoadExternalGiftPayments();
+
+    const paid = latestPayments.some(p =>
+      String(p.external_gift_id) === String(gift.id)
+    );
+
+    if (paid) {
+      alert("🔒 Payment recorded. Editing is locked.");
+      return;
+    }
+
+    const latestGifts = await fhLoadExternalGifts();
+
+    const duplicate = latestGifts.some(g =>
+      String(g.id) !== String(gift.id) &&
+      String(g.host_poppo_id) === hostId.trim() &&
+      String(g.gift_date).slice(0, 10) === giftDate &&
+      Number(g.received_points) === points
+    );
+
+    if (duplicate) {
+      alert("⚠️ Same gift already exists.");
+      return;
+    }
+
+    const confirmed = confirm(
+      "Update External Gift?\n\n" +
+      "Host: " + hostId + "\n" +
+      "Date: " + giftDate + "\n" +
+      "Points: " + points.toLocaleString() + "\n" +
+      "New Payable: Rs " + payablePKR.toFixed(2)
+    );
+
+    if (!confirmed) return;
+
+    const result = await fhUpdateExternalGift(gift.id, {
+      host_poppo_id: hostId.trim(),
+      gift_date: giftDate,
+      received_points: points,
+      gross_usd: grossUSD,
+      withdrawal_fee_usd: feeUSD,
+      net_usd: netUSD,
+      usd_pkr_rate: rate,
+      payable_pkr: payablePKR
+    });
+
+    if (!Array.isArray(result) || result.length !== 1) {
+      throw new Error("Gift update was not confirmed");
+    }
+
+    alert("✅ External Gift updated successfully!");
+    await loadSendingDashboard();
+
+  } catch (error) {
+    console.error("FH External Gift Edit Error:", error);
+    alert("❌ Update failed. Check Console.");
+  }
+});
+
+
+deleteBtn.addEventListener("click", async () => {
+  if (isPaid) return;
+
+  try {
+    // Check latest payment records
+    const latestPayments = await fhLoadExternalGiftPayments();
+
+    const hasPayment = latestPayments.some(payment =>
+      String(payment.external_gift_id) === String(gift.id)
+    );
+
+    if (hasPayment) {
+      alert("🔒 This gift has a payment record. Delete blocked.");
+      await loadSendingDashboard();
+      return;
+    }
+
+    const confirmed = confirm(
+      "⚠️ DELETE EXTERNAL GIFT?\n\n" +
+      "Host ID: " + gift.host_poppo_id + "\n" +
+      "Gift Date: " + String(gift.gift_date).slice(0, 10) + "\n" +
+      "Received Points: " +
+      Number(gift.received_points).toLocaleString() +
+      "\n\nThis action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    const result = await fhDeleteExternalGift(gift.id);
+
+    if (!Array.isArray(result) || result.length !== 1) {
+      throw new Error("Delete was not confirmed");
+    }
+
+    alert("✅ External Gift deleted successfully!");
+    await loadSendingDashboard();
+
+  } catch (error) {
+    console.error("FH External Gift Delete Error:", error);
+    alert("❌ Delete failed. Check Console.");
+  }
+});
+
+
+  actionCell.append(editBtn, deleteBtn);
+
+const remainingPKR = Math.max(0, payablePKR - totalPaid);
+
+addDetail(
+  "Total Paid",
+  "Rs " + totalPaid.toLocaleString("en-PK", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }),
+  "#4ade80"
+);
+
+addDetail(
+  "Remaining Balance",
+  "Rs " + remainingPKR.toLocaleString("en-PK", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }),
+  remainingPKR > 0 ? "#fbbf24" : "#4ade80"
+);
+
+card.appendChild(actionCell);
+giftTable.appendChild(card);
+
+});
+
+
+    giftList.appendChild(giftTable);
+    
+const modalRecords = document.getElementById("externalGiftModalRecords");
+
+if (modalRecords) {
+  modalRecords.innerHTML = "";
+  modalRecords.appendChild(giftTable);
+}
+
+// FH EMPIRE — External Gift Records Filters
+
+const giftHostFilter =
+  document.getElementById("externalGiftFilterHost");
+
+const giftDateFilter =
+  document.getElementById("externalGiftFilterDate");
+
+if (modalRecords && giftHostFilter && giftDateFilter) {
+
+  const previousHost = giftHostFilter.value;
+  const previousDate = giftDateFilter.value;
+
+  giftHostFilter.innerHTML =
+    '<option value="">All Hosts</option>';
+
+  const hostIds = [...new Set(
+    externalGiftRecords.map(gift =>
+      String(gift.host_poppo_id || "").trim()
+    ).filter(Boolean)
+  )];
+
+ 
+hostIds.forEach(hostId => {
+  const option = document.createElement("option");
+
+  const savedHosts = [
+    ...JSON.parse(
+      localStorage.getItem("fh_optimizer_new_hosts_v1") || "[]"
+    ),
+    ...JSON.parse(
+      localStorage.getItem("fh_empire_new_optimizer_hosts_v1") || "[]"
+    )
+  ];
+
+  const matchedHost = savedHosts.find(host =>
+    String(host.id || "").trim() === String(hostId).trim()
+  );
+
+  const hostName = matchedHost?.name || "Unknown Host";
+
+  option.value = hostId;
+  option.textContent = `${hostName} — ${hostId}`;
+
+  giftHostFilter.appendChild(option);
+});
+
+
+  giftHostFilter.value = hostIds.includes(previousHost)
+    ? previousHost
+    : "";
+
+  giftDateFilter.value = previousDate;
+
+  const applyGiftFilters = () => {
+    const selectedHost = giftHostFilter.value;
+    const selectedDate = giftDateFilter.value;
+
+    let visibleCount = 0;
+
+    [...giftTable.children].forEach((card, index) => {
+      const gift = externalGiftRecords[index];
+      if (!gift) return;
+
+      const matchHost = !selectedHost ||
+        String(gift.host_poppo_id).trim() === selectedHost;
+
+      const matchDate = !selectedDate ||
+        String(gift.gift_date || "").slice(0, 10) === selectedDate;
+
+      const visible = matchHost && matchDate;
+
+      card.style.display = visible ? "" : "none";
+
+      if (visible) visibleCount++;
+    });
+
+    let emptyMessage =
+      modalRecords.querySelector("#fhGiftFilterEmpty");
+
+    if (!emptyMessage) {
+      emptyMessage = document.createElement("p");
+      emptyMessage.id = "fhGiftFilterEmpty";
+      emptyMessage.style.cssText =
+        "color:#aaa;text-align:center;padding:20px;";
+      modalRecords.appendChild(emptyMessage);
+    }
+
+    emptyMessage.textContent =
+      "No matching gift records found.";
+
+    emptyMessage.style.display =
+      visibleCount ? "none" : "block";
+  };
+
+  giftHostFilter.onchange = applyGiftFilters;
+  giftDateFilter.onchange = applyGiftFilters;
+
+  applyGiftFilters();
+}
+
+  }
+}
+
+console.log("FH Host Settlement Data:", {
+  settlements: settlementData.settlements.length,
+  payments: settlementData.payments.length,
+  adjustments: settlementData.adjustments.length
+});
+console.log(
+  "FH Dashboard Reward Records:",
+  allRewardRecords.length,
+  allRewardRecords
+);
+console.table(
+  allRewardRecords.map(r => ({
+    hostId: r.hostId,
+    date: r.date,
+    approved: r.deductionApproved,
+    amount: r.deductionAmount,
+    reason: r.deductionReason
+  }))
+);
+    // Rocket, Esports and Star hosts are excluded.
+  let records = allRecords.filter(record =>
+    
+      ["salarybase", "halfhalf"].includes(
+        String(record.hostType || "").toLowerCase()
+      )
+    );
+const periodFilter = document.getElementById("periodFilter");
+const hostTypeFilter = document.getElementById("hostTypeFilter");
+const startDate = document.getElementById("startDate");
+const endDate = document.getElementById("endDate");
+
+const DASHBOARD_REWARD_LEVELS = [
+  { level: "S", target: 50000000, daily: 480000, hours: 4 },
+  { level: "A", target: 22000000, daily: 280000, hours: 4 },
+  { level: "B", target: 10000000, daily: 150000, hours: 3 },
+  { level: "C", target: 7000000, daily: 120000, hours: 3 },
+  { level: "D", target: 4000000, daily: 84000, hours: 3 },
+  { level: "E", target: 2000000, daily: 54000, hours: 3 },
+  { level: "F", target: 1200000, daily: 36000, hours: 3 },
+  { level: "G", target: 900000, daily: 27000, hours: 3 },
+  { level: "H", target: 300000, daily: 10000, hours: 3 },
+  { level: "I", target: 150000, daily: 6000, hours: 3 }
+];
+
+function dashboardRewardLevel(receiving) {
+  return DASHBOARD_REWARD_LEVELS.find(
+    item => receiving >= item.target
+  ) || null;
+}
+const savedDashboardHosts = (() => {
+  try {
+    const data = JSON.parse(
+      localStorage.getItem("fh_optimizer_new_hosts_v1") || "[]"
+    );
+
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+})();
+
+const salaryBaseHosts = savedDashboardHosts.filter(host =>
+  String(host.type || "").toLowerCase() === "salarybase" &&
+  host.isActive !== false
+);
+
+console.log(
+  "FH Dashboard Salary Base Hosts:",
+  salaryBaseHosts.length
+);
+// ======================================
+// FH EMPIRE — SETTLEMENT HOST DROPDOWN
+// ======================================
+
+const settlementHostSelect =
+  document.getElementById("settlementHost");
+
+if (settlementHostSelect) {
+
+  settlementHostSelect.innerHTML =
+    '<option value="">Select Host</option>';
+
+  savedDashboardHosts
+    .filter(host =>
+      ["salarybase", "halfhalf"].includes(
+        String(host.type || "").toLowerCase()
+      ) &&
+      host.isActive !== false
+    )
+    .forEach(host => {
+
+      const option = document.createElement("option");
+
+      option.value = String(host.id);
+
+      const hostType =
+        String(host.type).toLowerCase() === "salarybase"
+          ? "Salary Base"
+          : "Half-Half";
+
+      option.textContent =
+        `${host.name || "Unnamed Host"} (${host.id}) — ${hostType}`;
+
+      settlementHostSelect.appendChild(option);
+    });
+}
+// ======================================
+// FH EMPIRE — SETTLEMENT PERIOD SELECTOR
+// ======================================
+
+const settlementPeriodInput =
+  document.getElementById("settlementPeriod");
+
+const settlementPreviewStatus =
+  document.getElementById("settlementPreviewStatus");
+
+const confirmSettlementBtn =
+  document.getElementById("confirmSettlementBtn");
+
+settlementHostSelect.addEventListener("change", () => {
+  pendingSettlement = null;
+
+  const host = savedDashboardHosts.find(h =>
+    String(h.id) === settlementHostSelect.value
+  );
+
+  confirmSettlementBtn.disabled = true;
+  settlementPeriodInput.value = "";
+
+  if (!host) {
+    settlementPeriodInput.type = "month";
+    settlementPreviewStatus.textContent =
+      "Select a host to preview settlement.";
+    return;
+  }
+
+  const hostType = String(host.type || "").toLowerCase();
+
+  if (hostType === "salarybase") {
+
+    settlementPeriodInput.type = "month";
+
+    settlementPreviewStatus.textContent =
+      "Salary Base — Select settlement month.";
+
+  } else if (hostType === "halfhalf") {
+
+    settlementPeriodInput.type = "date";
+
+    settlementPreviewStatus.textContent =
+      "Half-Half — Select any Poppo date within the settlement week (Monday–Sunday).";
+
+  }
+});
+
+settlementPeriodInput.addEventListener("change", () => {
+  pendingSettlement = null;
+  confirmSettlementBtn.disabled = true;
+  settlementPreviewStatus.textContent =
+    "Period selected. Click Preview Settlement to calculate.";
+});
+// ======================================
+// FH EMPIRE — SALARY BASE SETTLEMENT PREVIEW
+// READ ONLY — NO DATABASE WRITES
+// ======================================
+// ==========================================
+// FH EMPIRE — INDEPENDENT SETTLEMENT REWARDS
+// READ ONLY
+// ==========================================
+
+function calculateSettlementRewards(hostId, from, to) {
+  const rewards = [];
+
+  if (!from || !to || from > to) return rewards;
+
+  const host = savedDashboardHosts.find(h =>
+    String(h.id) === String(hostId)
+  );
+
+  if (!host) return rewards;
+
+  const hostType = String(host.type || "").toLowerCase();
+
+  for (
+    let date = from;
+    date <= to;
+    date = shiftDate(date, 1)
+  ) {
+    const rolling = dashboardRollingReceiving(hostId, date);
+    const level = dashboardRewardLevel(rolling);
+
+    if (!level) continue;
+
+    const expected = Number(level.daily || 0);
+
+    const adjustment = allRewardRecords.find(r =>
+      String(r.hostId) === String(hostId) &&
+      String(r.date || "").slice(0, 10) === date
+    );
+
+    const actual = adjustment
+      ? Number(adjustment.received || 0)
+      : expected;
+
+    rewards.push({
+      hostId: String(hostId),
+      date,
+      expected,
+      actual,
+      rewardPoints: hostType === "halfhalf"
+        ? actual * 0.5
+        : actual,
+      isEstimated: !adjustment
+    });
+  }
+
+  return rewards;
+}
+
+document.getElementById("previewSettlementBtn")
+  .addEventListener("click", () => {
+
+    confirmSettlementBtn.disabled = true;
+
+    const host = savedDashboardHosts.find(h =>
+      String(h.id) === settlementHostSelect.value
+    );
+
+    if (!host) {
+      settlementPreviewStatus.textContent =
+        "⚠️ Please select a host.";
+      return;
+    }
+
+    const hostType = String(host.type || "").toLowerCase();
+    const isCustom = settlementCustomRange.checked;
+    const periodValue = settlementPeriodInput.value;
+
+    let from, to;
+
+    if (isCustom) {
+      from = settlementFromDate.value;
+      to = settlementToDate.value;
+
+      if (!from || !to || from > to) {
+        settlementPreviewStatus.textContent =
+          "⚠️ Please select a valid From Date and To Date.";
+        return;
+      }
+
+    } else if (hostType === "salarybase") {
+      if (!/^\d{4}-\d{2}$/.test(periodValue)) {
+        settlementPreviewStatus.textContent =
+          "⚠️ Please select a settlement month.";
+        return;
+      }
+
+      from = periodValue + "-01";
+      to = shiftDate(
+        shiftDate(periodValue + "-01", 32).slice(0, 7) + "-01",
+        -1
+      );
+
+    } else if (hostType === "halfhalf") {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(periodValue)) {
+        settlementPreviewStatus.textContent =
+          "⚠️ Please select a settlement date.";
+        return;
+      }
+
+      const weekday =
+        new Date(periodValue + "T00:00:00Z").getUTCDay();
+
+      from = shiftDate(periodValue, -((weekday + 6) % 7));
+      to = shiftDate(from, 6);
+
+    } else {
+      settlementPreviewStatus.textContent =
+        "⚠️ Unsupported host type.";
+      return;
+    }
+// FH EMPIRE — Existing settlement duplicate check
+const existingSettlement = (
+  settlementData.settlements || []
+).find(s =>
+  String(s.host_poppo_id) === String(host.id) &&
+  String(s.host_type) === hostType &&
+  String(s.period_start).slice(0, 10) === from &&
+  String(s.period_end).slice(0, 10) === to
+);
+
+if (existingSettlement) {
+  confirmSettlementBtn.disabled = true;
+
+  settlementPreviewStatus.textContent =
+    `⚠️ Settlement already exists for ${host.name || host.id} ` +
+    `(${from} to ${to}). Status: ${existingSettlement.status}.`;
+
+  return;
+}
+    const pkr = value => Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    if (hostType === "halfhalf") {
+
+      // Calculate full reward independently of dashboard filters.
+      const rewards = calculateSettlementRewards(
+        host.id, from, to
+      );
+
+      // Group by actual Poppo Monday–Sunday weeks.
+      const weeks = new Map();
+
+      rewards.forEach(reward => {
+        const weekday =
+          new Date(reward.date + "T00:00:00Z").getUTCDay();
+
+        const weekStart = shiftDate(
+          reward.date, -((weekday + 6) % 7)
+        );
+
+        if (!weeks.has(weekStart)) {
+          weeks.set(weekStart, 0);
+        }
+
+        // Existing helper stores FH 50% share.
+        weeks.set(
+          weekStart,
+          weeks.get(weekStart) + reward.rewardPoints * 2
+        );
+      });
+
+      let fullPoints = 0;
+      let totalFee = 0;
+      let hostUSD = 0;
+
+      weeks.forEach(points => {
+        const withdrawal = calculateRewardWithdrawal(points);
+
+        fullPoints += points;
+        totalFee += withdrawal.feeUSD;
+        hostUSD += withdrawal.netUSD * 0.5;
+      });
+
+      const estimatedDays =
+        rewards.filter(r => r.isEstimated).length;
+// FH EMPIRE — Poppo settlement period validation
+const poppoToday = getPoppoToday();
+
+const periodCompleted = to < poppoToday;
+
+const canConfirmPeriod =
+  periodCompleted &&
+  rewards.every(r => r.date < poppoToday);
+  // FH EMPIRE — Prepare Half-Half settlement
+pendingSettlement = canConfirmPeriod ? {
+  host_poppo_id: String(host.id),
+  host_type: "halfhalf",
+  period_start: from,
+  period_end: to,
+  reward_points: fullPoints,
+  gross_usd: fullPoints / 10000,
+  withdrawal_fee_usd: totalFee,
+  usd_pkr_rate: 295,
+  gross_payable_pkr: hostUSD * 295,
+  deduction_pkr: 0,
+  final_payable_pkr: hostUSD * 295,
+  status: "draft"
+} : null;
+      settlementPreviewStatus.textContent =
+        `🧾 ${host.name || host.id} | ` +
+        `${from} to ${to} | ` +
+        `Full Reward: ${fullPoints.toLocaleString()} points | ` +
+        `Withdrawal Fee: $${totalFee.toFixed(2)} | ` +
+        `Host Share: $${hostUSD.toFixed(2)} | ` +
+        `Payable: Rs ${pkr(hostUSD * 295)} | ` +
+        `${estimatedDays} estimated reward days | ` +
+        `(Preview Only)`;
+// FH EMPIRE — Settlement confirmation safety
+// FH EMPIRE — Keep confirmation locked
+// Until database save and validation are implemented
+confirmSettlementBtn.disabled = true;
+      return;
+    }
+
+    if (hostType === "salarybase") {
+
+      // Monthly salary must not be duplicated for custom ranges.
+      if (isCustom && from.slice(0, 7) !== to.slice(0, 7)) {
+        settlementPreviewStatus.textContent =
+          "⚠️ Salary Base custom range across multiple months " +
+          "requires month-wise calculation. Not available yet.";
+        return;
+      }
+
+      const month = from.slice(0, 7);
+
+      const approvedDeduction = allRewardRecords
+        .filter(r =>
+          String(r.hostId) === String(host.id) &&
+          String(r.date || "").slice(0, 7) === month &&
+          r.deductionApproved === true &&
+          String(r.deductionReason || "").toLowerCase() === "host"
+        )
+        .reduce(
+          (total, r) => total + Number(r.deductionAmount || 0),
+          0
+        );
+
+      const gross = 5000;
+      const deduction = Math.min(2500, approvedDeduction);
+      const payable = Math.max(0, gross - deduction);
+// FH EMPIRE — Prepare Salary Base settlement
+pendingSettlement = to < getPoppoToday() ? {
+  host_poppo_id: String(host.id),
+  host_type: "salarybase",
+  period_start: from,
+  period_end: to,
+  reward_points: 0,
+  gross_usd: 0,
+  withdrawal_fee_usd: 0,
+  usd_pkr_rate: 295,
+  gross_payable_pkr: gross,
+  deduction_pkr: deduction,
+  final_payable_pkr: payable,
+  status: "draft"
+} : null;
+      settlementPreviewStatus.textContent =
+        `🧾 ${host.name || host.id} | ` +
+        `Month: ${month} | ` +
+        `Gross: Rs ${pkr(gross)} | ` +
+        `Deduction: Rs ${pkr(deduction)} | ` +
+        `Payable: Rs ${pkr(payable)} | ` +
+        `(Monthly Preview Only)`;
+    }
+  });
+
+  // ======================================
+// FH EMPIRE — CUSTOM DATE RANGE TOGGLE
+// ======================================
+
+const settlementCustomRange =
+  document.getElementById("settlementCustomRange");
+
+const settlementCustomDates =
+  document.getElementById("settlementCustomDates");
+
+const settlementFromDate =
+  document.getElementById("settlementFromDate");
+
+const settlementToDate =
+  document.getElementById("settlementToDate");
+
+settlementCustomRange.addEventListener("change", () => {
+pendingSettlement = null;
+  const isCustom = settlementCustomRange.checked;
+
+  settlementCustomDates.style.display =
+    isCustom ? "block" : "none";
+
+  settlementPeriodInput.disabled = isCustom;
+
+  confirmSettlementBtn.disabled = true;
+
+  settlementPreviewStatus.textContent = isCustom
+    ? "Select From Date and To Date for a custom settlement report."
+    : "Select a host and settlement period to preview.";
+
+});
+// FH EMPIRE — Reset settlement preview on custom date changes
+[settlementFromDate, settlementToDate].forEach(input => {
+  input.addEventListener("change", () => {
+    pendingSettlement = null;
+    confirmSettlementBtn.disabled = true;
+
+    settlementPreviewStatus.textContent =
+      "Date range changed. Click Preview Settlement to recalculate.";
+  });
+});
+[settlementFromDate, settlementToDate].forEach(input => {
+  input.addEventListener("change", () => {
+
+    confirmSettlementBtn.disabled = true;
+
+    if (
+      settlementFromDate.value &&
+      settlementToDate.value &&
+      settlementFromDate.value > settlementToDate.value
+    ) {
+      settlementPreviewStatus.textContent =
+        "⚠️ From Date cannot be later than To Date.";
+      return;
+    }
+
+    settlementPreviewStatus.textContent =
+      "Custom dates selected. Calculation will be connected next.";
+  });
+});
+
+// ==========================================
+// FH EMPIRE — EXTERNAL GIFT CALCULATOR
+// READ ONLY — NO DATABASE CHANGES
+// ==========================================
+
+const externalGiftHost =
+  document.getElementById("externalGiftHost");
+
+const externalGiftPoints =
+  document.getElementById("externalGiftPoints");
+
+const externalGiftResult =
+  document.getElementById("externalGiftResult");
+
+const calculateExternalGiftBtn =
+  document.getElementById("calculateExternalGiftBtn");
+
+// Load active hosts
+externalGiftHost.innerHTML =
+  '<option value="">Choose a host...</option>';
+
+savedDashboardHosts
+  .filter(host =>
+    ["salarybase", "halfhalf"].includes(
+      String(host.type || "").toLowerCase()
+    ) &&
+    host.isActive !== false
+  )
+  .forEach(host => {
+    const option = document.createElement("option");
+
+    option.value = String(host.id);
+
+    const type =
+      String(host.type).toLowerCase() === "salarybase"
+        ? "Salary Base"
+        : "Half-Half";
+
+    option.textContent =
+      `${host.name || "Unnamed Host"} (${host.id}) — ${type}`;
+
+    externalGiftHost.appendChild(option);
+  });
+
+// Calculate external gift payment
+calculateExternalGiftBtn.addEventListener("click", () => {
+
+  const host = savedDashboardHosts.find(h =>
+    String(h.id) === externalGiftHost.value
+  );
+
+  const rawPoints = externalGiftPoints.value.trim();
+  const points = Number(rawPoints);
+
+  if (!host || rawPoints === "" ||
+      !Number.isFinite(points) || points <= 0) {
+    externalGiftResult.textContent =
+      "⚠️ Select a host and enter valid received points.";
+    return;
+  }
+
+  const grossUSD = points / 10000;
+
+  const feeUSD = grossUSD < 65
+    ? grossUSD * 0.015
+    : 1;
+
+  const netUSD = Math.max(0, grossUSD - feeUSD);
+  const payablePKR = netUSD * 295;
+
+  const formatMoney = value =>
+    Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+ externalGiftResult.textContent =
+  `🎁 ${host.name || host.id} | ` +
+  `📅 Gift Date: ${document.getElementById("externalGiftDate").value} | ` +
+  `Received: ${points.toLocaleString()} points | ` +
+  `Gross: $${formatMoney(grossUSD)} | ` +
+  `Withdrawal Fee: $${formatMoney(feeUSD)} | ` +
+  `Net: $${formatMoney(netUSD)} | ` +
+  `Host Payment: Rs ${formatMoney(payablePKR)} | ` +
+  `(Preview Only)`;
+    `Received: ${points.toLocaleString()} points | ` +
+    `Gross: $${formatMoney(grossUSD)} | ` +
+    `Withdrawal Fee: $${formatMoney(feeUSD)} | ` +
+    `Net: $${formatMoney(netUSD)} | ` +
+    `Host Payment: Rs ${formatMoney(payablePKR)} | ` +
+    `(Preview Only)`;
+});
+
+// FH EMPIRE — External Gift Save Button Validation
+
+const saveExternalGiftBtn =
+  document.getElementById("saveExternalGiftBtn");
+
+const externalGiftDate =
+  document.getElementById("externalGiftDate");
+
+function resetExternalGiftSave() {
+  saveExternalGiftBtn.disabled = true;
+}
+
+externalGiftHost.addEventListener(
+  "change", resetExternalGiftSave
+);
+
+externalGiftPoints.addEventListener(
+  "input", resetExternalGiftSave
+);
+
+externalGiftDate.addEventListener(
+  "change", resetExternalGiftSave
+);
+
+calculateExternalGiftBtn.addEventListener("click", () => {
+  const points = Number(externalGiftPoints.value);
+
+  const valid =
+    externalGiftHost.value !== "" &&
+    externalGiftPoints.value.trim() !== "" &&
+    Number.isFinite(points) &&
+    points > 0 &&
+    externalGiftDate.value !== "";
+
+  saveExternalGiftBtn.disabled = !valid;
+
+  if (!valid) {
+    externalGiftResult.textContent =
+      "⚠️ Select host, enter valid points and gift date.";
+  }
+});
+// FH EMPIRE — External Gift Duplicate Check
+function isExternalGiftDuplicate(hostId, giftDate, points) {
+  return externalGiftRecords.some(gift =>
+    String(gift.host_poppo_id) === String(hostId) &&
+    String(gift.gift_date).slice(0, 10) === giftDate &&
+    Number(gift.received_points) === Number(points)
+  );
+}
+
+// ==========================================
+// FH EMPIRE — SAVE EXTERNAL GIFT
+// ==========================================
+
+let externalGiftSaving = false;
+
+saveExternalGiftBtn.addEventListener("click", async () => {
+  if (externalGiftSaving || saveExternalGiftBtn.disabled) return;
+
+  const hostId = externalGiftHost.value;
+  const giftDate = externalGiftDate.value;
+  const rawPoints = externalGiftPoints.value.trim();
+  const points = Number(rawPoints);
+
+  if (
+    !hostId ||
+    !giftDate ||
+    !rawPoints ||
+    !Number.isFinite(points) ||
+    points <= 0
+  ) {
+    saveExternalGiftBtn.disabled = true;
+    externalGiftResult.textContent =
+      "⚠️ Invalid details. Calculate payment again.";
+    return;
+  }
+
+  const grossUSD = points / 10000;
+  const feeUSD = grossUSD < 65
+    ? grossUSD * 0.015
+    : 1;
+
+  const netUSD = Math.max(0, grossUSD - feeUSD);
+  const payablePKR = netUSD * 295;
+
+  externalGiftSaving = true;
+  saveExternalGiftBtn.disabled = true;
+
+  try {
+    // Fresh records check before saving.
+    const latestGifts = await fhLoadExternalGifts();
+
+    const duplicate = latestGifts.some(gift =>
+      String(gift.host_poppo_id) === hostId &&
+      String(gift.gift_date).slice(0, 10) === giftDate &&
+      Number(gift.received_points) === points
+    );
+
+    if (duplicate) {
+      externalGiftResult.textContent =
+        "⚠️ Same host, date and points ka gift already saved hai.";
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Save External Gift Record?\n\n" +
+      "Host ID: " + hostId + "\n" +
+      "Gift Date: " + giftDate + "\n" +
+      "Received Points: " + points.toLocaleString() + "\n" +
+      "Host Payable: Rs " + payablePKR.toFixed(2) +
+      "\n\nThis will NOT record a payment."
+    );
+
+    if (!confirmed) {
+      externalGiftResult.textContent =
+        "Gift save cancelled. Calculate again if needed.";
+      return;
+    }
+
+    const payload = {
+      host_poppo_id: hostId,
+      gift_date: giftDate,
+      received_points: points,
+      gross_usd: grossUSD,
+      withdrawal_fee_usd: feeUSD,
+      net_usd: netUSD,
+      usd_pkr_rate: 295,
+      payable_pkr: payablePKR,
+      notes: "External sender gift"
+    };
+
+    await fhSaveExternalGift(payload);
+if (window.opener && !window.opener.closed) {
+  window.opener.postMessage(
+    { type: "FH_EXTERNAL_GIFT_SAVED" },
+    window.location.origin
+  );
+}
+    externalGiftResult.textContent =
+      "✅ Gift saved successfully! Payable: Rs " +
+      payablePKR.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) +
+      " | Payment Pending";
+
+    externalGiftPoints.value = "";
+    externalGiftDate.value = "";
+
+  } catch (error) {
+    console.error("FH External Gift Save Error:", error);
+
+    externalGiftResult.textContent =
+      "❌ Save failed. Check Console and Supabase records.";
+  } finally {
+    externalGiftSaving = false;
+    saveExternalGiftBtn.disabled = true;
+  }
+});
+
+const originalRecords = [...records];
+
+console.log(
+  "FH Sending Date Range:",
+  [...new Set(
+    originalRecords.map(r => String(r.date).slice(0, 10))
+  )].sort()
+);
+
+const firstSendingDate = originalRecords
+  .map(r => String(r.date).slice(0, 10))
+  .filter(Boolean)
+  .sort()[0];
+
+const lastSendingDate = originalRecords
+  .map(r => String(r.date).slice(0, 10))
+  .filter(Boolean)
+  .sort()
+  .at(-1);
+
+const sendingDates = new Set(
+  originalRecords.map(r => String(r.date).slice(0, 10))
+);
+
+const missingSendingDates = [];
+
+if (firstSendingDate && lastSendingDate) {
+  for (
+    let date = firstSendingDate;
+    date <= lastSendingDate;
+    date = shiftDate(date, 1)
+  ) {
+    if (!sendingDates.has(date)) {
+      missingSendingDates.push(date);
+    }
+  }
+}
+
+console.log("FH Missing Sending Dates:", missingSendingDates);
+
+function dashboardRollingReceiving(hostId, selectedDate) {
+  const start = shiftDate(selectedDate, -6);
+
+  return originalRecords
+    .filter(record =>
+      String(record.hostId) === String(hostId) &&
+      String(record.date).slice(0, 10) >= start &&
+      String(record.date).slice(0, 10) <= selectedDate
+    )
+    .reduce(
+      (total, record) =>
+        total + Number(record.sending || 0) * 0.70,
+      0
+    );
+}
+
+function getPoppoToday() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+
+  const get = type => parts.find(p => p.type === type).value;
+
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function shiftDate(date, days) {
+  const d = new Date(date + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+function getFilteredRecords() {
+  const today = getPoppoToday();
+  const period = periodFilter.value;
+  const type = hostTypeFilter.value;
+
+  let from = "";
+  let to = "";
+
+  if (period === "today") {
+    from = today;
+    to = today;
+  } else if (period === "week") {
+    from = shiftDate(today, -6);
+    to = today;
+  } else if (period === "month") {
+    from = today.slice(0, 7) + "-01";
+    to = today;
+  } else if (period === "custom") {
+    from = startDate.value;
+    to = endDate.value;
+  }
+
+  return originalRecords.filter(record => {
+    const hostType = String(record.hostType || "").toLowerCase();
+    const date = String(record.date || "").slice(0, 10);
+
+    if (type !== "all" && hostType !== type) return false;
+    if (from && date < from) return false;
+    if (to && date > to) return false;
+
+    return true;
+  });
+}
+
+
+function groupRewardsBySevenDays(hostRewards) {
+  const groups = new Map();
+
+  hostRewards.forEach(item => {
+    const hostId = String(item.hostId);
+    const date = String(item.date).slice(0, 10);
+
+    // Monday se Sunday tak ek reward withdrawal period.
+    const day = new Date(date + "T00:00:00Z");
+    const weekday = day.getUTCDay();
+    const daysFromMonday = (weekday + 6) % 7;
+
+    const weekStart = shiftDate(date, -daysFromMonday);
+    const key = `${hostId}|${weekStart}`;
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        hostId,
+        weekStart,
+        rewardPoints: 0
+      });
+    }
+
+    groups.get(key).rewardPoints += Number(item.rewardPoints || 0);
+  });
+
+  return [...groups.values()];
+}
+
+function calculateRewardWithdrawal(rewardPoints) {
+  const grossUSD = Math.max(0, Number(rewardPoints) || 0) / 10000;
+
+  const feeUSD = grossUSD >= 65
+    ? 1
+    : grossUSD * 0.015;
+
+  const netUSD = Math.max(0, grossUSD - feeUSD);
+  const coins = netUSD * 9900;
+
+  return {
+    grossUSD,
+    feeUSD,
+    netUSD,
+    coins
+  };
+}
+
+function calculateDashboardNormalCoins(sending) {
+  const receiving = sending * 0.70;
+  const agencyPoints = receiving * 0.20;
+
+  const hostGrossUSD = receiving / 10000;
+
+  const hostFee = hostGrossUSD >= 65
+    ? 1
+    : hostGrossUSD * 0.015;
+
+  const hostNetUSD = Math.max(0, hostGrossUSD - hostFee);
+  const agencyUSD = agencyPoints / 10000;
+
+  const normalCoins = (hostNetUSD + agencyUSD) * 9900;
+
+  return normalCoins;
+}
+
+function calculateDashboardRewards() {
+  const filtered = getFilteredRecords();
+  const hostDates = new Map();
+
+  // Sirf eligible hosts, original sending history se.
+  const hosts = new Map();
+
+  originalRecords.forEach(record => {
+    const hostId = String(record.hostId || "");
+    const hostType = String(record.hostType || "").toLowerCase();
+
+    if (
+      hostId &&
+      ["salarybase", "halfhalf"].includes(hostType)
+    ) {
+      hosts.set(hostId, hostType);
+    }
+  });
+
+  // Report period ki boundaries.
+  const period = periodFilter.value;
+  const today = getPoppoToday();
+
+  const firstDate = originalRecords
+    .map(r => String(r.date || "").slice(0, 10))
+    .filter(Boolean)
+    .sort()[0];
+
+  const lastDate = originalRecords
+    .map(r => String(r.date || "").slice(0, 10))
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+
+  let from = firstDate;
+  let to = lastDate;
+
+  if (period === "today") {
+    from = today;
+    to = today;
+  } else if (period === "week") {
+    from = shiftDate(today, -6);
+    to = today;
+  } else if (period === "month") {
+    from = today.slice(0, 7) + "-01";
+    to = today;
+  } else if (period === "custom") {
+    from = startDate.value || firstDate;
+    to = endDate.value || lastDate;
+  }
+
+  const selectedType = hostTypeFilter.value;
+
+  // Har eligible host ke liye har calendar date check.
+  if (from && to && from <= to) {
+    hosts.forEach((hostType, hostId) => {
+      if (
+        selectedType !== "all" &&
+        selectedType !== hostType
+      ) return;
+
+      for (
+        let date = from;
+        date <= to;
+        date = shiftDate(date, 1)
+      ) {
+        const rolling = dashboardRollingReceiving(
+          hostId,
+          date
+        );
+
+        const level = dashboardRewardLevel(rolling);
+
+        // Reward level active ho tabhi count.
+        if (!level) continue;
+
+        hostDates.set(`${hostId}|${date}`, {
+          hostId,
+          date,
+          hostType,
+          level
+        });
+      }
+    });
+  }
+const hostRewards = [];
+  let expected = 0;
+  let received = 0;
+  let missed = 0;
+  let extra = 0;
+  let agencyReward = 0;
+  let halfHalfReward = 0;
+
+  hostDates.forEach(item => {
+    const dailyExpected = Number(item.level.daily || 0);
+
+    const adjustment = allRewardRecords.find(r =>
+      String(r.hostId) === item.hostId &&
+      String(r.date).slice(0, 10) === item.date
+    );
+
+    const actual = adjustment
+      ? Number(adjustment.received || 0)
+      : dailyExpected;
+
+    expected += dailyExpected;
+    received += actual;
+    missed += Math.max(0, dailyExpected - actual);
+    extra += Math.max(0, actual - dailyExpected);
+
+   const fhShare = item.hostType === "halfhalf"
+  ? actual * 0.5
+  : actual;
+
+agencyReward += fhShare;
+
+if (item.hostType === "halfhalf") {
+  halfHalfReward += actual * 0.5;
+}
+
+hostRewards.push({
+  hostId: item.hostId,
+  date: item.date,
+  rewardPoints: fhShare
+});
+  });
+
+const weeklyRewards = groupRewardsBySevenDays(hostRewards);
+
+const weeklyWithdrawals = weeklyRewards.map(week => ({
+  ...week,
+  ...calculateRewardWithdrawal(week.rewardPoints)
+}));
+
+const totalRewardCoins = weeklyWithdrawals.reduce(
+  (sum, week) => sum + week.coins,
+  0
+);
+
+  return {
+    expected,
+    received,
+    missed,
+    extra,
+    agencyReward,
+    halfHalfReward,
+   countedDays: hostDates.size,
+hostRewards,
+weeklyWithdrawals,
+totalRewardCoins
+  };
+}
+
+   function renderDashboard() {
+  records = getFilteredRecords();
+
+const reward = calculateDashboardRewards();
+const HALF_HALF_USD_RATE = 295;
+
+const halfHalfHostIds = new Set(
+  savedDashboardHosts
+    .filter(h =>
+      String(h.type || "").toLowerCase() === "halfhalf"
+    )
+    .map(h => String(h.id))
+);
+const halfHalfWeeklyPayouts = reward.weeklyWithdrawals
+  .filter(week => halfHalfHostIds.has(String(week.hostId)))
+  .map(week => {
+
+    // Existing weekly rewardPoints mein 50% FH share hai.
+    // Full reward restore karke fee ek baar calculate karo.
+    const fullRewardPoints = week.rewardPoints * 2;
+
+    const withdrawal = calculateRewardWithdrawal(fullRewardPoints);
+
+    // Full reward withdrawal fee ke baad 50/50.
+    const hostShareUSD = withdrawal.netUSD * 0.5;
+
+    return {
+      hostId: week.hostId,
+      weekStart: week.weekStart,
+      rewardPoints: fullRewardPoints,
+      withdrawalFeeUSD: withdrawal.feeUSD,
+      netUSD: withdrawal.netUSD,
+      hostShareUSD,
+      payablePKR: hostShareUSD * HALF_HALF_USD_RATE
+    };
+  });
+
+const totalHalfHalfPayable = halfHalfWeeklyPayouts.reduce(
+  (sum, week) => sum + week.payablePKR,
+  0
+);
+
+console.table(halfHalfWeeklyPayouts);
+document.getElementById("rewardCoins").textContent =
+  fmt(Math.round(reward.totalRewardCoins || 0)) + " coins";
+document.getElementById("rewardExpected").textContent =
+  fmt(reward.expected) + " points";
+
+document.getElementById("rewardReceived").textContent =
+  fmt(reward.received) + " points";
+
+document.getElementById("rewardMissed").textContent =
+  fmt(reward.missed) + " points";
+
+document.getElementById("rewardExtra").textContent =
+  fmt(reward.extra) + " points";
+
+document.getElementById("rewardAgency").textContent =
+  fmt(reward.agencyReward) + " points";
+
+document.getElementById("rewardHalfHalf").textContent =
+  fmt(reward.halfHalfReward) + " points";
+
+document.getElementById("rewardCountedDays").textContent =
+  fmt(reward.countedDays);
+
+  const sum = (key) => records.reduce(
+    (total, record) => total + Number(record[key] || 0),
+    0
+  );
+
+  const totalSending = sum("sending");
+  const totalReceiving = totalSending * 0.70;
+  const agencySharePoints = totalReceiving * 0.20;
+  const agencyShareUSD = agencySharePoints / 10000;
+  const purchaseCost = sum("purchaseCost");
+  const salesRevenue = sum("saleAmount");
+  const coinsSold = sum("coinsSold");
+
+const totalNormalCoins = records.reduce(
+  (total, record) => {
+    const sending = Number(record.sending || 0);
+
+    return total + calculateDashboardNormalCoins(sending);
+  },
+  0
+);
+document.getElementById("normalCoins").textContent =
+  fmt(Math.round(totalNormalCoins)) + " coins";
+  document.getElementById("totalSending").textContent =
+    fmt(totalSending) + " coins";
+
+  document.getElementById("totalReceiving").textContent =
+    fmt(totalReceiving) + " points";
+
+  document.getElementById("totalRecords").textContent =
+    fmt(records.length);
+
+  document.getElementById("totalHosts").textContent =
+    fmt(new Set(records.map(r => String(r.hostId))).size);
+
+  document.getElementById("purchaseCost").textContent =
+    money(purchaseCost);
+
+  document.getElementById("salesRevenue").textContent =
+    money(salesRevenue);
+
+  document.getElementById("tradingMargin").textContent =
+    money(salesRevenue - purchaseCost);
+
+  document.getElementById("coinsSold").textContent =
+    fmt(coinsSold) + " coins";
+
+document.getElementById("agencyShare").innerHTML =
+  fmt(agencySharePoints) + " points" +
+  "<div style='font-size:15px;color:#4ade80;margin-top:6px;'>" +
+  "$" + agencyShareUSD.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }) +
+  " USD</div>";
+
+const estimatedUnsoldCoins =
+  totalNormalCoins +
+  reward.totalRewardCoins -
+  coinsSold;
+
+document.getElementById("unsoldCoins").textContent =
+  fmt(Math.round(estimatedUnsoldCoins)) + " coins (Est.)";
+
+  const salaryMonth = getPoppoToday().slice(0, 7);
+
+const grossSalary = salaryBaseHosts.length * 5000;
+
+const approvedDeductions = salaryBaseHosts.reduce((total, host) => {
+  const hostDeduction = allRewardRecords
+    .filter(r =>
+      String(r.hostId) === String(host.id) &&
+      String(r.date || "").slice(0, 7) === salaryMonth &&
+      r.deductionApproved === true &&
+      String(r.deductionReason || "").toLowerCase() === "host"
+    )
+    .reduce((sum, r) => sum + Number(r.deductionAmount || 0), 0);
+
+  return total + Math.min(2500, hostDeduction);
+}, 0);
+
+const netSalary = Math.max(0, grossSalary - approvedDeductions);
+
+document.getElementById("salaryPayouts").innerHTML =
+  money(netSalary) +
+  "<div style='font-size:11px;color:#aaa;margin-top:5px;'>" +
+  "Gross: " + money(grossSalary) +
+  " | Deduction: " + money(approvedDeductions) +
+  "</div>";
+ document.getElementById("halfHalfPayouts").innerHTML =
+  money(totalHalfHalfPayable) +
+  "<div style='font-size:11px;color:#aaa;margin-top:5px;'>" +
+  "Calculated Payable (Est.) | Rate: Rs 295/USD" +
+  "</div>";
+  status.textContent =
+    "✓ Showing " + records.length +
+    " Salary Base / Half-Half sending records.";
+
+  status.style.color = "#4ade80";
+}
+
+const rewardTest = calculateDashboardRewards();
+
+console.log("FH Dashboard Reward Calculation:", rewardTest);
+
+// Initial dashboard
+renderDashboard();
+
+// Update dashboard whenever filters change
+periodFilter.addEventListener("change", renderDashboard);
+hostTypeFilter.addEventListener("change", renderDashboard);
+startDate.addEventListener("change", renderDashboard);
+endDate.addEventListener("change", renderDashboard);
+
+  } catch (error) {
+    console.error("Sending Dashboard Error:", error);
+    status.textContent = "✕ Unable to load records: " + error.message;
+    status.style.color = "#fb7185";
+  }
+})();
+
+/* FH EMPIRE — External Gift Popup Controls */
+
+const viewGiftBtn = document.getElementById("viewExternalGiftRecordsBtn");
+const giftModal = document.getElementById("externalGiftModal");
+const closeGiftBtn = document.getElementById("closeExternalGiftModal");
+
+function closeGiftPopup() {
+  giftModal.style.display = "none";
+}
+
+viewGiftBtn.addEventListener("click", () => {
+  giftModal.style.display = "flex";
+});
+
+closeGiftBtn.addEventListener("click", closeGiftPopup);
+
+giftModal.addEventListener("click", (event) => {
+  if (event.target === giftModal) {
+    closeGiftPopup();
+  }
+});
+
+</script>
+<script>
+(function () {
+  if (window.location.hash !== "#externalGiftSection") return;
+
+  window.addEventListener("load", () => {
+    const giftSection = document.getElementById("externalGiftSection");
+    if (!giftSection) return;
+
+    const style = document.createElement("style");
+    style.textContent = `
+      body > *:not(script):not(style) {
+        visibility: hidden !important;
+      }
+
+      #externalGiftSection,
+      #externalGiftSection * {
+        visibility: visible !important;
+      }
+
+      #externalGiftSection {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        overflow-y: auto !important;
+        z-index: 999999 !important;
+        margin: 0 !important;
+        padding: 24px !important;
+        background: #111 !important;
+        box-sizing: border-box !important;
+      }
+    `;
+
+    document.head.appendChild(style);
+  });
+})();
+</script>
+</body>
+</html>

@@ -679,5 +679,269 @@ async function fhLoadRocketSettlements(weeklyRecordId) {
     { method: "GET" }
   );
 }
+// ==========================================
+// FH EMPIRE — REWARD ADJUSTMENTS SUPABASE
+// ==========================================
 
+
+async function fhLoadRewardAdjustments() {
+  const rows = await fhSendingRequest(
+    "fh_reward_adjustments?select=*&order=reward_date.asc",
+    { method: "GET" }
+  );
+
+  return rows.map(row => ({
+    id: row.id,
+    hostId: row.host_poppo_id,
+    hostName: row.host_name,
+    date: row.reward_date,
+    rolling: Number(row.rolling || 0),
+    level: row.level,
+    expected: Number(row.expected || 0),
+    tasks: Number(row.tasks || 0),
+    received: Number(row.received || 0),
+    minus: Number(row.minus || 0),
+    reason: row.reason || "",
+    deductionReason: row.deduction_reason || "none",
+deductionApproved: row.deduction_approved === true,
+deductionAmount: Number(row.deduction_amount || 0),
+
+    // Advanced Hourly Reward
+    rewardMode: row.reward_mode || "normal",
+    hourlyRewards: row.hourly_rewards ?? null,
+
+// Salary Deduction Details
+  }));
+}
+
+
+async function fhSaveRewardAdjustment(record) {
+  return fhSendingRequest(
+    "fh_reward_adjustments?on_conflict=host_poppo_id,reward_date",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "resolution=merge-duplicates,return=representation"
+      },
+      body: JSON.stringify({
+       
+        host_poppo_id: record.hostId,
+        host_name: record.hostName,
+        reward_date: record.date,
+        rolling: record.rolling,
+        level: record.level,
+        expected: record.expected,
+        tasks: record.tasks,
+        
+received: record.received,
+minus: record.minus,
+reason: record.reason,
+reward_mode: record.rewardMode || "normal",
+hourly_rewards: record.hourlyRewards ?? null,
+deduction_reason: record.deductionReason || "none",
+deduction_approved: record.deductionApproved === true,
+deduction_amount: Number(record.deductionAmount || 0)
+
+      })
+    }
+  );
+}
+// ==========================================
+// FH EMPIRE — DELETE REWARD ADJUSTMENT
+// ==========================================
+
+async function fhDeleteRewardAdjustment(hostId, date) {
+  const params = new URLSearchParams({
+    host_poppo_id: `eq.${hostId}`,
+    reward_date: `eq.${date}`
+  });
+
+  return fhSendingRequest(
+    `fh_reward_adjustments?${params.toString()}`,
+    {
+      method: "DELETE",
+      headers: {
+        Prefer: "return=representation"
+      }
+    }
+  );
+}
+// ==========================================
+// FH EMPIRE — HOST SETTLEMENT DATA (READ ONLY)
+// ==========================================
+
+async function fhLoadHostSettlementData() {
+  const tables = [
+    "fh_salary_half_settlements",
+    "fh_salary_half_payments",
+    "fh_salary_half_adjustments"
+  ];
+
+  const [settlements, payments, adjustments] =
+    await Promise.all(
+      tables.map(async table => {
+        const response = await fhSendingRequest(
+          `${table}?select=*&order=created_at.desc`,
+          { method: "GET" }
+        );
+
+        return response;
+      })
+    );
+
+  return {
+    settlements,
+    payments,
+    adjustments
+  };
+}
+
+// ==========================================
+// FH EMPIRE — EXTERNAL GIFTS (READ ONLY)
+// ==========================================
+
+async function fhLoadExternalGifts() {
+  return await fhSendingRequest(
+    "fh_external_gifts?select=*&order=created_at.desc",
+    { method: "GET" }
+  );
+}
+
+// ==========================================
+// FH EMPIRE — EXTERNAL GIFT PAYMENTS
+// READ ONLY
+// ==========================================
+
+async function fhLoadExternalGiftPayments() {
+  return await fhSendingRequest(
+    "fh_external_gift_payments?select=*&order=created_at.desc",
+    { method: "GET" }
+  );
+}
+
+// ==========================================
+// FH EMPIRE — SAVE EXTERNAL GIFT RECORD
+// ==========================================
+
+async function fhSaveExternalGift(giftData) {
+  const allowedFields = [
+    "host_poppo_id",
+    "gift_date",
+    "received_points",
+    "gross_usd",
+    "withdrawal_fee_usd",
+    "net_usd",
+    "usd_pkr_rate",
+    "payable_pkr",
+    "notes"
+  ];
+
+  const payload = {};
+
+  allowedFields.forEach(field => {
+    if (Object.prototype.hasOwnProperty.call(giftData, field)) {
+      payload[field] = giftData[field];
+    }
+  });
+
+  return await fhSendingRequest(
+    "fh_external_gifts",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+}
+
+ // ==========================================
+ // FH EMPIRE — UPDATE EXTERNAL GIFT
+ // ==========================================
+
+async function fhUpdateExternalGift(giftId, giftData) {
+  if (!giftId) throw new Error("Gift ID missing");
+
+  const allowedFields = [
+    "host_poppo_id",
+    "gift_date",
+    "received_points",
+    "gross_usd",
+    "withdrawal_fee_usd",
+    "net_usd",
+    "usd_pkr_rate",
+    "payable_pkr",
+    "notes"
+  ];
+
+  const payload = {};
+
+  allowedFields.forEach(field => {
+    if (Object.prototype.hasOwnProperty.call(giftData, field)) {
+      payload[field] = giftData[field];
+    }
+  });
+
+  if (!Object.keys(payload).length) {
+    throw new Error("No changes provided");
+  }
+
+  return await fhSendingRequest(
+    "fh_external_gifts?id=eq." + encodeURIComponent(giftId),
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+}
+
+// ==========================================
+// FH EMPIRE — DELETE EXTERNAL GIFT
+// ==========================================
+
+async function fhDeleteExternalGift(giftId) {
+  if (!giftId) throw new Error("Gift ID missing");
+
+  return await fhSendingRequest(
+    "fh_external_gifts?id=eq." + encodeURIComponent(giftId),
+    {
+      method: "DELETE",
+      headers: {
+        "Prefer": "return=representation"
+      }
+    }
+  );
+}
+// ==========================================
+// FH EMPIRE — SAVE HOST SETTLEMENT
+// ==========================================
+
+async function fhSaveHostSettlement(payload) {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid settlement data.");
+  }
+
+  const result = await fhSendingRequest(
+    "fh_salary_half_settlements",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+
+  if (!Array.isArray(result) || result.length !== 1) {
+    throw new Error("Settlement save could not be verified.");
+  }
+
+  return result[0];
+}
 
