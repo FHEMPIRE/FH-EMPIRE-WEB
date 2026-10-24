@@ -46,7 +46,7 @@ async function fhSendingRequest(table, options = {}) {
 }
 async function fhLoadHosts() {
   const rows = await fhSendingRequest(
-    "fh_sending_hosts?select=poppo_id,host_name,host_type,is_active&order=created_at.asc",
+    "fh_sending_hosts?select=poppo_id,host_name,host_type,joining_date,is_active&order=created_at.asc",
     { method: "GET" }
   );
 
@@ -54,6 +54,7 @@ async function fhLoadHosts() {
     id: row.poppo_id,
     name: row.host_name,
     type: row.host_type,
+    joining_date: row.joining_date || "",
     isActive: row.is_active !== false
   }));
 }
@@ -69,6 +70,7 @@ async function fhSaveHost(host) {
       poppo_id: host.id,
       host_name: host.name,
       host_type: host.type,
+      joining_date: host.joining_date || null,
 is_active: host.isActive !== false
     })
   });
@@ -796,6 +798,45 @@ async function fhLoadHostSettlementData() {
   };
 }
 
+
+async function fhSaveHostSettlementPayment(payment) {
+  const settlementId = String(payment.settlement_id || "").trim();
+  const amount = Number(payment.amount_pkr);
+  const paymentDate = String(payment.payment_date || "");
+
+  if (
+    !/^[0-9a-f-]{36}$/i.test(settlementId) ||
+    !Number.isFinite(amount) ||
+    amount <= 0 ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)
+  ) {
+    throw new Error("Invalid settlement payment details.");
+  }
+
+  const response = await fhSendingRequest(
+    "fh_salary_half_payments",
+    {
+      method: "POST",
+      headers: {
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify({
+        settlement_id: settlementId,
+        amount_pkr: amount,
+        payment_date: paymentDate,
+        notes: String(payment.notes || "").trim() || null
+      })
+    }
+  );
+
+  if (!Array.isArray(response) || response.length !== 1) {
+    throw new Error("Payment save was not confirmed.");
+  }
+
+  return response[0];
+}
+
+
 // ==========================================
 // FH EMPIRE — EXTERNAL GIFTS (READ ONLY)
 // ==========================================
@@ -945,3 +986,80 @@ async function fhSaveHostSettlement(payload) {
   return result[0];
 }
 
+// ==========================================
+// FH EMPIRE — SAVE COINS SALE
+// ==========================================
+
+async function fhSaveCoinsSale(payload) {
+  const coinsSold = Number(payload?.coins_sold);
+  const sellingRate = Number(payload?.selling_rate);
+  const saleDate = payload?.sale_date;
+
+  if (!Number.isSafeInteger(coinsSold) || coinsSold <= 0) {
+    throw new Error("Invalid coins quantity.");
+  }
+
+  if (!Number.isFinite(sellingRate) || sellingRate <= 0) {
+    throw new Error("Invalid selling rate.");
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(saleDate || "")) {
+    throw new Error("Invalid sale date.");
+  }
+
+  const result = await fhSendingRequest(
+    "fh_coin_sales",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify({
+        sale_date: saleDate,
+        coins_sold: coinsSold,
+        selling_rate: sellingRate
+      })
+    }
+  );
+
+  if (!Array.isArray(result) || result.length !== 1) {
+    throw new Error("Coins sale save could not be verified.");
+  }
+
+  return result[0];
+}
+// FH EMPIRE — Load Manual Coins Sales
+async function fhLoadCoinsSales() {
+  const rows = await fhSendingRequest(
+    "fh_coin_sales?select=*&order=created_at.asc",
+    { method: "GET" }
+  );
+
+  return Array.isArray(rows) ? rows : [];
+}
+
+// ==========================================
+// FH EMPIRE — DELETE COINS SALE
+// ==========================================
+
+async function fhDeleteCoinsSale(saleId) {
+  if (!saleId) {
+    throw new Error("Coins sale ID is missing.");
+  }
+
+  const result = await fhSendingRequest(
+    "fh_coin_sales?id=eq." + encodeURIComponent(saleId),
+    {
+      method: "DELETE",
+      headers: {
+        Prefer: "return=representation"
+      }
+    }
+  );
+
+  if (!Array.isArray(result) || result.length !== 1) {
+    throw new Error("Coins sale deletion could not be verified.");
+  }
+
+  return result[0];
+}
