@@ -1315,7 +1315,25 @@ if (enableNotificationsBtn) {
             }
 
             const data = subscription.toJSON();
+const userResponse = await fetch(
+    `${SUPABASE_URL}/auth/v1/user`,
+    {
+        headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${accessToken}`
+        }
+    }
+);
 
+if (!userResponse.ok) {
+    throw new Error("Admin session expired. Please login again.");
+}
+
+const authUser = await userResponse.json();
+
+if (!authUser.id) {
+    throw new Error("Authenticated user ID not found.");
+}
             const response = await fetch(
                 `${SUPABASE_URL}/rest/v1/push_subscriptions`,
                 {
@@ -1326,11 +1344,12 @@ if (enableNotificationsBtn) {
                         "Content-Type": "application/json",
                         "Prefer": "return=minimal"
                     },
-                    body: JSON.stringify({
-                        endpoint: data.endpoint,
-                        p256dh: data.keys.p256dh,
-                        auth: data.keys.auth
-                    })
+                  body: JSON.stringify({
+    user_id: authUser.id,
+    endpoint: data.endpoint,
+    p256dh: data.keys.p256dh,
+    auth: data.keys.auth
+})
                 }
             );
 
