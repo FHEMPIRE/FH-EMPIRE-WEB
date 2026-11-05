@@ -593,43 +593,6 @@ sessionStorage.setItem(
     orderAccessToken
 );
 
-        // ADMIN PUSH NOTIFICATION
-        try {
-
-            const projectUrl =
-    SUPABASE_URL.replace(/\/rest\/v1\/?$/, "");
-            await fetch(
-                `${projectUrl}/functions/v1/send-push`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${SUPABASE_KEY}`
-                    },
-
-                    body: JSON.stringify({
-
-                        title:
-                            "🛒 New FH EMPIRE Order",
-
-                        body:
-                            `${orderCoins.toLocaleString()} Coins - Rs. ${orderAmount.toLocaleString()} | Poppo ID: ${poppoId} | Order: ${finalOrderId}`,
-
-                        url: "admin.html"
-                    })
-                }
-            );
-
-        } catch (pushError) {
-
-            console.error(
-                "Push notification failed:",
-                pushError
-            );
-        }
-
-
         // SUCCESS DETAILS
         orderResult.innerHTML = `
             <div class="order-success">
