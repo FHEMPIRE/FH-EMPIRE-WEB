@@ -1,0 +1,1592 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assistant Dashboard | FH EMPIRE</title>
+<style>
+:root{
+  color-scheme:dark;
+  --gold:#ffcc33;
+  --muted:#aab0ba;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:#080808;color:#f5f5f5;
+  font-family:Arial,sans-serif;
+}
+.container{max-width:1250px;margin:auto;padding:24px 16px}
+header{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:15px;flex-wrap:wrap;
+  margin-bottom:24px;
+}
+h1{color:var(--gold);margin:0;font-size:27px}
+h2{font-size:19px;margin:0 0 17px}
+p,.muted{color:var(--muted)}
+.card{
+  background:#111;border:1px solid #34302a;
+  border-radius:13px;padding:21px;margin-bottom:18px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;margin-bottom:18px;
+}
+.stat{
+  background:#151515;border:1px solid #34302a;
+  border-radius:12px;padding:19px;
+}
+.stat small{display:block;color:var(--muted);margin-bottom:11px}
+.stat strong{
+  color:var(--gold);font-size:24px;
+  overflow-wrap:anywhere;
+}
+button,.btn{
+  background:transparent;color:var(--gold);
+  border:1px solid #806515;border-radius:8px;
+  padding:11px 16px;cursor:pointer;font-weight:bold;
+  text-decoration:none;display:inline-block;
+}
+button:hover,.btn:hover{background:var(--gold);color:#000}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--gold);color:#000}
+input,textarea,select{
+  width:100%;background:#080808;color:#fff;
+  border:1px solid #66551e;border-radius:8px;
+  padding:12px;font-size:14px;
+}
+label{display:block;font-size:13px;margin-bottom:7px}
+.form-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:15px;
+}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}
+.notice{
+  display:none;padding:13px;border-radius:8px;
+  margin-bottom:17px;white-space:pre-wrap;
+}
+.success{display:block;background:#12301d;color:#86efac}
+.error{display:block;background:#351517;color:#fca5a5}
+.info{display:block;background:#27210f;color:#f9d66d}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{
+  text-align:left;padding:13px 10px;
+  border-bottom:1px solid #333;font-size:13px;
+}
+th{color:var(--gold)}
+.toolbar{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:12px;flex-wrap:wrap;
+}
+.tag{
+  display:inline-block;border:1px solid #806515;
+  border-radius:20px;padding:6px 11px;
+  color:var(--gold);font-size:12px;
+}
+@media(max-width:950px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .grid,.form-grid{grid-template-columns:1fr}
+  .container{padding:17px 12px}
+}
+
+/* FH EMPIRE — PREMIUM FINANCIAL SECTION */
+
+#assistantFinanceSection {
+  background: linear-gradient(145deg, #17140d, #101010 55%);
+  border: 1px solid #6d571d;
+  border-radius: 18px;
+  padding: 26px;
+}
+
+#assistantFinanceSection h2 {
+  color: #ffcc33;
+  font-size: 22px;
+}
+
+#assistantFinanceSection h3 {
+  color: #f5f5f5;
+  font-size: 16px;
+  margin: 26px 0 12px;
+}
+
+#assistantFinanceSection .stat {
+  background: linear-gradient(145deg, #211b10, #131313);
+  border: 1px solid #55451e;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+#assistantFinanceSection .stat strong {
+  font-size: 25px;
+}
+
+.fh-transfer-record {
+  background: #191919;
+  border: 1px solid #423820;
+  border-radius: 13px;
+  padding: 17px;
+  margin: 12px 0;
+}
+
+.fh-transfer-record p {
+  color: #f5f5f5;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.fh-transfer-record button {
+  margin: 6px 8px 0 0;
+}
+
+.fh-transfer-confirm {
+  border-color: #15803d;
+  color: #86efac;
+}
+
+.fh-transfer-confirm:hover {
+  background: #15803d;
+  color: white;
+}
+
+.fh-transfer-reject {
+  border-color: #b91c1c;
+  color: #fca5a5;
+}
+
+.fh-transfer-reject:hover {
+  background: #b91c1c;
+  color: white;
+}
+
+/* Transfer History Popup */
+
+.fh-history-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.fh-history-modal[hidden] {
+  display: none;
+}
+
+.fh-history-dialog {
+  background: #141414;
+  border: 1px solid #8a6b20;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 20px 70px rgba(0,0,0,.7);
+}
+
+.fh-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.fh-history-header h2 {
+  color: #ffcc33;
+  margin: 0;
+}
+
+@media(max-width:600px) {
+  #assistantFinanceSection {
+    padding: 17px;
+  }
+
+  #assistantFinanceSection .stat strong {
+    font-size: 21px;
+  }
+
+  .fh-history-dialog {
+    padding: 17px;
+  }
+}
+
+/* Professional Transfer History Records */
+
+.fh-history-record-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #383124;
+}
+
+.fh-history-record-heading strong {
+  color: #ffcc33;
+  font-size: 22px;
+}
+
+.fh-history-status {
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+.fh-status-confirmed {
+  color: #86efac;
+  background: #10301c;
+  border: 1px solid #166534;
+}
+
+.fh-status-rejected {
+  color: #fca5a5;
+  background: #351517;
+  border: 1px solid #991b1b;
+}
+
+.fh-history-record-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 17px;
+}
+
+.fh-history-record-details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fh-history-record-details small {
+  color: #aab0ba;
+  font-size: 12px;
+}
+
+.fh-history-record-details span {
+  color: #f5f5f5;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 500px) {
+  .fh-history-record-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <div>
+    <h1>👑 FH EMPIRE</h1>
+    <p>Assistant Individual Admin Dashboard</p>
+  </div>
+  <a class="btn" href="assistant-management.html">
+    ← All Assistants
+  </a>
+</header>
+
+<div id="notice" class="notice" role="status"></div>
+
+<section class="card">
+  <div class="toolbar">
+    <div>
+      <h2 id="assistantTitle">Loading Assistant...</h2>
+      <div id="assistantDetails" class="muted"></div>
+    </div>
+    <button id="refreshBtn" type="button">
+      ↻ Refresh Dashboard
+    </button>
+  </div>
+</section>
+
+<div class="grid">
+  <div class="stat">
+    <small>Available Coins</small>
+    <strong id="availableCoins">0</strong>
+  </div>
+  <div class="stat">
+    <small>Reserved Coins</small>
+    <strong id="reservedCoins">0</strong>
+  </div>
+  <div class="stat">
+    <small>Sold Coins</small>
+    <strong id="soldCoins">0</strong>
+  </div>
+  <div class="stat">
+    <small>Total Allocated Coins</small>
+    <strong id="totalAllocated">0</strong>
+  </div>
+  <div class="stat">
+    <small>Returned Coins</small>
+    <strong id="returnedCoins">0</strong>
+  </div>
+  
+<div class="stat">
+  <small>Collected Amount</small>
+  <strong id="topFinanceCollected">—</strong>
+</div>
+
+<div class="stat">
+  <small>Paid to Admin</small>
+  <strong id="topFinancePaid">—</strong>
+</div>
+
+<div class="stat">
+  <small>Receivable</small>
+  <strong id="topFinanceReceivable">—</strong>
+</div>
+
+</div>
+
+<section class="card">
+  <h2>🪙 Add Coins to Assistant Inventory</h2>
+  <p>
+    Poppo ID par coins transfer karne ke baad
+    yahan allocation record karein.
+  </p>
+
+  <form id="addCoinsForm">
+    <div class="form-grid">
+      <div>
+        <label for="coinsInput">Coins Quantity</label>
+       
+<input
+  id="coinsInput"
+  type="text"
+  inputmode="numeric"
+  required
+  autocomplete="off"
+  placeholder="Example: 500,000"
+>
+
+      </div>
+      <div>
+        <label for="notesInput">Notes (Optional)</label>
+        <input
+          id="notesInput"
+          maxlength="500"
+          placeholder="Poppo transfer reference"
+        >
+      </div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="addBtn" type="submit">
+        + Add Coins
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <h2>➖ Remove / Adjust Assistant Coins</h2>
+  <p>
+    Sirf available inventory se coins remove honge.
+    Reserved aur sold coins safe rahenge.
+  </p>
+
+  <form id="removeCoinsForm">
+    <div class="form-grid">
+      <div>
+        <label for="removeCoinsInput">
+          Coins to Remove
+        </label>
+        <input
+          id="removeCoinsInput"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="Example: 50,000"
+          required
+        >
+      </div>
+
+      <div>
+        <label for="removeReasonInput">
+          Adjustment Reason (Required)
+        </label>
+        <input
+          id="removeReasonInput"
+          type="text"
+          maxlength="500"
+          minlength="3"
+          placeholder="Example: Testing coins correction"
+          required
+        >
+      </div>
+    </div>
+
+    <div class="actions">
+      <button
+        id="removeBtn"
+        type="submit"
+        style="border-color:#ef4444;color:#f87171"
+      >
+        − Remove Coins
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <div class="toolbar">
+    <h2>📋 Inventory Transaction History</h2>
+    <span class="tag">Latest 100 Records</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Transaction</th>
+          <th>Coins</th>
+          <th>Order ID</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="historyRows">
+        <tr><td colspan="5">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ASSISTANT SALES HISTORY -->
+<section class="card" id="salesHistorySection">
+  <h2>📊 Sales History & Commission Report</h2>
+  <p>
+    Assistant ki completed sales, date-wise records
+    aur commission earnings.
+  </p>
+
+  <div class="form-grid">
+    <div>
+      <label for="salesFromDate">From Date</label>
+      <input type="date" id="salesFromDate">
+    </div>
+
+    <div>
+      <label for="salesToDate">To Date</label>
+      <input type="date" id="salesToDate">
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
+    <button type="button" id="salesApplyFilter">
+      🔍 Apply Filter
+    </button>
+    <button type="button" id="salesThisMonth">
+      📅 This Month
+    </button>
+    <button type="button" id="salesAllTime">
+      All Time
+    </button>
+  </div>
+
+  <div class="grid">
+    <div class="stat">
+      <small>Total Orders</small>
+      <strong id="salesTotalOrders">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Total Coins Sold</small>
+      <strong id="salesTotalCoins">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Total Sales Amount</small>
+      <strong id="salesTotalAmount">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Commission Earned</small>
+      <strong id="salesTotalCommission">—</strong>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;margin-top:20px;">
+    <table style="width:100%;">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Order ID</th>
+          <th>Coins</th>
+          <th>Sale Amount</th>
+          <th>Commission Rate</th>
+          <th>Commission</th>
+        </tr>
+      </thead>
+      <tbody id="salesHistoryBody">
+        <tr>
+          <td colspan="6">Sales history loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section class="card" id="assistantFinanceSection">
+  <h2>💰 Sales, Payments & Commission</h2>
+  <p>
+    Assistant financial records, payment transfers
+    aur commission settlement.
+  </p>
+
+  <div class="grid">
+    <div class="stat">
+      <small>Collected Amount</small>
+      <strong id="financeCollected">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Paid to Admin</small>
+      <strong id="financePaid">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Outstanding Receivable</small>
+      <strong id="financeReceivable">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Commission Earned</small>
+      <strong id="financeCommission">—</strong>
+    </div>
+  </div>
+
+  <h3>📥 Pending Transfer Requests</h3>
+  <p>
+    Assistant ki submitted payments verify karke
+    Confirm ya Reject karein.
+  </p>
+
+  <div id="pendingTransfersList">
+    Transfer records loading...
+  </div>
+
+ 
+<div class="toolbar" style="margin-top:25px">
+  <div>
+    <h3 style="margin:0">📜 Transfer History</h3>
+    <p style="margin:8px 0 0">
+      Confirmed aur rejected payments ka record.
+    </p>
+  </div>
+
+  <button id="viewTransferHistoryBtn" type="button">
+    📋 View History
+  </button>
+</div>
+
+<!-- Transfer History Popup -->
+<div
+  id="transferHistoryModal"
+  class="fh-history-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="transferHistoryTitle"
+  hidden
+>
+  <div class="fh-history-dialog">
+
+    <div class="fh-history-header">
+      <h2 id="transferHistoryTitle">
+        📜 Payment Transfer History
+      </h2>
+
+      <button
+        id="closeTransferHistoryBtn"
+        type="button"
+        aria-label="Close transfer history"
+      >
+        ✕
+      </button>
+    </div>
+
+    <p>
+      Assistant ki confirmed aur rejected
+      transfer requests.
+    </p>
+
+    <div id="transferHistoryList">
+      Loading transfer history...
+    </div>
+
+  </div>
+</div>
+
+
+  <p id="transferReviewMessage"
+     role="status"
+     aria-live="polite"></p>
+
+  <p>
+    Commission collected amount se deduct nahi hogi.
+    Month-end par separately settle hogi.
+  </p>
+  <!-- Monthly Commission Invoices -->
+<div id="commissionInvoiceSection" style="margin-top:30px">
+
+  <div class="toolbar">
+    <div>
+      <h3 style="margin:0">
+        🧾 Monthly Commission Invoices
+      </h3>
+      <p style="margin:8px 0 0">
+        Assistant ki monthly commission,
+        payment status aur settlement history.
+      </p>
+    </div>
+
+    <button
+      id="refreshCommissionInvoicesBtn"
+      type="button"
+    >
+      ↻ Refresh Invoices
+    </button>
+  </div>
+
+  <div class="grid" style="margin-top:18px">
+    <div class="stat">
+      <small>Total Commission Invoiced</small>
+      <strong id="totalCommissionInvoiced">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Commission Paid</small>
+      <strong id="totalCommissionPaid">—</strong>
+    </div>
+
+    <div class="stat">
+      <small>Commission Payable</small>
+      <strong id="totalCommissionPayable">—</strong>
+    </div>
+  </div>
+
+  <div
+    id="commissionInvoicesList"
+    style="margin-top:20px"
+    aria-live="polite"
+  >
+    Commission invoices loading...
+  </div>
+
+  <p style="margin-top:15px">
+    Commission assistant ko separately pay hogi.
+    Mark as Paid sirf actual payment verify
+    karne ke baad use karein.
+  </p>
+
+</div>
+</section>
+
+
+</div>
+
+<script>
+"use strict";
+
+const SUPABASE_URL =
+  "https://vmllowldjzwmzsvxccui.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q";
+
+const ENDPOINT =
+  `${SUPABASE_URL}/functions/v1/assistant-inventory`;
+
+const $ = id => document.getElementById(id);
+
+$("coinsInput").addEventListener("input", function () {
+  const digits = this.value.replace(/\D/g, "");
+
+  this.value = digits
+    ? BigInt(digits).toLocaleString("en-US")
+    : "";
+});
+
+const params = new URLSearchParams(location.search);
+const assistantId = params.get("id");
+
+let busy = false;
+let pendingRequestId = null;
+
+const number = value =>
+  Number(value || 0).toLocaleString("en-PK");
+
+function notify(message, type = "info") {
+  const el = $("notice");
+  el.textContent = message;
+  el.className = `notice ${type}`;
+}
+
+function getToken() {
+  return localStorage.getItem("fh_admin_access_token");
+}
+
+async function api(action, values = {}) {
+  const token = getToken();
+
+  if (!token) {
+    location.replace("login.html");
+    throw new Error("Admin login required");
+  }
+
+  const response = await fetch(ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+      "apikey": SUPABASE_KEY
+    },
+    body: JSON.stringify({
+      action,
+      assistant_id: assistantId,
+      ...values
+    })
+  });
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok || result.success !== true) {
+    throw new Error(
+      result.error || `Request failed (${response.status})`
+    );
+  }
+
+  return result;
+}
+
+function addCell(row, value) {
+  const cell = document.createElement("td");
+  cell.textContent = String(value ?? "—");
+  row.appendChild(cell);
+}
+
+
+function renderDashboard(data) {
+  const assistant = data.assistant;
+  const inventory = data.inventory;
+
+  $("assistantTitle").textContent =
+    assistant.display_name || assistant.login_id;
+
+  $("assistantDetails").textContent =
+    `Poppo ID: ${assistant.poppo_id || "—"} | ` +
+    `Login: ${assistant.login_id} | ` +
+    `Account: ${assistant.is_active ? "Active" : "Inactive"}`;
+
+  $("availableCoins").textContent =
+    number(inventory.available_coins);
+
+  $("reservedCoins").textContent =
+    number(inventory.reserved_coins);
+
+  $("soldCoins").textContent =
+    number(inventory.sold_coins);
+
+  $("totalAllocated").textContent =
+    number(inventory.total_allocated);
+
+  $("returnedCoins").textContent =
+    number(inventory.returned_coins);
+
+  const tbody = $("historyRows");
+  tbody.replaceChildren();
+
+  if (!data.history?.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 5;
+    td.textContent = "No inventory transactions yet.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  for (const item of data.history) {
+    const tr = document.createElement("tr");
+
+    addCell(
+      tr,
+      new Date(item.created_at).toLocaleString("en-PK", {
+        timeZone: "Asia/Karachi"
+      })
+    );
+
+    addCell(tr, item.transaction_type);
+    addCell(tr, number(item.coins));
+    addCell(tr, item.order_id || "—");
+    addCell(tr, item.notes || "—");
+
+    tbody.appendChild(tr);
+  }
+}
+
+
+async function loadDashboard() {
+  // Inventory dashboard
+  const result = await api("get_dashboard");
+  renderDashboard(result);
+
+  // Transfer records
+  try {
+    const transferResult = await api("get_transfers");
+    renderAssistantTransfers(transferResult.transfers || []);
+  } catch (error) {
+    console.error("Transfer loading failed:", error);
+
+    $("pendingTransfersList").textContent =
+      "Unable to load pending transfers.";
+
+    $("transferHistoryList").textContent =
+      "Unable to load transfer history.";
+  }
+
+  // Financial summary
+  try {
+    const financeResult = await api("get_financial_summary");
+    const finance = financeResult.financial;
+
+    $("financeCollected").textContent =
+      "Rs " + number(finance.collected);
+
+    $("financePaid").textContent =
+      "Rs " + number(finance.paid);
+
+    $("financeReceivable").textContent =
+      "Rs " + number(finance.receivable);
+
+    $("financeCommission").textContent =
+      "Rs " + number(finance.commission);
+
+$("topFinanceCollected").textContent =
+  "Rs " + number(finance.collected);
+
+$("topFinancePaid").textContent =
+  "Rs " + number(finance.paid);
+
+$("topFinanceReceivable").textContent =
+  "Rs " + number(finance.receivable);
+
+  } catch (error) {
+    console.error("Financial summary failed:", error);
+
+    $("transferReviewMessage").textContent =
+      "Financial summary could not be loaded.";
+  }
+}
+
+function renderAssistantTransfers(transfers) {
+  const pending = $("pendingTransfersList");
+  const history = $("transferHistoryList");
+
+  pending.replaceChildren();
+  history.replaceChildren();
+
+  const pendingItems = transfers.filter(
+    item => item.status === "pending"
+  );
+
+  if (!pendingItems.length) {
+    pending.textContent = "No pending transfer requests.";
+  }
+
+  for (const item of pendingItems) {
+    const card = document.createElement("div");
+    card.className = "fh-transfer-record";
+
+    const details = document.createElement("p");
+    details.textContent =
+      `#${item.id} | Rs. ${number(item.amount)} | ` +
+      `${item.payment_method || "—"} | ` +
+      `Sender: ${item.reference_number || "—"}`;
+
+    const confirmBtn = document.createElement("button");
+    confirmBtn.type = "button";
+    confirmBtn.textContent = "✓ Confirm";
+    confirmBtn.className = "fh-transfer-confirm";
+    confirmBtn.dataset.transferId = item.id;
+    confirmBtn.dataset.decision = "confirmed";
+
+    const rejectBtn = document.createElement("button");
+    rejectBtn.type = "button";
+    rejectBtn.textContent = "✕ Reject";
+    rejectBtn.className = "fh-transfer-reject";
+    rejectBtn.dataset.transferId = item.id;
+    rejectBtn.dataset.decision = "rejected";
+
+    card.append(details, confirmBtn, rejectBtn);
+    pending.appendChild(card);
+  }
+
+ 
+  const reviewedItems = transfers.filter(
+    item => ["confirmed", "rejected"].includes(item.status)
+  );
+
+  if (!reviewedItems.length) {
+    history.textContent = "No reviewed transfers yet.";
+  }
+
+  const formatDate = value => {
+    if (!value) return "—";
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+      ? "—"
+      : date.toLocaleString("en-PK", {
+          timeZone: "Asia/Karachi",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+  };
+
+  for (const item of reviewedItems) {
+    const card = document.createElement("div");
+    card.className = "fh-transfer-record";
+
+    const heading = document.createElement("div");
+    heading.className = "fh-history-record-heading";
+
+    const amount = document.createElement("strong");
+    amount.textContent = `Rs ${number(item.amount)}`;
+
+    const status = document.createElement("span");
+    status.className =
+      "fh-history-status " +
+      (item.status === "confirmed"
+        ? "fh-status-confirmed"
+        : "fh-status-rejected");
+
+    status.textContent = item.status.toUpperCase();
+
+    heading.append(amount, status);
+
+    const details = document.createElement("div");
+    details.className = "fh-history-record-details";
+
+    const fields = [
+      ["Transfer ID", `#${item.id}`],
+      ["Payment Method", item.payment_method || "—"],
+      ["Sender Name", item.reference_number || "—"],
+      ["Submitted", formatDate(item.requested_at)],
+      ["Reviewed", formatDate(item.confirmed_at)],
+      ["Notes", item.notes || "—"]
+    ];
+
+    for (const [label, value] of fields) {
+      const field = document.createElement("div");
+
+      const labelEl = document.createElement("small");
+      labelEl.textContent = label;
+
+      const valueEl = document.createElement("span");
+      valueEl.textContent = value;
+
+      field.append(labelEl, valueEl);
+      details.appendChild(field);
+    }
+
+    card.append(heading, details);
+    history.appendChild(card);
+  }
+}
+
+
+// FH EMPIRE — Transfer History Popup
+
+const historyModal = $("transferHistoryModal");
+const historyOpenBtn = $("viewTransferHistoryBtn");
+const historyCloseBtn = $("closeTransferHistoryBtn");
+
+function openTransferHistory() {
+  historyModal.hidden = false;
+  document.body.style.overflow = "hidden";
+  historyCloseBtn.focus();
+}
+
+function closeTransferHistory() {
+  historyModal.hidden = true;
+  document.body.style.overflow = "";
+  historyOpenBtn.focus();
+}
+
+historyOpenBtn.addEventListener(
+  "click",
+  openTransferHistory
+);
+
+historyCloseBtn.addEventListener(
+  "click",
+  closeTransferHistory
+);
+
+// Close when clicking outside popup
+historyModal.addEventListener("click", event => {
+  if (event.target === historyModal) {
+    closeTransferHistory();
+  }
+});
+
+// Close with Escape key
+document.addEventListener("keydown", event => {
+  if (
+    event.key === "Escape" &&
+    !historyModal.hidden
+  ) {
+    closeTransferHistory();
+  }
+});
+
+$("pendingTransfersList").addEventListener(
+  "click",
+  async function (event) {
+    const button = event.target.closest(
+      "button[data-transfer-id][data-decision]"
+    );
+
+    if (!button || busy) return;
+
+    const transferId = Number(button.dataset.transferId);
+    const decision = button.dataset.decision;
+
+    if (
+      !Number.isSafeInteger(transferId) ||
+      !["confirmed", "rejected"].includes(decision)
+    ) return;
+
+    const message =
+      decision === "confirmed"
+        ? `Confirm Rs transfer #${transferId}? Payment bank/wallet mein receive hona verify kar liya hai?`
+        : `Reject transfer #${transferId}?`;
+
+    if (!window.confirm(message)) return;
+
+    busy = true;
+    button.disabled = true;
+
+    try {
+      await api("review_transfer", {
+        transfer_id: transferId,
+        decision
+      });
+
+      $("transferReviewMessage").textContent =
+        `Transfer #${transferId} ${decision} successfully.`;
+
+      await loadDashboard();
+    } catch (error) {
+      $("transferReviewMessage").textContent =
+        error.message || "Transfer review failed.";
+    } finally {
+      busy = false;
+      button.disabled = false;
+    }
+  }
+);
+
+
+$("refreshBtn").addEventListener("click", async () => {
+  if (busy) return;
+
+  busy = true;
+  $("refreshBtn").disabled = true;
+
+  try {
+    await loadDashboard();
+    notify("Dashboard refreshed.", "success");
+  } catch (error) {
+    notify(error.message, "error");
+  } finally {
+    busy = false;
+    $("refreshBtn").disabled = false;
+  }
+});
+
+$("addCoinsForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (busy) return;
+
+  const coins = Number(
+  $("coinsInput").value.replace(/,/g, "")
+);
+
+  if (!Number.isSafeInteger(coins) || coins <= 0) {
+    notify("Enter a valid coins quantity.", "error");
+    return;
+  }
+
+  if (!confirm(
+    `Confirm ${number(coins)} coins transferred to this assistant?`
+  )) {
+    return;
+  }
+
+  busy = true;
+  $("addBtn").disabled = true;
+
+  // Reuse the same ID if a request fails,
+  // to avoid double allocation on retry.
+  if (!pendingRequestId) {
+    pendingRequestId = crypto.randomUUID();
+  }
+
+  try {
+    await api("add_coins", {
+      coins,
+      notes: $("notesInput").value.trim(),
+      request_id: pendingRequestId
+    });
+
+    pendingRequestId = null;
+    $("addCoinsForm").reset();
+
+    await loadDashboard();
+    notify("Coins added successfully.", "success");
+
+  } catch (error) {
+    notify(error.message, "error");
+  } finally {
+    busy = false;
+    $("addBtn").disabled = false;
+  }
+});
+
+(async () => {
+  if (
+    !assistantId ||
+    !/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(assistantId)
+  ) {
+    notify("Invalid assistant dashboard link.", "error");
+    $("addBtn").disabled = true;
+    return;
+  }
+
+  try {
+    await loadDashboard();
+  } catch (error) {
+    notify(error.message, "error");
+    $("addBtn").disabled = true;
+  }
+})();
+
+/* ==========================================
+   REMOVE / ADJUST ASSISTANT INVENTORY
+========================================== */
+
+let pendingRemoveRequestId = null;
+
+$("removeCoinsInput").addEventListener("input", function () {
+  const digits = this.value.replace(/\D/g, "");
+
+  this.value = digits
+    ? BigInt(digits).toLocaleString("en-US")
+    : "";
+});
+
+$("removeCoinsForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (busy) return;
+
+  const coins = Number(
+    $("removeCoinsInput").value.replace(/,/g, "")
+  );
+
+  const reason = $("removeReasonInput").value.trim();
+
+  if (!Number.isSafeInteger(coins) || coins <= 0) {
+    notify("Enter a valid coins quantity.", "error");
+    return;
+  }
+
+  if (reason.length < 3 || reason.length > 500) {
+    notify("Adjustment reason must be 3–500 characters.", "error");
+    return;
+  }
+
+  const available = Number(
+    $("availableCoins").textContent.replace(/,/g, "")
+  );
+
+  if (coins > available) {
+    notify(
+      `Insufficient available coins. Available: ${number(available)}`,
+      "error"
+    );
+    return;
+  }
+
+  const confirmed = confirm(
+    `REMOVE COINS — FH EMPIRE\n\n` +
+    `Assistant: ${$("assistantTitle").textContent}\n` +
+    `Coins to Remove: ${number(coins)}\n` +
+    `Available Before: ${number(available)}\n` +
+    `Available After: ${number(available - coins)}\n\n` +
+    `Reason: ${reason}\n\n` +
+    `Confirm this inventory adjustment?`
+  );
+
+  if (!confirmed) return;
+
+  busy = true;
+  $("removeBtn").disabled = true;
+  $("addBtn").disabled = true;
+  $("refreshBtn").disabled = true;
+
+  if (!pendingRemoveRequestId) {
+    pendingRemoveRequestId = crypto.randomUUID();
+  }
+
+  try {
+    await api("remove_coins", {
+      coins,
+      reason,
+      request_id: pendingRemoveRequestId
+    });
+
+    pendingRemoveRequestId = null;
+    $("removeCoinsForm").reset();
+
+    await loadDashboard();
+
+    notify(
+      `${number(coins)} coins removed successfully.`,
+      "success"
+    );
+
+  } catch (error) {
+    notify(error.message, "error");
+
+  } finally {
+    busy = false;
+    $("removeBtn").disabled = false;
+    $("addBtn").disabled = false;
+    $("refreshBtn").disabled = false;
+  }
+});
+// SALES HISTORY & COMMISSION REPORT
+async function loadSalesHistory() {
+  const tbody = $("salesHistoryBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="6">Loading sales...</td></tr>';
+
+  try {
+    const result = await api("get_sales_history", {
+      from_date: $("salesFromDate").value || null,
+      to_date: $("salesToDate").value || null
+    });
+
+    const summary = result.summary || {};
+    const records = result.records || [];
+
+    $("salesTotalOrders").textContent = number(summary.total_orders);
+    $("salesTotalCoins").textContent = number(summary.total_coins);
+    $("salesTotalAmount").textContent =
+      "Rs " + number(summary.total_sales);
+    $("salesTotalCommission").textContent =
+      "Rs " + number(summary.total_commission);
+
+    tbody.replaceChildren();
+
+    if (!records.length) {
+      const row = tbody.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = 6;
+      cell.textContent = "No sales found for selected dates.";
+      return;
+    }
+
+    for (const sale of records) {
+      const row = tbody.insertRow();
+
+      const date = new Date(sale.completed_at);
+      const dateText = Number.isNaN(date.getTime())
+        ? "—"
+        : date.toLocaleString("en-PK", {
+            timeZone: "Asia/Karachi",
+            dateStyle: "medium",
+            timeStyle: "short"
+          });
+
+      const values = [
+        dateText,
+        sale.order_id,
+        number(sale.coins),
+        "Rs " + number(sale.sale_amount),
+        "Rs " + number(sale.commission_rate) + " / 100K",
+        "Rs " + number(sale.commission_amount)
+      ];
+
+      for (const value of values) {
+        const cell = row.insertCell();
+        cell.textContent = value ?? "—";
+      }
+    }
+  } catch (error) {
+    tbody.replaceChildren();
+    const row = tbody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 6;
+    cell.textContent = "Error: " + error.message;
+  }
+}
+
+$("salesApplyFilter").addEventListener("click", loadSalesHistory);
+
+$("salesAllTime").addEventListener("click", () => {
+  $("salesFromDate").value = "";
+  $("salesToDate").value = "";
+  loadSalesHistory();
+});
+
+$("salesThisMonth").addEventListener("click", () => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Karachi",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+
+  const year = parts.find(p => p.type === "year").value;
+  const month = parts.find(p => p.type === "month").value;
+  const day = parts.find(p => p.type === "day").value;
+
+  $("salesFromDate").value = `${year}-${month}-01`;
+  $("salesToDate").value = `${year}-${month}-${day}`;
+
+  loadSalesHistory();
+});
+// MONTHLY COMMISSION INVOICES
+async function loadCommissionInvoices() {
+  const list = $("commissionInvoicesList");
+  if (!list) return;
+
+  list.textContent = "Loading commission invoices...";
+
+  try {
+    const result = await api("get_commission_invoices");
+    const invoices = result.invoices || [];
+    const summary = result.summary || {};
+
+    $("totalCommissionInvoiced").textContent =
+      "Rs " + number(summary.total_invoiced);
+
+    $("totalCommissionPaid").textContent =
+      "Rs " + number(summary.total_paid);
+
+    $("totalCommissionPayable").textContent =
+      "Rs " + number(summary.total_payable);
+
+    list.replaceChildren();
+
+    if (!invoices.length) {
+      list.textContent = "No commission invoices found.";
+      return;
+    }
+
+    const table = document.createElement("table");
+    table.style.width = "100%";
+
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    ["Month", "Commission", "Status", "Paid At", "Action"]
+      .forEach(label => {
+        const th = document.createElement("th");
+        th.textContent = label;
+        headerRow.appendChild(th);
+      });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    for (const invoice of invoices) {
+      const tr = document.createElement("tr");
+
+      const month = document.createElement("td");
+      month.textContent = String(invoice.invoice_month).slice(0, 7);
+
+      const amount = document.createElement("td");
+      amount.textContent = "Rs " + number(invoice.commission_amount);
+
+      const status = document.createElement("td");
+      status.textContent = invoice.status.toUpperCase();
+
+      const paidAt = document.createElement("td");
+      paidAt.textContent = invoice.paid_at
+        ? new Date(invoice.paid_at).toLocaleString("en-PK")
+        : "—";
+
+      const action = document.createElement("td");
+// VIEW / PRINT COMMISSION INVOICE
+const invoiceBtn = document.createElement("button");
+
+invoiceBtn.type = "button";
+invoiceBtn.textContent = "🧾 View / Print";
+invoiceBtn.style.marginRight = "8px";
+
+invoiceBtn.addEventListener("click", () => {
+  if (
+    typeof window.fhGenerateAssistantCommissionInvoice !== "function"
+  ) {
+    alert("Invoice generator not loaded.");
+    return;
+  }
+
+  window.fhGenerateAssistantCommissionInvoice({
+    invoiceId: invoice.id,
+    invoiceMonth: String(invoice.invoice_month).slice(0, 7),
+    commissionAmount: invoice.commission_amount,
+    status: invoice.status,
+    paidAt: invoice.paid_at,
+    createdAt: invoice.created_at,
+    assistantName: $("assistantTitle").textContent,
+    poppoId: (
+      $("assistantDetails").textContent.match(/Poppo ID:\s*([^|]+)/)?.[1]
+      || ""
+    ).trim()
+  });
+});
+
+action.appendChild(invoiceBtn);
+      if (invoice.status === "unpaid") {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "Mark as Paid";
+
+        btn.addEventListener("click", async () => {
+          if (!confirm(
+            `Confirm Rs ${number(invoice.commission_amount)} ` +
+            `commission has actually been paid?`
+          )) return;
+
+          btn.disabled = true;
+
+          try {
+            await api("mark_commission_paid", {
+              invoice_id: Number(invoice.id)
+            });
+
+            await loadCommissionInvoices();
+          } catch (error) {
+            alert(error.message);
+            btn.disabled = false;
+          }
+        });
+
+        action.appendChild(btn);
+      } else {
+        action.appendChild(document.createTextNode("Paid"));
+      }
+
+      [month, amount, status, paidAt, action]
+        .forEach(td => tr.appendChild(td));
+
+      tbody.appendChild(tr);
+    }
+
+    table.appendChild(tbody);
+    list.appendChild(table);
+
+  } catch (error) {
+    list.textContent = "Error: " + error.message;
+  }
+}
+
+$("refreshCommissionInvoicesBtn").addEventListener(
+  "click",
+  loadCommissionInvoices
+);
+
+const generateCommissionBtn = document.createElement("button");
+generateCommissionBtn.type = "button";
+generateCommissionBtn.textContent = "＋ Generate Invoice";
+generateCommissionBtn.style.cssText = `
+  margin-left:10px;
+  padding:10px 16px;
+  background:#d4aa42;
+  color:#171100;
+  border:1px solid #e8bd51;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+`;
+
+$("refreshCommissionInvoicesBtn").insertAdjacentElement(
+  "afterend",
+  generateCommissionBtn
+);
+
+generateCommissionBtn.addEventListener("click", async () => {
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const selectedMonth = prompt(
+    "Invoice month (YYYY-MM):",
+    currentMonth
+  );
+
+  if (selectedMonth === null) return;
+
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(selectedMonth)) {
+    alert("Invalid month. Example: 2026-11");
+    return;
+  }
+
+  if (!confirm(
+    `Generate commission invoice for ${selectedMonth}?`
+  )) return;
+
+  generateCommissionBtn.disabled = true;
+  generateCommissionBtn.textContent = "Generating...";
+
+  try {
+    const result = await api("generate_commission_invoice", {
+      invoice_month: `${selectedMonth}-01`
+    });
+
+    alert(result.message || "Invoice generated successfully.");
+    await loadCommissionInvoices();
+
+  } catch (error) {
+    alert("Invoice generation failed: " + error.message);
+
+  } finally {
+    generateCommissionBtn.disabled = false;
+    generateCommissionBtn.textContent = "＋ Generate Invoice";
+  }
+});
+
+// Initial load
+loadSalesHistory();
+loadCommissionInvoices();
+</script>
+
+<script src="fh-assistant-commission-invoice.js"></script>
+
+</body>
+</html>

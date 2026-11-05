@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistant Login | FH EMPIRE</title>
+<style>
+:root {
+  color-scheme: dark;
+  --gold: #ffcc33;
+  --border: #806515;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #080808;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 35px 28px;
+  background: #111;
+  border: 1px solid #453916;
+  border-radius: 16px;
+  box-shadow: 0 12px 45px #0008;
+}
+.brand {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.brand h1 {
+  color: var(--gold);
+  margin: 0 0 8px;
+  font-size: 30px;
+}
+.brand p {
+  color: #aaa;
+  margin: 0;
+  font-size: 14px;
+}
+label {
+  display: block;
+  margin: 17px 0 8px;
+  font-size: 13px;
+}
+input {
+  width: 100%;
+  padding: 13px;
+  background: #080808;
+  border: 1px solid #66551e;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+}
+input:focus {
+  outline: 1px solid var(--gold);
+}
+button {
+  width: 100%;
+  margin-top: 25px;
+  padding: 14px;
+  background: var(--gold);
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.message {
+  display: none;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.error {
+  display: block;
+  background: #351517;
+  color: #fca5a5;
+}
+.success {
+  display: block;
+  background: #12301d;
+  color: #86efac;
+}
+.footer {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+}
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <div class="brand">
+    <h1>👑 FH EMPIRE</h1>
+    <p>Official Assistant Portal</p>
+  </div>
+
+  <form id="loginForm">
+    <label for="loginId">Assistant Login ID</label>
+    <input
+      id="loginId"
+      required
+      autocomplete="username"
+      placeholder="Enter your Login ID"
+    >
+
+    <label for="password">Password</label>
+    <input
+      id="password"
+      type="password"
+      required
+      autocomplete="current-password"
+      placeholder="Enter your password"
+    >
+
+    <button id="loginBtn" type="submit">
+      Login to Assistant Panel
+    </button>
+  </form>
+
+  <div id="message" class="message" role="status"></div>
+
+  <div class="footer">
+    Authorized FH EMPIRE Assistants Only
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const SUPABASE_URL =
+  "https://vmllowldjzwmzsvxccui.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q";
+
+const $ = id => document.getElementById(id);
+
+function showMessage(text, type = "error") {
+  $("message").textContent = text;
+  $("message").className = `message ${type}`;
+}
+
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const loginId = $("loginId").value.trim();
+  const password = $("password").value;
+  const button = $("loginBtn");
+
+  if (!/^[A-Za-z0-9_-]{3,30}$/.test(loginId)) {
+    showMessage("Invalid Login ID.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Signing in...";
+
+  try {
+    const email =
+      `${loginId.toLowerCase()}@assistants.fhempire.invalid`;
+
+    const response = await fetch(
+      `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.access_token) {
+      throw new Error("Invalid Login ID or Password.");
+    }
+
+    // Authentication alone does not grant assistant access.
+    // A separate protected backend check is required.
+
+    const verifyResponse = await fetch(
+      `${SUPABASE_URL}/functions/v1/assistant-session`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${data.access_token}`
+        },
+        body: JSON.stringify({ action: "verify" })
+      }
+    );
+
+    const verified = await verifyResponse.json();
+
+    if (
+      !verifyResponse.ok ||
+      verified.success !== true ||
+      verified.assistant?.is_active !== true
+    ) {
+      throw new Error("Assistant access denied.");
+    }
+
+    sessionStorage.setItem(
+      "fh_assistant_access_token",
+      data.access_token
+    );
+
+    sessionStorage.setItem(
+      "fh_assistant_refresh_token",
+      data.refresh_token
+    );
+
+    showMessage("Login successful.", "success");
+
+    window.location.replace("assistant-dashboard.html");
+
+  } catch (error) {
+    sessionStorage.removeItem("fh_assistant_access_token");
+    sessionStorage.removeItem("fh_assistant_refresh_token");
+    showMessage(error.message || "Login failed.");
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Login to Assistant Panel";
+  }
+});
+</script>
+
+</body>
+</html>

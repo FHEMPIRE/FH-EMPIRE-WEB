@@ -1,0 +1,1516 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Processing | FH EMPIRE</title>
+
+<style>
+:root {
+    --bg: #090909;
+    --card: #151515;
+    --gold: #ffd700;
+    --border: #3c3214;
+    --muted: #a1a1aa;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 780px;
+    margin: 35px auto;
+    padding: 16px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.brand {
+    color: var(--gold);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 18px;
+}
+
+h2 {
+    margin: 0 0 18px;
+    color: var(--gold);
+    font-size: 19px;
+}
+
+.order-id {
+    font-size: 23px;
+    font-weight: bold;
+    word-break: break-all;
+}
+
+.copy-btn {
+    background: var(--gold);
+    color: #111;
+    border: 0;
+    padding: 11px 18px;
+    border-radius: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.status {
+    display: inline-block;
+    background: #3b310e;
+    color: var(--gold);
+    padding: 10px 16px;
+    border-radius: 25px;
+    font-weight: bold;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #292929;
+}
+
+.row:last-child { border: 0; }
+
+.row span:first-child { color: var(--muted); }
+
+.row strong {
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.notice {
+    background: #272008;
+    color: #ffe58a;
+    padding: 15px;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+.timer {
+    text-align: center;
+    font-size: 34px;
+    color: var(--gold);
+    font-weight: 800;
+    margin: 14px 0;
+}
+
+.chat-box {
+    height: 220px;
+    overflow-y: auto;
+    background: #0c0c0c;
+    border: 1px solid #303030;
+    border-radius: 10px;
+    padding: 15px;
+    color: var(--muted);
+}
+
+.chat-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.chat-input input {
+    flex: 1;
+    min-width: 0;
+    background: #0c0c0c;
+    color: white;
+    border: 1px solid #333;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.chat-input button {
+    background: var(--gold);
+    border: 0;
+    border-radius: 8px;
+    padding: 0 18px;
+    font-weight: bold;
+}
+
+@media(max-width: 480px) {
+    .brand { font-size: 24px; }
+    .card { padding: 17px; }
+    .order-id { font-size: 19px; }
+}
+
+#paymentProofSection .proof-file-button {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 12px 22px;
+    background: #242017;
+    border: 1px solid #d4af37;
+    border-radius: 10px;
+    color: #f3d681;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#paymentProofSection .proof-file-button:hover {
+    background: #d4af37;
+    color: #111;
+}
+
+</style>
+<link rel="stylesheet" href="style.css">
+
+<style>
+/* Only when tracking page is inside a popup */
+@media screen {
+    html.fh-embedded-track .track-logo,
+    html.fh-embedded-track .track-container > h1,
+    html.fh-embedded-track .track-container > p,
+    html.fh-embedded-track .back-home-btn {
+        display: none !important;
+    }
+
+    html.fh-embedded-track .track-container {
+        margin: 0 auto;
+        padding: 12px;
+        min-height: auto;
+        box-shadow: none;
+    }
+
+    html.fh-embedded-track body {
+        min-height: auto;
+    }
+}
+</style>
+<script>
+    if (window.self !== window.top) {
+        document.documentElement.classList.add("fh-embedded-track");
+    }
+</script>
+
+</head>
+
+<body>
+
+<main class="container">
+
+    <header class="header">
+        <div class="brand">👑 FH EMPIRE</div>
+        <div class="subtitle">
+            Secure Order Processing & Tracking
+        </div>
+    </header>
+<button type="button" id="openTrackPopup">
+    🔎 Track Order
+</button>
+    <section class="card">
+        <h2>🛒 Your Order</h2>
+        <div class="order-id" id="displayOrderId">
+            Waiting for order...
+        </div>
+        <button class="copy-btn" id="copyOrderId">
+            📋 Copy Order ID
+        </button>
+    </section>
+
+    <section class="card">
+        <h2>📦 Order Status</h2>
+        <div class="status" id="orderStatus">
+            Waiting for Acceptance
+        </div>
+        <p class="subtitle" id="statusMessage">
+            Your order is waiting for our team.
+        </p>
+    </section>
+
+    <section class="card">
+        <h2>📋 Order Summary</h2>
+        <div class="row">
+            <span>Poppo ID</span>
+            <strong id="summaryPoppoId">—</strong>
+        </div>
+        <div class="row">
+            <span>Account Type</span>
+            <strong id="summaryAccountType">—</strong>
+        </div>
+        <div class="row">
+            <span>Coins</span>
+            <strong id="summaryCoins">—</strong>
+        </div>
+        <div class="row">
+            <span>Amount</span>
+            <strong id="summaryAmount">—</strong>
+        </div>
+        <div class="row">
+            <span>Payment Method</span>
+            <strong id="summaryPayment">—</strong>
+        </div>
+    </section>
+
+<div id="easypaisaReceiptGuide" style="display:none; margin:15px 0;">
+    <img
+        src="images/payment-receipt-guide.png"
+        alt="Correct and Incorrect Payment Receipt Examples"
+        style="width:100%; max-width:420px; height:auto; border-radius:10px; cursor:pointer;"
+        onclick="window.open(this.src, '_blank')"
+    >
+    <p style="font-size:12px; color:#aaa; margin-top:6px;">
+        View correct receipt example. Click image to enlarge.
+    </p>
+</div>
+
+    
+<section class="card">
+    <h2>💳 Payment Information</h2>
+
+    <div class="notice" id="paymentNotice">
+        Please wait until an admin or assistant accepts your order.
+        Payment details will appear here.
+    </div>
+    
+ <div id="paymentAccountDetails"
+     style="display:none; margin-top:15px;
+            padding:18px; background:#101010;
+            border:1px solid #d4af37;
+            border-radius:12px; line-height:2;">
+
+    <div><strong>Payment Method:</strong>
+        <span id="payMethod"></span></div>
+
+    <div><strong>Account Title:</strong>
+        <span id="payTitle"></span></div>
+
+   <div>
+    <strong>Account Number:</strong>
+    <span id="payNumber"></span>
+    <button type="button" onclick="copyPaymentDetail('payNumber', this)">
+        📋 Copy
+    </button>
+</div>
+<div id="payIbanRow">
+    <strong>IBAN:</strong>
+    <span id="payIban"></span>
+    <button type="button" onclick="copyPaymentDetail('payIban', this)">
+        📋 Copy
+    </button>
+</div>
+
+    <div id="payBankRow">
+        <strong>Bank Name:</strong>
+        <span id="payBank"></span>
+    </div>
+
+</div>
+
+        <div id="paymentDetails" hidden>
+            <div class="row">
+                <span>Account Name</span>
+                <strong id="payAccountName">—</strong>
+            </div>
+            <div class="row">
+                <span>Account Number</span>
+                <strong id="payAccountNumber">—</strong>
+            </div>
+            <div class="timer" id="paymentTimer">
+                10:00
+            </div>
+        </div>
+    </section>
+
+<section id="paymentProofSection" hidden>
+    <style>
+        #paymentProofSection {
+            margin-top: 24px;
+            padding: 25px 20px;
+            background: linear-gradient(145deg, #1b1b1b, #0b0b0b);
+            border: 1px solid #6e5825;
+            border-radius: 18px;
+            color: #fff;
+        }
+
+        #paymentProofSection .proof-heading {
+            text-align: center;
+            color: #e9c66c;
+            font-size: 21px;
+            font-weight: 750;
+            margin: 0 0 8px;
+        }
+
+        #paymentProofSection .proof-subtitle {
+            text-align: center;
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        #paymentProofSection .proof-label {
+            display: block;
+            font-size: 13px;
+            color: #ddd;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        #senderAccountName {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 15px;
+            border-radius: 11px;
+            border: 1px solid #444;
+            background: #101010;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 23px;
+        }
+
+        #senderAccountName:focus {
+            border-color: #d4af37;
+        }
+
+        #paymentProofSection .proof-upload {
+            display: block;
+            padding: 24px 12px;
+            border: 1.5px dashed #92742d;
+            border-radius: 14px;
+            background: #15130e;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #paymentProofSection .proof-upload-icon {
+            font-size: 33px;
+            margin-bottom: 9px;
+        }
+
+        #paymentProofSection .proof-upload-title {
+            color: #e9c66c;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        #paymentProofSection .proof-upload-hint {
+            color: #999;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        #paymentReceiptFile {
+            width: 100%;
+            max-width: 270px;
+            margin-top: 15px;
+            color: #bbb;
+            font-size: 12px;
+        }
+
+        #paymentProofSection .proof-submit {
+            width: 100%;
+            margin-top: 23px;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(110deg, #a87b21, #f3d681, #b58b30);
+            color: #15100a;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        #paymentProofSection .proof-submit:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        #paymentProofMessage {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+    </style>
+
+    <h2 class="proof-heading">Payment Confirmation</h2>
+
+    <p class="proof-subtitle">
+        Complete your payment and submit your receipt
+        for secure verification by FH EMPIRE.
+    </p>
+
+    <form id="paymentProofForm">
+
+        <label class="proof-label" for="senderAccountName">
+            Account Holder Name
+        </label>
+
+        <input
+            type="text"
+            id="senderAccountName"
+            placeholder="Name used to send payment"
+            minlength="2"
+            maxlength="120"
+            required
+        >
+
+        <label class="proof-label" for="paymentReceiptFile">
+            Payment Receipt
+        </label>
+
+        <div class="proof-upload">
+            <div class="proof-upload-icon">📤</div>
+            <div class="proof-upload-title">
+                Upload Payment Screenshot
+            </div>
+            <div class="proof-upload-hint">
+                JPG, PNG or WebP • Maximum 5 MB
+            </div>
+
+           
+<input
+    type="file"
+    id="paymentReceiptFile"
+    accept="image/jpeg,image/png,image/webp"
+    required
+    style="display:none;"
+>
+
+<label for="paymentReceiptFile" class="proof-file-button">
+    📁 Choose Payment Receipt
+</label>
+
+<div id="selectedReceiptName"
+     style="color:#aaa;font-size:12px;margin-top:12px;">
+    No file selected
+</div>
+
+<img
+    id="paymentReceiptPreview"
+    alt="Selected payment receipt preview"
+    style="
+        display:none;
+        width:100%;
+        max-width:280px;
+        max-height:300px;
+        object-fit:contain;
+        margin:15px auto 0;
+        border:1px solid #6e5825;
+        border-radius:12px;
+    "
+>
+
+
+        </div>
+
+        <button
+            type="submit"
+            id="submitPaymentProof"
+            class="proof-submit"
+        >
+            Submit Payment Proof
+       </button>
+
+</form>
+
+<p id="paymentProofMessage"
+   role="status"
+   aria-live="polite"
+   style="margin-top:12px;font-size:13px;text-align:center;"></p>
+
+</section>
+
+<section class="card">
+    <h2>💬 Order Support Chat</h2>
+        <div class="chat-box" id="chatMessages">
+            Chat will become available when your order
+            is connected to our team.
+        </div>
+
+        <div class="chat-input">
+            <input
+                id="chatText"
+                type="text"
+                placeholder="Type your message..."
+                disabled
+            >
+            <button id="sendChat" disabled>Send</button>
+        </div>
+    </section>
+
+</main>
+
+<script>
+document.getElementById("copyOrderId")
+    .addEventListener("click", async function () {
+
+        const orderId = document.getElementById(
+            "displayOrderId"
+        ).textContent.trim();
+
+        if (!orderId || orderId === "Waiting for order...") {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(orderId);
+            this.textContent = "✓ Copied!";
+        } catch (error) {
+            this.textContent = "Copy failed";
+        }
+    });
+</script>
+
+<!-- FH EMPIRE - Track Order Popup -->
+<div id="trackPopup" class="fh-track-overlay" hidden>
+    <div class="fh-track-modal">
+        <button type="button" id="closeTrackPopup"
+                class="fh-track-close" aria-label="Close">
+            &times;
+        </button>
+
+        <h2>🔎 Track Your Order</h2>
+        <p>Check your FH EMPIRE order status securely.</p>
+
+        <iframe
+            id="trackPopupFrame"
+            title="FH EMPIRE Order Tracking"
+            data-src="track.html"
+            loading="lazy">
+        </iframe>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // FH EMPIRE - Get Order ID from URL
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get("order_id");
+
+const displayOrderId = document.getElementById("displayOrderId");
+// FH EMPIRE - Load Verified Order from Supabase
+
+let paymentDeadlineMs = null;
+
+
+function updatePaymentCountdown() {
+    const timer = document.getElementById("paymentCountdown");
+    if (!timer || !paymentDeadlineMs) return;
+
+    const remaining = Math.max(
+        0,
+        Math.ceil((paymentDeadlineMs - Date.now()) / 1000)
+    );
+
+    const progress = Math.min(1, remaining / 600);
+    const circumference = 2 * Math.PI * 72;
+
+    const color = remaining > 300
+        ? "#22c55e"
+        : remaining > 120
+            ? "#facc15"
+            : "#ef4444";
+
+    const ring = document.getElementById("paymentProgressRing");
+    const timeText = document.getElementById("paymentTimeText");
+    const message = document.getElementById("paymentTimerMessage");
+
+    if (!ring || !timeText || !message) return;
+
+    ring.style.stroke = color;
+    ring.style.strokeDasharray = circumference;
+    ring.style.strokeDashoffset =
+        circumference * (1 - progress);
+
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+
+    timeText.textContent =
+        `${minutes}:${String(seconds).padStart(2, "0")}`;
+
+    message.textContent = remaining > 0
+        ? "Complete Your Payment"
+        : "Payment time expired. Please contact support.";
+
+    message.style.color = remaining > 0 ? "#ddd" : "#ef4444";
+}
+
+
+setInterval(updatePaymentCountdown, 1000);
+
+window.copyPaymentDetail = async function(id, button) {
+    const value = document.getElementById(id)?.textContent.trim();
+
+    if (!value) return;
+
+    try {
+        await navigator.clipboard.writeText(value);
+
+        button.textContent = "✓ Copied!";
+        button.style.color = "#22c55e";
+
+        setTimeout(() => {
+            button.textContent = "📋 Copy";
+            button.style.color = "";
+        }, 2000);
+
+    } catch (error) {
+        alert("Copy failed. Please try again.");
+    }
+}
+
+let lastOrderSnapshot = "";
+async function checkOrderChanges() {
+    const token = sessionStorage.getItem(
+        "fh_order_access_" + orderId
+    );
+
+    if (!orderId || !token) return;
+
+    const response = await fetch(
+        "https://vmllowldjzwmzsvxccui.supabase.co/rest/v1/rpc/get_customer_order",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q"
+            },
+            body: JSON.stringify({
+                p_order_id: orderId,
+                p_access_token: token
+            })
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Order refresh failed");
+    }
+
+    const data = await response.json();
+    const order = Array.isArray(data) ? data[0] : data;
+
+    if (!order) return;
+
+    // FH EMPIRE — Detect actual order changes
+    const snapshot = JSON.stringify(order);
+
+    if (snapshot !== lastOrderSnapshot) {
+        lastOrderSnapshot = snapshot;
+        await loadSecureOrder();
+    }
+}
+async function loadSecureOrder() {
+    const token = sessionStorage.getItem(
+        "fh_order_access_" + orderId
+    );
+
+    if (!orderId || !token) return;
+
+    try {
+        const response = await fetch(
+            "https://vmllowldjzwmzsvxccui.supabase.co/rest/v1/rpc/get_customer_order",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q"
+                },
+                body: JSON.stringify({
+                    p_order_id: orderId,
+                    p_access_token: token
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Order loading failed");
+        }
+
+       const data = await response.json();
+const order = data[0];
+console.log("FH EMPIRE ORDER DATA:", order);
+
+        if (!order) {
+            throw new Error("Order not found or unauthorized");
+        }
+
+        document.getElementById("summaryPoppoId").textContent =
+            order.poppo_id;
+
+        document.getElementById("summaryAccountType").textContent =
+            order.account_type === "agent"
+                ? "Agent Account"
+                : "Coins Account";
+
+        document.getElementById("summaryCoins").textContent =
+            Number(order.coins).toLocaleString();
+
+        document.getElementById("summaryAmount").textContent =
+            "Rs. " + Number(order.amount).toLocaleString();
+
+        document.getElementById("summaryPayment").textContent =
+            order.payment_method;
+                           
+const receiptGuide = document.getElementById("easypaisaReceiptGuide");
+
+if (receiptGuide) {
+    const selectedMethod = String(order.payment_method || "")
+        .toLowerCase()
+        .replace(/\s+/g, "");
+
+    receiptGuide.style.display =
+        selectedMethod.includes("easypaisa") ? "block" : "none";
+}
+
+       const status = String(order.status || "pending").toLowerCase();
+
+document.getElementById("orderStatus").textContent = status;
+// FH EMPIRE — Customer Order Completion Slip
+let completionSlip = document.getElementById("fhCompletionSlip");
+
+if (!completionSlip) {
+    completionSlip = document.createElement("div");
+    completionSlip.id = "fhCompletionSlip";
+
+    document.getElementById("orderStatus")
+        .parentElement
+        .appendChild(completionSlip);
+}
+
+if (status === "completed") {
+    const safe = (value) => String(value ?? "—")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    const slipRow = (label, value) => `
+        <div style="display:flex;justify-content:space-between;
+                    gap:12px;padding:10px 0;border-bottom:1px solid #333;">
+            <span style="color:#aaa;">${label}</span>
+            <strong style="color:#fff;text-align:right;overflow-wrap:anywhere;">
+                ${safe(value)}
+            </strong>
+        </div>
+    `;
+
+    completionSlip.style.cssText = `
+        display:block;
+        margin-top:20px;
+        padding:22px;
+        background:#101510;
+        border:1px solid #22c55e;
+        border-radius:16px;
+    `;
+
+    completionSlip.innerHTML = `
+        <div style="text-align:center;margin-bottom:20px;">
+            <div style="font-size:42px;">✅</div>
+            <h2 style="color:#22c55e;margin:8px 0;">
+                ORDER COMPLETED
+            </h2>
+            <p style="color:#bbb;font-size:13px;">
+                FH EMPIRE — Order Confirmation
+            </p>
+        </div>
+
+        ${slipRow("Order ID", order.order_id)}
+        ${slipRow("Customer Name", order.customer_name)}
+        ${slipRow("Poppo ID", order.poppo_id)}
+        ${slipRow("Poppo Name", order.poppo_nickname || "—")}
+        ${slipRow("Coins Delivered", Number(order.coins || 0).toLocaleString())}
+        ${slipRow("Amount", "Rs. " + Number(order.amount || 0).toLocaleString())}
+        ${slipRow("Payment Method", order.payment_method)}
+        ${slipRow("Order Status", "Successfully Completed")}
+
+        <p style="color:#d4af37;text-align:center;
+                  margin-top:20px;font-size:13px;">
+            Thank you for choosing FH EMPIRE!
+        </p>
+    `;
+} else {
+    completionSlip.style.display = "none";
+}
+const statusMessage = document.querySelector(
+    "#orderStatus"
+)?.parentElement?.querySelector("p");
+
+if (statusMessage) {
+    const messages = {
+        pending: "Your order is waiting for our team.",
+        accepted: "Your order has been accepted.",
+        processing: "Your order is being processed.",
+        completed: "Your order has been completed successfully.",
+        cancelled: "Your order has been cancelled."
+    };
+
+    statusMessage.textContent =
+        messages[status] || "Your order status has been updated.";
+}
+
+let paymentTimer = document.getElementById("paymentCountdown");
+
+if (!paymentTimer) {
+    paymentTimer = document.createElement("div");
+    paymentTimer.id = "paymentCountdown";
+
+    paymentTimer.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        padding: 16px;
+        background: #101010;
+        border: 1px solid #333;
+        border-radius: 16px;
+    `;
+
+    paymentTimer.innerHTML = `
+        <div style="position:relative;width:170px;height:170px;">
+            <svg viewBox="0 0 180 180"
+                 style="width:100%;height:100%;transform:rotate(-90deg);">
+                <circle cx="90" cy="90" r="72"
+                    fill="none" stroke="#333" stroke-width="11"/>
+                <circle id="paymentProgressRing"
+                    cx="90" cy="90" r="72"
+                    fill="none" stroke="#22c55e"
+                    stroke-width="11"
+                    stroke-linecap="round"
+                    stroke-dasharray="452.39"
+                    stroke-dashoffset="0"
+                    style="transition:stroke-dashoffset 1s linear,stroke 0.5s;"/>
+            </svg>
+            <div style="
+                position:absolute;
+                inset:0;
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+            ">
+                <strong id="paymentTimeText"
+                    style="color:white;font-size:30px;">10:00</strong>
+                <span style="color:#aaa;font-size:11px;">TIME LEFT</span>
+            </div>
+        </div>
+        <div id="paymentTimerMessage"
+             style="color:#ddd;font-size:13px;text-align:center;">
+            Complete Your Payment
+        </div>
+    `;
+
+    document.getElementById("orderStatus")
+        .parentElement.appendChild(paymentTimer);
+}
+
+if (status === "accepted" && order.payment_deadline) {
+    paymentDeadlineMs = new Date(order.payment_deadline).getTime();
+    paymentTimer.style.display = "flex";
+    updatePaymentCountdown();
+} else {
+    paymentDeadlineMs = null;
+    paymentTimer.style.display = "none";
+}
+           
+const paymentProofSection = document.getElementById("paymentProofSection");
+
+if (paymentProofSection) {
+    const deadlineMs = new Date(order.payment_deadline || "").getTime();
+
+    const canUploadReceipt =
+        status === "accepted" &&
+        Number.isFinite(deadlineMs) &&
+        deadlineMs > Date.now();
+
+    paymentProofSection.hidden = !canUploadReceipt;
+    paymentProofSection.style.display = canUploadReceipt ? "block" : "none";
+}
+
+const paymentBox = document.getElementById("paymentAccountDetails");
+const customerReceiptGuide = document.getElementById("easypaisaReceiptGuide");
+
+if (customerReceiptGuide) {
+    const selectedMethod = String(order.payment_method || "")
+        .toLowerCase()
+        .replace(/\s+/g, "");
+
+    customerReceiptGuide.style.display =
+        selectedMethod.includes("easypaisa") ? "block" : "none";
+}
+
+const paymentNotice = document.getElementById("paymentNotice");
+
+if (paymentBox && paymentNotice) {
+  
+
+    if (status === "accepted" && order.payment_deadline) {
+        try {
+            const paymentResponse = await fetch(
+                "https://vmllowldjzwmzsvxccui.supabase.co/rest/v1/rpc/get_customer_payment_details",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q"
+                    },
+                    body: JSON.stringify({
+                        p_order_id: orderId,
+                        p_access_token: token
+                    })
+                }
+            );
+
+            if (!paymentResponse.ok) {
+                throw new Error(await paymentResponse.text());
+            }
+
+            const paymentData = await paymentResponse.json();
+ 
+           const paymentBox = document.getElementById("paymentAccountDetails");
+
+if (Array.isArray(paymentData) && paymentData.length > 0) {
+
+    const accountsHtml = paymentData.map((payment, index) => {
+
+        const safe = (value) => String(value ?? "-")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+
+        const row = (label, value, copy = false) => {
+            if (!value) return "";
+
+            return `
+                <div style="margin-top:10px;overflow-wrap:anywhere;">
+                    <strong>${label}:</strong>
+                    <span>${safe(value)}</span>
+                    ${copy ? `
+                        <button type="button"
+                            class="payment-copy-btn"
+                            data-copy-value="${safe(value)}">
+                            📋 Copy
+                        </button>
+                    ` : ""}
+                </div>
+            `;
+        };
+
+        return `
+            <div style="
+                padding:16px;
+                margin-bottom:14px;
+                border:1px solid #d4af37;
+                border-radius:12px;
+                background:#151515;
+            ">
+                <div style="
+                    color:#d4af37;
+                    font-size:16px;
+                    font-weight:700;
+                    margin-bottom:12px;
+                ">
+                    💳 Payment Account ${index + 1}
+                </div>
+
+                ${row("Payment Method", payment.payment_method)}
+                ${row("Account Title", payment.account_title)}
+                ${row("Account Number", payment.account_number, true)}
+                ${row("IBAN", payment.iban, true)}
+                ${row("Bank Name", payment.bank_name)}
+            </div>
+        `;
+    }).join("");
+
+    // Avoid rebuilding buttons every 5 seconds
+    if (paymentBox.dataset.accountsHtml !== accountsHtml) {
+        paymentBox.innerHTML = accountsHtml;
+        paymentBox.dataset.accountsHtml = accountsHtml;
+    }
+
+    paymentBox.style.display = "block";
+    paymentNotice.style.display = "none";
+
+} else {
+    paymentBox.style.display = "none";
+    paymentNotice.style.display = "block";
+    paymentNotice.textContent =
+        "Payment window expired or payment details unavailable.";
+}
+        } catch (error) {
+            console.error("Payment details error:", error);
+            paymentNotice.style.display = "block";
+            paymentNotice.textContent =
+                "Unable to load payment details. Please try again.";
+        }
+   } else {
+    // Keep payment account hidden when order is not accepted.
+    paymentBox.style.display = "none";
+
+    // Update notice only when content actually changes.
+    const noticeText =
+        status === "pending"
+            ? "Please wait until your order is accepted."
+            : "Payment window expired or payment details unavailable.";
+
+    if (paymentNotice.textContent !== noticeText) {
+        paymentNotice.textContent = noticeText;
+    }
+
+    paymentNotice.style.display = "block";
+}
+}
+
+        console.log("Verified order loaded successfully");
+
+    } catch (error) {
+        console.error("Secure order loading error:", error);
+    }
+ } // End loadSecureOrder
+ 
+const receiptFileInput = document.getElementById("paymentReceiptFile");
+const receiptPreview = document.getElementById("paymentReceiptPreview");
+const selectedReceiptName = document.getElementById("selectedReceiptName");
+
+if (receiptFileInput && receiptPreview && selectedReceiptName) {
+    receiptFileInput.addEventListener("change", () => {
+        const file = receiptFileInput.files[0];
+
+        receiptPreview.style.display = "none";
+        receiptPreview.removeAttribute("src");
+        selectedReceiptName.textContent = "No file selected";
+
+        if (!file) return;
+
+        selectedReceiptName.textContent = file.name;
+
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+            selectedReceiptName.textContent = "Invalid image format";
+            return;
+        }
+
+        if (file.size === 0 || file.size > 5 * 1024 * 1024) {
+            selectedReceiptName.textContent = "Image must be under 5 MB";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            receiptPreview.src = reader.result;
+            receiptPreview.style.display = "block";
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+   
+let lastReceiptSnapshot = "";
+
+async function checkReceiptChanges() {
+    const token = sessionStorage.getItem(
+        "fh_order_access_" + orderId
+    );
+
+    if (!orderId || !token) return;
+
+   const response = await fetch(
+    "https://vmllowldjzwmzsvxccui.supabase.co/rest/v1/rpc/get_customer_receipt_details",
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q"
+        },
+        body: JSON.stringify({
+            p_order_id: orderId,
+            p_access_token: token
+        })
+    }
+);
+
+if (!response.ok) {
+    throw new Error("Receipt refresh failed: " + response.status);
+}
+
+const data = await response.json();
+
+   
+
+    const receipt = Array.isArray(data) ? data[0] : data;
+
+    const snapshot = JSON.stringify({
+        status: receipt?.receipt_status ?? null,
+        submitted_at: receipt?.submitted_at ?? null,
+        hold_started_at: receipt?.hold_started_at ?? null,
+        hold_deadline_at: receipt?.hold_deadline_at ?? null,
+        review_reason: receipt?.review_reason ?? null
+    });
+
+    if (snapshot !== lastReceiptSnapshot) {
+        lastReceiptSnapshot = snapshot;
+        await loadCustomerReceiptStatus();
+    }
+}
+
+async function loadCustomerReceiptStatus() {
+    const token = sessionStorage.getItem("fh_order_access_" + orderId);
+    if (!orderId || !token) return;
+
+    try {
+        const response = await fetch(
+            "https://vmllowldjzwmzsvxccui.supabase.co/rest/v1/rpc/get_customer_receipt_details_v2",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q"
+                },
+                body: JSON.stringify({
+                    p_order_id: orderId,
+                    p_access_token: token
+                })
+            }
+        );
+
+        if (!response.ok) throw new Error("Receipt status unavailable");
+
+        const data = await response.json();
+        const receipt = data[0];
+
+        const section = document.getElementById("paymentProofSection");
+        const form = document.getElementById("paymentProofForm");
+        const message = document.getElementById("paymentProofMessage");
+
+        if (!section || !form || !message) return;
+
+        if (receipt) {
+            section.hidden = false;
+            section.style.display = "block";
+            form.style.display = "none";
+            form.querySelectorAll("input, button").forEach(el => {
+                el.disabled = true;
+            });
+
+           
+const status = String(receipt.receipt_status || "").toLowerCase();
+
+const formatPKDate = (value) => {
+    if (!value) return "—";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+
+    return date.toLocaleString("en-PK", {
+        timeZone: "Asia/Karachi",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+};
+
+const labels = {
+    pending: "🟡 Receipt Submitted — Verification Pending",
+    on_hold: "🟠 Payment On Hold — Banking Review",
+    verified: "✅ Payment Verified",
+    rejected: "❌ Payment Rejected",
+    unresolved: "⚠️ Unresolved Banking Dispute"
+};
+
+let displayText = labels[status] || "Payment Under Review";
+
+        // FH EMPIRE — Show Payment Review Reason to Customer
+        if (
+            ["on_hold", "rejected", "unresolved"].includes(status) &&
+            typeof receipt.review_reason === "string" &&
+            receipt.review_reason.trim()
+        ) {
+            displayText +=
+                "\n\n" +
+                (status === "rejected"
+                    ? "❌ Rejection Reason: "
+                    : status === "unresolved"
+                    ? "⚠️ Dispute Reason: "
+                    : "🟠 Hold Reason: ") +
+                receipt.review_reason.trim();
+        }
+
+if (status === "on_hold") {
+    const deadline = new Date(receipt.hold_deadline_at);
+    const remainingMs = deadline.getTime() - Date.now();
+
+    const remainingDays = Number.isFinite(remainingMs)
+        ? Math.max(0, Math.ceil(remainingMs / 86400000))
+        : null;
+
+    displayText +=
+        "\n\nHold Started: " + formatPKDate(receipt.hold_started_at) +
+        "\nHold Deadline: " + formatPKDate(receipt.hold_deadline_at) +
+        "\nRemaining Time: " +
+        (remainingDays === null ? "—" : remainingDays + " day(s)") +
+        "\n\n⚠️ Please do not make another payment while your banking review is in progress.";
+}
+
+if (message.dataset.lastPaymentDisplay !== displayText) {
+    message.style.color = status === "verified" ? "#22c55e" : "#e9c66c";
+    message.style.whiteSpace = "pre-line";
+    message.textContent = displayText;
+    message.dataset.lastPaymentDisplay = displayText;
+}
+
+        }
+    } catch (error) {
+        console.error("Receipt status error:", error);
+    }
+}
+
+const paymentProofForm = document.getElementById("paymentProofForm");
+
+if (paymentProofForm) {
+    paymentProofForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const button = document.getElementById("submitPaymentProof");
+        const message = document.getElementById("paymentProofMessage");
+        const senderName = document.getElementById("senderAccountName").value.trim();
+        const file = document.getElementById("paymentReceiptFile").files[0];
+        const token = sessionStorage.getItem("fh_order_access_" + orderId);
+
+        message.textContent = "";
+
+        if (!token || !senderName || !file) {
+            message.textContent = "Please complete all fields.";
+            return;
+        }
+
+        if (senderName.length < 2 || senderName.length > 120) {
+            message.textContent = "Enter a valid account holder name.";
+            return;
+        }
+
+        if (file.size === 0 || file.size > 5 * 1024 * 1024) {
+            message.textContent = "Receipt must be under 5 MB.";
+            return;
+        }
+
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+            message.textContent = "Only JPG, PNG or WebP images allowed.";
+            return;
+        }
+
+        if (!Number.isFinite(paymentDeadlineMs) || paymentDeadlineMs <= Date.now()) {
+            message.textContent = "Payment window has expired.";
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Uploading Receipt...";
+
+        try {
+            const formData = new FormData();
+            formData.append("order_id", orderId);
+            formData.append("access_token", token);
+            formData.append("sender_account_name", senderName);
+            formData.append("receipt", file);
+
+            const response = await fetch(
+                "https://vmllowldjzwmzsvxccui.supabase.co/functions/v1/upload-payment-receipt",
+                {
+                    method: "POST",
+                    headers: {
+                        "apikey": "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q"
+                    },
+                    body: formData
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Receipt upload failed.");
+            }
+
+            message.style.color = "#22c55e";
+            message.textContent = "✅ Receipt submitted! Awaiting payment verification.";
+
+            button.textContent = "Receipt Submitted";
+            paymentProofForm.querySelectorAll("input").forEach(input => {
+                input.disabled = true;
+            });
+
+        } catch (error) {
+            message.style.color = "#ef4444";
+            message.textContent = error.message || "Unable to upload receipt.";
+            button.disabled = false;
+            button.textContent = "Submit Payment Proof";
+        }
+    });
+}
+
+
+document.getElementById("paymentAccountDetails")
+    .addEventListener("click", async function (event) {
+
+        const button = event.target.closest(".payment-copy-btn");
+        if (!button) return;
+
+        const value = button.dataset.copyValue;
+        if (!value) return;
+
+        try {
+            await navigator.clipboard.writeText(value);
+
+            button.textContent = "✓ Copied!";
+            button.style.color = "#22c55e";
+
+            setTimeout(() => {
+                if (!button.isConnected) return;
+                button.textContent = "📋 Copy";
+                button.style.color = "";
+            }, 2000);
+
+        } catch (error) {
+            alert("Copy failed. Please try again.");
+        }
+    });
+
+loadSecureOrder();
+loadCustomerReceiptStatus();
+
+// FH EMPIRE - Automatic Order Acceptance Updates
+
+let orderRefreshRunning = false;
+
+async function refreshCustomerOrder() {
+    if (document.hidden || orderRefreshRunning) return;
+
+    orderRefreshRunning = true;
+
+    try {
+        // Refresh order status, payment accounts and timer
+     // FH EMPIRE — Smart Auto Refresh
+await checkOrderChanges();
+await checkReceiptChanges();
+    } catch (error) {
+        console.error("Order auto refresh failed:", error);
+    } finally {
+        orderRefreshRunning = false;
+    }
+}
+
+// Automatically check every 5 seconds
+setInterval(refreshCustomerOrder, 5000);
+
+// Immediately refresh when customer returns to tab
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+        refreshCustomerOrder();
+    }
+});
+// FH EMPIRE - Load Temporary Order Summary
+const savedOrder = sessionStorage.getItem("fh_pending_order");
+
+if (savedOrder) {
+    try {
+        const order = JSON.parse(savedOrder);
+
+        // Only display data matching the current Order ID
+        if (order.orderId === orderId) {
+            document.getElementById("summaryPoppoId").textContent =
+                order.poppoId;
+
+            document.getElementById("summaryAccountType").textContent =
+                order.accountType === "agent" ? "Agent Account" : "Coins Account";
+
+            document.getElementById("summaryCoins").textContent =
+                Number(order.coins).toLocaleString();
+
+            document.getElementById("summaryAmount").textContent =
+                "Rs. " + Number(order.amount).toLocaleString();
+
+            document.getElementById("summaryPayment").textContent =
+                order.paymentMethod;
+ 
+
+        }
+    } catch (error) {
+        console.error("Order summary error:", error);
+    }
+}
+if (orderId && /^FH-[A-Za-z0-9-]+$/.test(orderId)) {
+    displayOrderId.textContent = orderId;
+}
+    const openBtn = document.getElementById("openTrackPopup");
+    const closeBtn = document.getElementById("closeTrackPopup");
+    const popup = document.getElementById("trackPopup");
+    const frame = document.getElementById("trackPopupFrame");
+
+    if (!openBtn || !closeBtn || !popup || !frame) return;
+
+    function openPopup() {
+        popup.hidden = false;
+        document.body.style.overflow = "hidden";
+
+        {
+            const orderId = document.getElementById("displayOrderId")?.textContent.trim();
+
+const trackUrl = new URL("track.html", window.location.href);
+
+if (orderId && orderId !== "Waiting for order..." && orderId !== "—") {
+    trackUrl.searchParams.set("order_id", orderId);
+}
+
+frame.src = trackUrl.href;
+        }
+
+        closeBtn.focus();
+    }
+
+    function closePopup() {
+        popup.hidden = true;
+        document.body.style.overflow = "";
+        openBtn.focus();
+    }
+
+    openBtn.addEventListener("click", openPopup);
+    closeBtn.addEventListener("click", closePopup);
+
+    popup.addEventListener("click", function (event) {
+        if (event.target === popup) closePopup();
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !popup.hidden) {
+            closePopup();
+        }
+    });
+});
+</script>
+
+</body>
+</html>

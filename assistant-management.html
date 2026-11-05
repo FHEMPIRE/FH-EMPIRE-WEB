@@ -1,0 +1,624 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistant Management | FH EMPIRE</title>
+<style>
+:root{color-scheme:dark;--gold:#ffcc33;--border:#806515;--muted:#aab0ba}
+*{box-sizing:border-box}
+body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
+.container{max-width:1200px;margin:auto;padding:28px 18px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:25px}
+h1{color:var(--gold);margin:0;font-size:29px}
+h2{font-size:19px;margin:0 0 20px}
+p{color:var(--muted)}
+.card{background:#111;border:1px solid #34302a;border-radius:13px;padding:22px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+label{display:block;font-size:13px;color:#ddd;margin-bottom:7px}
+input{width:100%;background:#080808;color:white;border:1px solid #66551e;border-radius:7px;padding:12px;font-size:14px}
+input:focus{outline:1px solid var(--gold)}
+button,.btn{background:transparent;color:var(--gold);border:1px solid var(--border);border-radius:7px;padding:11px 15px;cursor:pointer;font-weight:bold;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{background:var(--gold);color:black}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--gold);color:#000}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:780px}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #333;font-size:13px}
+th{color:var(--gold)}
+td button{font-size:12px;padding:8px}
+.status{font-weight:bold}
+.active{color:#4ade80}
+.inactive{color:#fb7185}
+.notice{padding:12px;border-radius:7px;margin-bottom:18px;white-space:pre-wrap;display:none}
+.success{display:block;background:#12301d;color:#86efac}
+.error{display:block;background:#351517;color:#fca5a5}
+.info{display:block;background:#27210f;color:#f9d66d}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+dialog{background:#111;color:white;border:1px solid var(--border);border-radius:12px;width:min(95vw,530px);padding:23px}
+dialog::backdrop{background:#000b}
+dialog h2{color:var(--gold)}
+.dialog-fields{display:grid;gap:13px}
+small{color:var(--muted)}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.container{padding:18px 12px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div>
+<h1>👑 FH EMPIRE</h1>
+<p>Assistant Management • Admin Control Panel</p>
+</div>
+<a class="btn" href="admin.html">← Back to Dashboard</a>
+</header>
+
+<div id="notice" class="notice" role="status"></div>
+
+<section class="card">
+<h2>👤 Create New Assistant</h2>
+
+<form id="createForm">
+  <div class="grid">
+
+    <div>
+      <label for="assistantPoppoId">Poppo ID</label>
+      <input
+        id="assistantPoppoId"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]+"
+        required
+        autocomplete="off"
+        placeholder="Enter Poppo ID"
+      >
+      <small id="assistantPoppoStatus">
+        Enter Poppo ID to verify account.
+      </small>
+    </div>
+
+    <div>
+      <label for="assistantName">Assistant Name</label>
+      <input
+        id="assistantName"
+        maxlength="100"
+        required
+        readonly
+        placeholder="Auto-filled from Poppo"
+      >
+    </div>
+
+    <div>
+      <label for="displayName">Display Name</label>
+      <input
+        id="displayName"
+        maxlength="100"
+        required
+        placeholder="Name shown on panel"
+      >
+    </div>
+
+    <div>
+      <label for="loginId">Login ID</label>
+      <input
+        id="loginId"
+        minlength="3"
+        maxlength="30"
+        pattern="[A-Za-z0-9_-]{3,30}"
+        required
+        placeholder="assistant_01"
+      >
+    </div>
+
+    <div>
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        minlength="12"
+        autocomplete="new-password"
+        required
+        placeholder="Minimum 12 characters"
+      >
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button
+      class="primary"
+      id="createBtn"
+      type="submit"
+    >
+      + Create Assistant
+    </button>
+  </div>
+</form>
+
+</section>
+
+<section class="card">
+<div class="toolbar">
+<div>
+<h2 style="margin-bottom:5px">👥 Registered Assistants</h2>
+<small id="count">Loading...</small>
+</div>
+<button id="refreshBtn" type="button">↻ Refresh List</button>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+
+<tr>
+  <th>Login ID</th>
+  <th>Assistant Name</th>
+  <th>Display Name</th>
+  <th>Account</th>
+  <th>Online</th>
+  <th>Agent Orders</th>
+  <th>Created</th>
+  <th>Actions</th>
+</tr>
+
+</thead>
+<tbody id="assistantRows"><tr><td colspan="7">Loading...</td></tr></tbody>
+</table>
+</div>
+</section>
+</div>
+
+<dialog id="editDialog">
+<h2>Edit Assistant</h2>
+<form id="editForm">
+<div class="dialog-fields">
+<div><label for="editLogin">Login ID</label><input id="editLogin" required pattern="[A-Za-z0-9_-]{3,30}" maxlength="30"></div>
+<div><label for="editName">Assistant Name</label><input id="editName" required maxlength="100"></div>
+<div><label for="editDisplay">Display Name</label><input id="editDisplay" required maxlength="100"></div>
+</div>
+<div class="actions">
+<button class="primary" type="submit">Save Changes</button>
+<button type="button" id="cancelEdit">Cancel</button>
+</div>
+</form>
+</dialog>
+
+<dialog id="passwordDialog">
+<h2>Reset Assistant Password</h2>
+<form id="passwordForm">
+<p id="passwordTarget"></p>
+<label for="newPassword">New Password</label>
+<input id="newPassword" type="password" minlength="12" autocomplete="new-password" required placeholder="Minimum 12 characters">
+<div class="actions">
+<button class="primary" type="submit">Update Password</button>
+<button type="button" id="cancelPassword">Cancel</button>
+</div>
+</form>
+</dialog>
+
+<script>
+"use strict";
+
+const SUPABASE_URL = "https://vmllowldjzwmzsvxccui.supabase.co";
+const SUPABASE_KEY = "sb_publishable_4_cDtsB6pZJHW-2dQW8NHQ_LQhpCn1Q";
+const ENDPOINT = `${SUPABASE_URL}/functions/v1/manage-assistants`;
+
+const $ = id => document.getElementById(id);
+
+let verifiedAssistantPoppoId = "";
+let verifiedAssistantNickname = "";
+
+const assistantPoppoInput = $("assistantPoppoId");
+const assistantPoppoStatus = $("assistantPoppoStatus");
+
+assistantPoppoInput.addEventListener("input", () => {
+    verifiedAssistantPoppoId = "";
+    verifiedAssistantNickname = "";
+    $("assistantName").value = "";
+    assistantPoppoStatus.textContent = "Enter Poppo ID to verify account.";
+    assistantPoppoStatus.style.color = "#aab0ba";
+});
+
+assistantPoppoInput.addEventListener("blur", async () => {
+    const poppoId = assistantPoppoInput.value.trim();
+
+    if (!/^\d+$/.test(poppoId)) {
+        assistantPoppoStatus.textContent = "✕ Invalid Poppo ID";
+        assistantPoppoStatus.style.color = "#ff5c5c";
+        return;
+    }
+
+    assistantPoppoStatus.textContent = "Checking Poppo account...";
+    assistantPoppoStatus.style.color = "#ffd700";
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/functions/v1/poppo-profile`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ poppoId })
+            }
+        );
+
+        const data = await response.json();
+
+        if (assistantPoppoInput.value.trim() !== poppoId) {
+            return;
+        }
+
+        if (
+            !response.ok ||
+            data.success !== true ||
+            String(data.id) !== poppoId ||
+            typeof data.nickname !== "string" ||
+            !data.nickname.trim()
+        ) {
+            throw new Error("Poppo account verification failed");
+        }
+
+        verifiedAssistantPoppoId = poppoId;
+        verifiedAssistantNickname = data.nickname.trim();
+
+        $("assistantName").value = verifiedAssistantNickname;
+
+        assistantPoppoStatus.textContent =
+            `✓ Verified: ${verifiedAssistantNickname}`;
+        assistantPoppoStatus.style.color = "#22c55e";
+
+    } catch (error) {
+        if (assistantPoppoInput.value.trim() !== poppoId) return;
+
+        verifiedAssistantPoppoId = "";
+        verifiedAssistantNickname = "";
+        $("assistantName").value = "";
+
+        assistantPoppoStatus.textContent =
+            "✕ Unable to verify Poppo ID";
+        assistantPoppoStatus.style.color = "#ff5c5c";
+    }
+});
+
+let assistants = [];
+let selectedAssistant = null;
+let busy = false;
+
+function notify(message, type = "info") {
+  const el = $("notice");
+  el.textContent = message;
+  el.className = `notice ${type}`;
+}
+
+function getToken() {
+  return localStorage.getItem("fh_admin_access_token");
+}
+
+async function api(action, values = {}) {
+  const token = getToken();
+  if (!token) {
+    window.location.replace("login.html");
+    throw new Error("Admin login required");
+  }
+
+  const response = await fetch(ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+      "apikey": SUPABASE_KEY
+    },
+    body: JSON.stringify({ action, ...values })
+  });
+
+  const result = await response.json().catch(() => ({}));
+
+  if (response.status === 401 || response.status === 403) {
+    throw new Error(result.error || "Admin authorization failed");
+  }
+  if (!response.ok || result.success !== true) {
+    throw new Error(result.error || `Request failed (${response.status})`);
+  }
+  return result;
+}
+
+function makeCell(row, value) {
+  const td = document.createElement("td");
+  td.textContent = String(value ?? "—");
+  row.appendChild(td);
+  return td;
+}
+
+function makeButton(label, handler) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = label;
+  btn.addEventListener("click", handler);
+  return btn;
+}
+
+function renderAssistants() {
+  const tbody = $("assistantRows");
+  tbody.replaceChildren();
+  $("count").textContent = `${assistants.length} assistant(s) registered`;
+
+  if (!assistants.length) {
+    const tr = document.createElement("tr");
+    const td = makeCell(tr, "No assistants registered yet.");
+    td.colSpan = 7;
+    tbody.appendChild(tr);
+    return;
+  }
+
+  for (const assistant of assistants) {
+    const tr = document.createElement("tr");
+    makeCell(tr, assistant.login_id);
+    makeCell(tr, assistant.assistant_name);
+    makeCell(tr, assistant.display_name);
+
+    const account = makeCell(tr, assistant.is_active ? "Active" : "Inactive");
+    account.className = assistant.is_active ? "status active" : "status inactive";
+
+    const online = makeCell(tr, assistant.is_online ? "Online" : "Offline");
+    online.className = assistant.is_online ? "status active" : "status inactive";
+
+const agentCell = document.createElement("td");
+
+const permissionEnabled =
+  assistant.allow_agent_orders_below_5m === true;
+
+const agentStatus = document.createElement("div");
+agentStatus.textContent = permissionEnabled
+  ? "Special Access ON"
+  : "5M Rule Active";
+
+agentStatus.className = permissionEnabled
+  ? "status active"
+  : "status";
+
+agentStatus.style.marginBottom = "7px";
+agentCell.appendChild(agentStatus);
+
+const permissionBtn = makeButton(
+  permissionEnabled ? "Disable Override" : "Enable Override",
+  async () => {
+    if (busy) return;
+
+    const next = !permissionEnabled;
+
+    if (!confirm(
+      `${next ? "Enable" : "Disable"} Agent Orders special permission for ${assistant.login_id}?`
+    )) return;
+
+    busy = true;
+    permissionBtn.disabled = true;
+
+    try {
+      await api("set_agent_permission", {
+        assistant_id: assistant.id,
+        allow_agent_orders_below_5m: next
+      });
+
+      notify(
+        next
+          ? "Agent Orders special permission enabled."
+          : "Agent Orders special permission disabled.",
+        "success"
+      );
+
+      await loadAssistants();
+    } catch (err) {
+      notify(err.message, "error");
+      permissionBtn.disabled = false;
+    } finally {
+      busy = false;
+    }
+  }
+);
+
+agentCell.appendChild(permissionBtn);
+tr.appendChild(agentCell);
+
+    makeCell(tr, assistant.created_at
+      ? new Date(assistant.created_at).toLocaleDateString("en-PK", {
+          timeZone: "Asia/Karachi", day: "2-digit",
+          month: "short", year: "numeric"
+        })
+      : "—");
+
+    const actions = document.createElement("td");
+    actions.style.whiteSpace = "nowrap";
+
+    actions.appendChild(makeButton("📊 View Dashboard", () => {
+  const assistantId = encodeURIComponent(assistant.id);
+
+  window.location.href =
+    `assistant-admin-dashboard.html?id=${assistantId}`;
+}));
+
+actions.appendChild(document.createTextNode(" "));
+
+    actions.appendChild(makeButton("Edit", () => {
+      selectedAssistant = assistant;
+      $("editLogin").value = assistant.login_id;
+      $("editName").value = assistant.assistant_name;
+      $("editDisplay").value = assistant.display_name;
+      $("editDialog").showModal();
+    }));
+
+    actions.appendChild(document.createTextNode(" "));
+
+    actions.appendChild(makeButton("Password", () => {
+      selectedAssistant = assistant;
+      $("passwordTarget").textContent = `Assistant: ${assistant.login_id}`;
+      $("newPassword").value = "";
+      $("passwordDialog").showModal();
+    }));
+
+    actions.appendChild(document.createTextNode(" "));
+
+    actions.appendChild(makeButton(
+      assistant.is_active ? "Deactivate" : "Activate",
+      async () => {
+        if (busy) return;
+        const next = !assistant.is_active;
+        if (!confirm(`${next ? "Activate" : "Deactivate"} ${assistant.login_id}?`)) return;
+        busy = true;
+        try {
+          await api("set_active", {
+            assistant_id: assistant.id,
+            is_active: next
+          });
+          notify("Assistant status updated.", "success");
+          await loadAssistants();
+        } catch (err) {
+          notify(err.message, "error");
+        } finally {
+          busy = false;
+        }
+      }
+    ));
+
+    tr.appendChild(actions);
+    tbody.appendChild(tr);
+  }
+}
+
+async function loadAssistants() {
+  const result = await api("list");
+  assistants = result.assistants || [];
+  renderAssistants();
+}
+
+$("createForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (busy) return;
+  busy = true;
+  $("createBtn").disabled = true;
+
+  try {
+    
+if (
+    !verifiedAssistantPoppoId ||
+    verifiedAssistantPoppoId !== $("assistantPoppoId").value.trim()
+) {
+    throw new Error("Please verify the Poppo ID first.");
+}
+
+await api("create", {
+    poppo_id: verifiedAssistantPoppoId,
+    assistant_name: verifiedAssistantNickname,
+    display_name: $("displayName").value.trim(),
+    login_id: $("loginId").value.trim(),
+    password: $("password").value
+});
+
+    $("createForm").reset();
+    verifiedAssistantPoppoId = "";
+verifiedAssistantNickname = "";
+assistantPoppoStatus.textContent = "Enter Poppo ID to verify account.";
+assistantPoppoStatus.style.color = "#aab0ba";
+    notify("Assistant account created successfully.", "success");
+    await loadAssistants();
+  } catch (err) {
+    notify(err.message, "error");
+  } finally {
+    busy = false;
+    $("createBtn").disabled = false;
+  }
+});
+
+$("editForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (busy || !selectedAssistant) return;
+  busy = true;
+
+  try {
+    await api("update", {
+      assistant_id: selectedAssistant.id,
+      login_id: $("editLogin").value.trim(),
+      assistant_name: $("editName").value.trim(),
+      display_name: $("editDisplay").value.trim()
+    });
+    $("editDialog").close();
+    notify("Assistant details updated.", "success");
+    await loadAssistants();
+  } catch (err) {
+    notify(err.message, "error");
+  } finally {
+    busy = false;
+  }
+});
+
+$("passwordForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (busy || !selectedAssistant) return;
+  busy = true;
+
+  try {
+    await api("reset_password", {
+      assistant_id: selectedAssistant.id,
+      password: $("newPassword").value
+    });
+    $("newPassword").value = "";
+    $("passwordDialog").close();
+    notify("Assistant password updated.", "success");
+  } catch (err) {
+    notify(err.message, "error");
+  } finally {
+    busy = false;
+  }
+});
+
+
+$("refreshBtn").addEventListener("click", async () => {
+    if (busy) return;
+
+    busy = true;
+    $("refreshBtn").disabled = true;
+    $("refreshBtn").textContent = "↻ Updating Poppo Names...";
+
+    try {
+        const result = await api("refresh_poppo_names");
+
+        await loadAssistants();
+
+        notify(
+            `Poppo names updated: ${result.updated || 0}\n` +
+            `Already latest: ${result.unchanged || 0}\n` +
+            `Failed: ${result.failed || 0}`,
+            result.failed > 0 ? "info" : "success"
+        );
+
+    } catch (err) {
+        notify(err.message, "error");
+
+    } finally {
+        busy = false;
+        $("refreshBtn").disabled = false;
+        $("refreshBtn").textContent = "↻ Refresh List";
+    }
+});
+
+$("cancelEdit").addEventListener("click", () => $("editDialog").close());
+$("cancelPassword").addEventListener("click", () => $("passwordDialog").close());
+
+(async () => {
+  if (!getToken()) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  try {
+    await loadAssistants();
+  } catch (err) {
+    notify(err.message, "error");
+    $("count").textContent = "Unable to load assistants";
+    $("assistantRows").replaceChildren();
+  }
+})();
+</script>
+</body>
+</html>

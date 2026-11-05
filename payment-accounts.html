@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Accounts | FH EMPIRE</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #080808;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .payment-manager {
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .payment-header h1 { color: #d4af37; }
+        .payment-btn {
+            background: #d4af37;
+            color: #000;
+            border: none;
+            border-radius: 9px;
+            padding: 12px 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .payment-card {
+            background: #151515;
+            border: 1px solid #4b3b15;
+            border-radius: 14px;
+            padding: 22px;
+            margin-top: 25px;
+        }
+        .payment-card h2 { color: #d4af37; }
+        .payment-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .payment-form input,
+        .payment-form select {
+            width: 100%;
+            box-sizing: border-box;
+            background: #0c0c0c;
+            border: 1px solid #555;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .payment-form label {
+            display: block;
+            margin-bottom: 7px;
+            color: #ccc;
+        }
+        #paymentAccountsList {
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+<body>
+
+<main class="payment-manager">
+
+    <div class="payment-header">
+        <h1>💳 Payment Accounts</h1>
+        <a href="admin.html" class="payment-btn"
+           style="text-decoration:none;">
+            ← Admin Dashboard
+        </a>
+    </div>
+
+    <section class="payment-card">
+        <h2>Add Payment Account</h2>
+
+        <form id="paymentAccountForm" class="payment-form">
+
+            <div>
+                <label>Payment Method</label>
+                <select id="paymentMethod" required>
+                    <option value="">Select Method</option>
+                    <option value="Easypaisa">Easypaisa</option>
+                    <option value="JazzCash">JazzCash</option>
+                    <option value="SadaPay">SadaPay</option>
+                    <option value="NayaPay">NayaPay</option>
+                    <option value="Bank">Bank Transfer</option>
+                    <option value="Wallet Transfer">Wallet Transfer</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Account Holder Name</label>
+                <input id="accountTitle" required
+                       placeholder="Account holder name">
+            </div>
+
+            <div>
+                <label>Account Number</label>
+                <input id="accountNumber"
+                       placeholder="03XXXXXXXXX / Account number">
+            </div>
+
+            <div>
+                <label>IBAN (Optional)</label>
+                <input id="accountIban"
+                       placeholder="PK...">
+            </div>
+
+            <div>
+                <label>Bank Name (If Applicable)</label>
+                <input id="bankName"
+                       placeholder="Bank name">
+            </div>
+<div>
+    <label>Account For</label>
+    <select id="accountOwnerType" required>
+        <option value="admin">Admin</option>
+        <option value="assistant">Assistant</option>
+    </select>
+</div>
+
+<div id="assistantSelectionBox" style="display:none;">
+    <label>Select Assistant</label>
+    <select id="accountAssistantId">
+        <option value="">Select Assistant</option>
+    </select>
+</div>
+            <div style="align-self:end;">
+                <button class="payment-btn" type="submit">
+                    + Save Account
+                </button>
+            </div>
+
+        </form>
+
+        <p id="paymentFormMessage"></p>
+    </section>
+
+    <section class="payment-card">
+        <h2>Saved Payment Accounts</h2>
+        <div id="paymentAccountsList">
+            Accounts will appear here.
+        </div>
+    </section>
+
+</main>
+<script>
+const ownerTypeSelect = document.getElementById("accountOwnerType");
+const assistantSelectionBox = document.getElementById("assistantSelectionBox");
+const assistantSelect = document.getElementById("accountAssistantId");
+
+ownerTypeSelect.addEventListener("change", function () {
+    const isAssistant = this.value === "assistant";
+
+    assistantSelectionBox.style.display =
+        isAssistant ? "block" : "none";
+
+    assistantSelect.required = isAssistant;
+});
+</script>
+<script src="payment-accounts.js"></script>
+</body>
+</html>
+

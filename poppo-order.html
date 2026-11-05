@@ -67,6 +67,8 @@
                     >
                 </div>
 
+    </select>
+</div>
 
                 <div class="form-group">
                     <label for="poppoId">Poppo ID</label>
@@ -78,6 +80,37 @@
                     >
                     <div id="poppoVerifyResult"></div>
                 </div>
+
+<!-- FH EMPIRE - ACCOUNT TYPE -->
+<div class="form-group" id="accountTypeSection" style="display:none;">
+
+    <label>Coins Receiving Account Type *</label>
+
+    <div class="fh-account-options">
+
+        <label class="fh-account-card selected user-card">
+            <input type="radio" name="accountType"
+                   value="user" checked>
+
+            <span class="fh-account-title">Coins Account</span>
+            <span class="fh-account-tag">User</span>
+        </label>
+
+        <label class="fh-account-card agent-card">
+            <input type="radio" name="accountType"
+                   value="agent">
+
+            <span class="fh-account-title">Agent Account</span>
+            <span class="fh-account-tag">Agent</span>
+        </label>
+
+    </div>
+
+    <p class="fh-account-note">
+        Coins Account is for personal use and gifting.
+    </p>
+
+</div>
 
 
                 <div class="form-group">
@@ -315,11 +348,48 @@ const poppoVerifyResult = document.getElementById("poppoVerifyResult");
 let verifiedPoppoId = "";
 let verifiedPoppoNickname = "";
 
+// Hide account options immediately when Poppo ID changes
+poppoIdInput.addEventListener("input", function () {
+    verifiedPoppoId = "";
+    verifiedPoppoNickname = "";
+
+    const accountSection =
+        document.getElementById("accountTypeSection");
+
+    if (accountSection) {
+        accountSection.style.display = "none";
+
+        const userRadio = accountSection.querySelector(
+            'input[name="accountType"][value="user"]'
+        );
+
+        if (userRadio) {
+            userRadio.checked = true;
+        }
+    }
+
+    poppoVerifyResult.innerHTML = "";
+});
+
 poppoIdInput.addEventListener("blur", async function () {
     const poppoId = poppoIdInput.value.trim();
 
     verifiedPoppoId = "";
     verifiedPoppoNickname = "";
+
+const accountSection = document.getElementById("accountTypeSection");
+
+if (accountSection) {
+    accountSection.style.display = "none";
+
+    const userRadio = accountSection.querySelector(
+        'input[name="accountType"][value="user"]'
+    );
+
+    if (userRadio) {
+        userRadio.checked = true;
+    }
+}
 
     if (!poppoId || !/^\d+$/.test(poppoId)) {
         poppoVerifyResult.innerHTML =
@@ -346,14 +416,31 @@ poppoIdInput.addEventListener("blur", async function () {
 
         const data = await response.json();
 
+if (poppoIdInput.value.trim() !== poppoId) {
+    return;
+}
+
+if (response.ok && data.success &&
+    String(data.id) !== poppoId) {
+    poppoVerifyResult.innerHTML =
+        '<span style="color:#ff5c5c;">✕ Poppo ID verification mismatch</span>';
+    return;
+}
+
         if (response.ok && data.success) {
             verifiedPoppoId = String(data.id);
             verifiedPoppoNickname = data.nickname;
 
-            poppoVerifyResult.innerHTML =
-              `<span style="color:#22c55e;">✓ Account Found:</span> <span style="color:#ffffff; font-weight:600;">${data.nickname}</span>`
-                data.nickname +
-                '</strong></span>';
+document.getElementById("accountTypeSection").style.display = "block";
+
+          
+poppoVerifyResult.innerHTML = `
+    <span style="color:#22c55e;">✓ Account Found:</span>
+    <span style="color:#ffffff; font-weight:600;">
+        ${data.nickname}
+    </span>
+`;
+
         } else {
             poppoVerifyResult.innerHTML =
                 '<span style="color:#ff5c5c;">✕ Poppo account not found</span>';
@@ -364,9 +451,33 @@ poppoIdInput.addEventListener("blur", async function () {
             '<span style="color:#ff5c5c;">✕ Unable to verify Poppo ID</span>';
     }
 });
+
+// FH EMPIRE - Prevent duplicate submissions
+let orderSubmitting = false;
+let currentRequestKey = null;
+
 poppoOrderForm.addEventListener("submit", async function (e) {
 
     e.preventDefault();
+
+if (orderSubmitting) return;
+
+if (!currentRequestKey) {
+    currentRequestKey = crypto.randomUUID();
+}
+
+orderSubmitting = true;
+
+const submitBtn = e.submitter;
+
+submitBtn.disabled = true;
+submitBtn.textContent = "Placing Order...";
+
+function unlockOrderForm() {
+    orderSubmitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Place Order";
+}
 
     const customerName =
         document.getElementById("customerName").value.trim();
@@ -382,7 +493,8 @@ if (!verifiedPoppoId || verifiedPoppoId !== poppoId) {
             Please enter a valid verified Poppo ID.
         </div>
     `;
-    return;
+   unlockOrderForm();
+return;
 }
     const paymentMethod =
         document.getElementById("paymentMethod").value;
@@ -404,7 +516,7 @@ if (!verifiedPoppoId || verifiedPoppoId !== poppoId) {
                 Minimum order is Rs. 250.
             </div>
         `;
-
+unlockOrderForm();
         return;
     }
 
@@ -419,7 +531,7 @@ if (!verifiedPoppoId || verifiedPoppoId !== poppoId) {
     try {
 
         const response = await fetch(
-            `${SUPABASE_URL}rpc/create_order`,
+            `${SUPABASE_URL}rpc/create_order_secure`,
             {
                 method: "POST",
 
@@ -429,14 +541,21 @@ if (!verifiedPoppoId || verifiedPoppoId !== poppoId) {
                     "Authorization": `Bearer ${SUPABASE_KEY}`
                 },
 
-                body: JSON.stringify({
-                    p_customer_name: customerName,
-                    p_whatsapp_number: whatsappNumber,
-                    p_poppo_id: poppoId,
-                    p_coins: orderCoins,
-                    p_amount: orderAmount,
-                    p_payment_method: paymentMethod
-                })
+               
+body: JSON.stringify({
+    p_customer_name: customerName,
+    p_whatsapp_number: whatsappNumber,
+    p_poppo_id: poppoId,
+    p_coins: orderCoins,
+    p_amount: orderAmount,
+    p_payment_method: paymentMethod,
+    p_account_type: document.querySelector(
+        'input[name="accountType"]:checked'
+    )?.value || "user",
+   p_request_key: currentRequestKey,
+p_poppo_nickname: verifiedPoppoNickname
+})
+
             }
         );
 
@@ -455,13 +574,24 @@ if (!verifiedPoppoId || verifiedPoppoId !== poppoId) {
                     Order save nahi hua. Please try again.
                 </div>
             `;
-
+unlockOrderForm();
             return;
         }
 
 
-        const finalOrderId = await response.json();
+        const result = await response.json();
 
+if (!Array.isArray(result) || !result[0]?.order_id || !result[0]?.access_token) {
+    throw new Error("Invalid secure order response");
+}
+
+const finalOrderId = result[0].order_id;
+const orderAccessToken = result[0].access_token;
+
+sessionStorage.setItem(
+    "fh_order_access_" + finalOrderId,
+    orderAccessToken
+);
 
         // ADMIN PUSH NOTIFICATION
         try {
@@ -553,12 +683,26 @@ if (!verifiedPoppoId || verifiedPoppoId !== poppoId) {
         `;
 
 
-        // Scroll to order details
-        orderResult.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
+       // FH EMPIRE - Redirect to Order Processing Page
+const processingUrl = new URL("order-processing.html", window.location.href);
 
+processingUrl.searchParams.set("order_id", finalOrderId);
+sessionStorage.setItem(
+    "fh_order_access_" + finalOrderId,
+    orderAccessToken
+);
+// FH EMPIRE - Save Order Summary for Processing Page
+sessionStorage.setItem("fh_pending_order", JSON.stringify({
+    orderId: finalOrderId,
+    poppoId: poppoId,
+    accountType: document.querySelector(
+        'input[name="accountType"]:checked'
+    )?.value || "user",
+    coins: orderCoins,
+    amount: orderAmount,
+    paymentMethod: paymentMethod
+}));
+window.location.href = processingUrl.href;
 
     } catch (error) {
 
@@ -569,6 +713,7 @@ if (!verifiedPoppoId || verifiedPoppoId !== poppoId) {
                 Something went wrong. Please try again.
             </div>
         `;
+        unlockOrderForm();
     }
 
 });

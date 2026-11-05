@@ -5,6 +5,338 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FH EMPIRE | Admin Panel</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+.account-type-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    text-align: center;
+    min-width: 65px;
+}
+
+.agent-badge {
+    background: rgba(255, 64, 160, 0.18);
+    color: #ff69b4;
+    border: 1px solid #ff69b4;
+}
+
+.user-badge {
+    background: rgba(40, 130, 255, 0.18);
+    color: #55aaff;
+    border: 1px solid #55aaff;
+}
+.poppo-id-cell {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.copy-poppo-id {
+    background: transparent;
+    border: 1px solid #66521d;
+    border-radius: 5px;
+    padding: 4px 6px;
+    cursor: pointer;
+    color: #ffcc33;
+    font-size: 13px;
+}
+
+.copy-poppo-id:hover {
+    background: #33290d;
+}
+/* FH EMPIRE - Payment Receipt UI */
+
+.order-receipt-status {
+    margin-top: 10px;
+    padding: 7px 10px;
+    background: rgba(255, 193, 7, 0.08);
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    border-radius: 7px;
+    color: #ffcc33;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.order-receipt-status strong {
+    text-transform: uppercase;
+}
+
+.view-receipt-btn {
+    display: block;
+    width: 100%;
+    margin-top: 7px;
+    padding: 9px 10px;
+    background: #191919;
+    color: #ffcc33;
+    border: 1px solid #b89226;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.view-receipt-btn:hover {
+    background: #302609;
+}
+/* FH EMPIRE - Payment Verification Modal */
+
+.receipt-modal[hidden] {
+    display: none !important;
+}
+
+.receipt-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.receipt-modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #111;
+    border: 1px solid #b89226;
+    border-radius: 14px;
+    padding: 25px;
+    color: #fff;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+}
+
+.receipt-modal-box h2 {
+    color: #ffcc33;
+    text-align: center;
+    margin: 0 35px 20px;
+    font-size: 21px;
+}
+
+.receipt-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #292929;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 7px;
+    padding: 7px 11px;
+    cursor: pointer;
+}
+
+.receipt-details {
+    background: #191919;
+    border: 1px solid #333;
+    border-radius: 9px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+}
+
+.receipt-details p {
+    margin: 8px 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.receipt-details strong {
+    color: #ffcc33;
+}
+
+.receipt-image-container {
+    background: #080808;
+    border: 1px solid #333;
+    border-radius: 9px;
+    padding: 10px;
+    text-align: center;
+}
+
+#adminReceiptImage {
+    display: block;
+    max-width: 100%;
+    max-height: 45vh;
+    width: auto;
+    height: auto;
+    margin: auto;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.receipt-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.receipt-modal-actions button {
+    flex: 1;
+    padding: 12px 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#verifyReceiptBtn {
+    background: #123b25;
+    border: 1px solid #22c55e;
+    color: #4ade80;
+}
+
+#rejectReceiptBtn {
+    background: #401919;
+    border: 1px solid #ef4444;
+    color: #f87171;
+}
+
+.receipt-modal-actions button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .receipt-modal-box {
+        padding: 18px;
+    }
+
+    .receipt-modal-actions {
+        flex-direction: column;
+    }
+}
+
+/* FH EMPIRE PREMIUM AVAILABILITY CONTROL */
+
+.fh-availability-panel {
+  background: linear-gradient(145deg, #141414, #090909);
+  border: 1px solid #665321;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 22px 0;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+}
+
+.fh-availability-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.fh-availability-header h3 {
+  color: #ffcc33;
+  font-size: 19px;
+  margin: 0 0 7px;
+}
+
+.fh-availability-header p {
+  color: #999;
+  font-size: 13px;
+  margin: 0;
+}
+
+.fh-status-badge {
+  padding: 8px 13px;
+  border-radius: 30px;
+  background: #252525;
+  color: #aaa;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.fh-availability-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px;
+}
+
+.fh-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  min-height: 82px;
+  padding: 17px 20px;
+  background: #171717;
+  color: #aaa;
+  border: 1px solid #383838;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  text-align: left;
+}
+
+.fh-mode-btn .fh-mode-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.fh-mode-btn small {
+  color: #999;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.fh-mode-btn.is-active {
+  background: #123b28;
+  border-color: #2e9f62;
+  color: #4ade80;
+}
+
+.fh-mode-btn.is-inactive {
+  background: #40191b;
+  border-color: #a83d45;
+  color: #fca5a5;
+}
+
+.fh-mode-btn:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.fh-mode-btn:not(:disabled):hover {
+  border-color: #ffcc33;
+  background: #292416;
+  color: #ffcc33;
+}
+
+.fh-availability-status {
+  margin: 18px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+@media(max-width: 550px) {
+  .fh-availability-panel { padding: 17px; }
+  .fh-availability-actions { grid-template-columns: 1fr; }
+}
+
+</style>
+
+<style>
+a[href="payment-accounts.html"]:hover,
+a[href="assistant-management.html"]:hover {
+    background: #ffcc33 !important;
+    color: #000 !important;
+    border-color: #ffcc33 !important;
+    transition: all 0.2s ease;
+}
+</style>
+
 </head>
 
 <body>
@@ -25,6 +357,69 @@
    style="display:inline-block; margin:8px 0; text-decoration:none;">
   🚀 Rocket & 🎮 Esports Management
 </a>
+
+<a href="payment-accounts.html"
+   style="
+       display:inline-block;
+       padding:10px 15px;
+       margin:0 8px 18px 0;
+       background:transparent;
+       color:#ffcc33;
+       border:1px solid #806515;
+       border-radius:7px;
+       text-decoration:none;
+       font-size:13px;
+       font-weight:bold;
+   ">
+    💳 Payment Accounts
+</a>
+
+<a href="assistant-management.html"
+   style="
+       display:inline-block;
+       padding:10px 15px;
+       margin:0 8px 18px 0;
+       background:transparent;
+       color:#ffcc33;
+       border:1px solid #806515;
+       border-radius:7px;
+       text-decoration:none;
+       font-size:13px;
+       font-weight:bold;
+   ">
+    👥 Assistant Management
+</a>
+
+<div id="adminAvailabilityPanel" class="fh-availability-panel">
+  <div class="fh-availability-header">
+    <div>
+      <h3>👑 Admin Order Availability</h3>
+      <p>Manage automatic order routing</p>
+    </div>
+    <span id="adminAvailabilityBadge" class="fh-status-badge">
+      CHECKING
+    </span>
+  </div>
+
+  <div class="fh-availability-actions">
+    <button type="button" id="adminActiveBtn"
+            class="fh-mode-btn" disabled>
+      <span class="fh-mode-title">🟢 ACTIVE</span>
+      <small>2-Minute Admin Priority</small>
+    </button>
+
+    <button type="button" id="adminInactiveBtn"
+            class="fh-mode-btn" disabled>
+      <span class="fh-mode-title">🔴 INACTIVE</span>
+      <small>Direct to Assistants</small>
+    </button>
+  </div>
+
+  <p id="adminAvailabilityStatus" class="fh-availability-status">
+    Loading Admin Availability...
+  </p>
+</div>
+
 
         <div class="admin-stats">
             <div>
@@ -50,13 +445,44 @@
     <h3>Cancelled</h3>
     <p id="cancelledOrders">0</p>
 </div>
-        </div>
+ 
+</div>
+
+<div style="
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:18px 0;
+    flex-wrap:wrap;
+">
+    <label for="ordersDateFilter" style="color:#ffcc33;">
+        📅 Filter by Date:
+    </label>
+
+    <input type="date" id="ordersDateFilter"
+        style="
+            background:#111;
+            color:white;
+            border:1px solid #806515;
+            border-radius:7px;
+            padding:10px;
+        ">
+
+    <button type="button" id="clearOrdersDate"
+        class="logout-btn">
+        Show All Dates
+    </button>
+</div>
+
 <div class="admin-search">
     <input
         type="text"
         id="orderSearch"
         placeholder="Search by Order ID or WhatsApp Number..."
     >
+</div>
+<div id="ordersTopScroll" style="overflow-x:auto; overflow-y:hidden; height:16px; margin-bottom:8px;">
+    <div id="ordersTopScrollInner" style="height:1px;"></div>
 </div>
         <div class="admin-table-wrapper">
             <table class="admin-table">
@@ -65,7 +491,9 @@
                         <th>Order ID</th>
                         <th>Name</th>
                         <th>WhatsApp</th>
-                        <th>Poppo ID</th>
+                       <th>Poppo ID</th>
+<th>Poppo Name</th>
+<th>Account Type</th>
                         <th>Coins</th>
                         <th>Amount</th>
                         <th>Payment</th>
@@ -75,14 +503,70 @@
                 </thead>
 
                 <tbody id="ordersTable">
-                    <tr>
-                        <td colspan="9">Loading orders...</td>
-                    </tr>
-                </tbody>
-            </table>
+    <tr>
+        <td colspan="11">Loading orders...</td>
+    </tr>
+</tbody>
+</table>
+<div id="ordersPagination" style="
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:15px;
+    margin:20px 0;
+    flex-wrap:wrap;
+">
+    <button id="prevOrdersPage" type="button" class="logout-btn">
+        ❮ Previous
+    </button>
+
+    <span id="ordersPageInfo" style="color:#ffcc33;">
+        Page 1
+    </span>
+
+    <button id="nextOrdersPage" type="button" class="logout-btn">
+        Next ❯
+    </button>
+</div>
+
         </div>
     </div>
 
+<div id="receiptModal" class="receipt-modal" hidden>
+    <div class="receipt-modal-box">
+        <button type="button" id="closeReceiptModal" class="receipt-close-btn">
+            ✕
+        </button>
+
+        <h2>🧾 Payment Verification</h2>
+
+        <div class="receipt-details">
+            <p><strong>Order ID:</strong> <span id="receiptOrderId"></span></p>
+            <p><strong>Sender Name:</strong> <span id="receiptSenderName"></span></p>
+            <p><strong>Amount:</strong> <span id="receiptAmount"></span></p>
+            <div id="receiptHoldDetails" hidden>
+    <p><strong>Hold Started:</strong> <span id="receiptHoldStart"></span></p>
+    <p><strong>Hold Deadline:</strong> <span id="receiptHoldDeadline"></span></p>
+    <p><strong>Remaining Time:</strong> <span id="receiptHoldRemaining"></span></p>
+</div>
+        </div>
+
+        <div class="receipt-image-container">
+            <img id="adminReceiptImage" alt="Customer Payment Receipt">
+        </div>
+
+        <div class="receipt-modal-actions">
+            <button type="button" id="verifyReceiptBtn">✓ Verify Payment</button>
+            <button type="button" id="holdReceiptBtn">
+    ⏳ Hold Payment
+</button>
+<button type="button" id="unresolvedReceiptBtn" hidden>
+    ⚠️ Mark Unresolved
+</button>
+            <button type="button" id="rejectReceiptBtn">✕ Reject Payment</button>
+        </div>
+    </div>
+</div>
 
 <script src="admin.js"></script>
 
