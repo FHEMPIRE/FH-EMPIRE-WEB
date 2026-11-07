@@ -324,6 +324,93 @@
   .fh-availability-panel { padding: 17px; }
   .fh-availability-actions { grid-template-columns: 1fr; }
 }
+/* FH EMPIRE — Professional Admin Order Cards */
+.admin-table-wrapper {
+    overflow-x: hidden !important;
+}
+
+.admin-table {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+}
+
+.admin-table thead {
+    display: none;
+}
+
+.admin-table tbody {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.admin-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    padding: 20px;
+    background: linear-gradient(145deg, #171717, #0c0c0c);
+    border: 1px solid #66501b;
+    border-radius: 15px;
+}
+
+.admin-table tbody td {
+    display: block;
+    min-width: 0;
+    padding: 8px;
+    border: none;
+    overflow-wrap: anywhere;
+}
+
+.admin-table tbody td::before {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: #a3a3a3;
+}
+
+.admin-table tbody td:nth-child(1)::before { content: "ORDER ID"; }
+.admin-table tbody td:nth-child(2)::before { content: "CUSTOMER"; }
+.admin-table tbody td:nth-child(3)::before { content: "WHATSAPP"; }
+.admin-table tbody td:nth-child(4)::before { content: "POPPO ID"; }
+.admin-table tbody td:nth-child(5)::before { content: "POPPO NAME"; }
+.admin-table tbody td:nth-child(6)::before { content: "ACCOUNT TYPE"; }
+.admin-table tbody td:nth-child(7)::before { content: "COINS"; }
+.admin-table tbody td:nth-child(8)::before { content: "AMOUNT"; }
+.admin-table tbody td:nth-child(9)::before { content: "PAYMENT METHOD"; }
+.admin-table tbody td:nth-child(10)::before { content: "ORDER STATUS"; }
+.admin-table tbody td:nth-child(11)::before { content: "MANAGE ORDER"; }
+
+.admin-table tbody td:last-child {
+    grid-column: 1 / -1;
+    border-top: 1px solid #4a3b18;
+    padding-top: 16px;
+}
+
+.admin-table tbody td:last-child select {
+    max-width: 240px;
+}
+
+#ordersTopScroll {
+    display: none !important;
+}
+
+@media (max-width: 750px) {
+    .admin-table tbody tr {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 14px;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-table tbody tr {
+        grid-template-columns: 1fr;
+    }
+}
 
 </style>
 
