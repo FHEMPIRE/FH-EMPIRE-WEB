@@ -411,7 +411,47 @@
         grid-template-columns: 1fr;
     }
 }
+/* Mobile order cards — compact layout */
+@media (max-width: 750px) {
+    .admin-table tbody tr {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 12px;
+        padding: 14px;
+    }
 
+    .admin-table tbody td {
+        padding: 6px 2px;
+        font-size: 13px;
+    }
+
+    .admin-table tbody td::before {
+        font-size: 10px;
+        margin-bottom: 4px;
+    }
+
+    .admin-table tbody td:last-child {
+        grid-column: 1 / -1;
+    }
+
+    #ordersPagination {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px !important;
+        margin: 15px 0 !important;
+    }
+
+    #ordersPageInfo {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        text-align: center;
+    }
+
+    #prevOrdersPage,
+    #nextOrdersPage {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
 </style>
 
 <style>
@@ -655,7 +695,7 @@ a[href="assistant-management.html"]:hover {
     </div>
 </div>
 
-<script src="admin.js"></script>
+<script src="admin.js?v=20261107-2"></script>
 
 </body>
 </html>
