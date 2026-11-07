@@ -226,12 +226,7 @@ if (!response.ok) {
 const ordersSnapshot = JSON.stringify(orders);
 const receiptsSnapshot = JSON.stringify(adminReceipts);
 
-if (
-    ordersSnapshot === lastAdminOrdersSnapshot &&
-    receiptsSnapshot === lastAdminReceiptsSnapshot
-) {
-    return;
-}
+
 
 lastAdminOrdersSnapshot = ordersSnapshot;
 lastAdminReceiptsSnapshot = receiptsSnapshot;
@@ -1019,6 +1014,7 @@ acceptWhatsappBtn?.addEventListener("click", async () => {
         `;
     }
 }
+
 const receiptModal = document.getElementById("receiptModal");
 const closeReceiptModal = document.getElementById("closeReceiptModal");
 
