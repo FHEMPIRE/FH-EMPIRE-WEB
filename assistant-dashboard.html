@@ -307,7 +307,153 @@ button:disabled {
 .fh-transfer-header {
   padding-right: 45px;
 }
+/* ==========================================
+   FH EMPIRE — PREMIUM MANUAL COINS SALE
+   ========================================== */
 
+#manualCoinsSaleCard {
+    background: linear-gradient(145deg, #141414, #0a0a0a);
+    border: 1px solid #55451c;
+    border-radius: 18px;
+    padding: 26px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.22);
+}
+
+#manualCoinsSaleCard h3 {
+    color: #ffcc33;
+    font-size: 21px;
+    font-weight: 800;
+    margin: 0 0 12px;
+}
+
+#manualCoinsSaleCard > p {
+    color: #aab0ba;
+    font-size: 13px;
+    margin: 0 0 22px;
+}
+
+#manualCoinsSaleForm {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px !important;
+    max-width: none !important;
+    width: 100%;
+}
+
+#manualCoinsSaleForm > div {
+    min-width: 0;
+}
+
+#manualCoinsSaleForm label {
+    display: block;
+    color: #d8d8d8;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+#manualCoinsSaleForm input,
+#manualCoinsSaleForm select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    padding: 0 14px;
+    background: #090909;
+    color: #ffffff;
+    border: 1px solid #48402c;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+#manualCoinsSaleForm input:focus,
+#manualCoinsSaleForm select:focus {
+    border-color: #ffcc33;
+    box-shadow: 0 0 0 3px rgba(255,204,51,.12);
+}
+
+#manualCoinsSaleForm input::placeholder {
+    color: #777;
+}
+
+#manualCoinsSaleForm > div:has(#manualSalePreview) {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg,#18150b,#0b0b0b) !important;
+    border: 1px solid #55451c !important;
+    border-radius: 12px !important;
+    padding: 18px !important;
+}
+
+#manualSalePreview {
+    color: #ffcc33 !important;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.8;
+    margin: 10px 0 0;
+}
+
+#saveManualCoinsSale {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg,#ffe17b,#d5a72a) !important;
+    color: #171100 !important;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .2s, opacity .2s;
+}
+
+#saveManualCoinsSale:not(:disabled):hover {
+    transform: translateY(-2px);
+}
+
+#saveManualCoinsSale:disabled {
+    opacity: .48;
+    cursor: not-allowed;
+}
+
+#manualSaleMessage {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Mobile responsive */
+@media (max-width: 650px) {
+    #manualCoinsSaleCard {
+        padding: 17px;
+        border-radius: 14px;
+    }
+
+    #manualCoinsSaleCard h3 {
+        font-size: 18px;
+    }
+
+    #manualCoinsSaleForm {
+        grid-template-columns: 1fr;
+        gap: 14px !important;
+    }
+
+    #manualCoinsSaleForm > div:has(#manualSalePreview),
+    #saveManualCoinsSale,
+    #manualSaleMessage {
+        grid-column: 1;
+    }
+
+    #manualCoinsSaleForm input,
+    #manualCoinsSaleForm select {
+        font-size: 16px;
+    }
+}
 </style>
 </head>
 
@@ -407,6 +553,75 @@ button:disabled {
         </p>
       </div>
 
+
+  <!-- FH EMPIRE — MANUAL COINS SALE -->
+<div class="card full" id="manualCoinsSaleCard">
+  <h3>🪙 Manual Coins Sale</h3>
+
+  <p style="color:#aab0ba;font-size:13px;line-height:1.6;">
+    Record coins sold directly on Poppo, outside the website.
+  </p>
+
+  <form id="manualCoinsSaleForm"
+        style="display:grid;gap:15px;max-width:520px;">
+
+    <div>
+      <label for="manualPoppoId">Customer Poppo ID</label>
+      <input id="manualPoppoId"
+             type="text"
+             inputmode="numeric"
+             placeholder="Enter customer Poppo ID"
+             required>
+    </div>
+
+    <div>
+      <label for="manualSaleType">Enter Sale By</label>
+      <select id="manualSaleType">
+        <option value="coins">Coins</option>
+        <option value="amount">Amount (PKR)</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="manualSaleValue">Coins Sold</label>
+      <input id="manualSaleValue"
+             type="number"
+             min="1"
+             step="1"
+             placeholder="Enter coins"
+             required>
+    </div>
+
+    <div style="background:#0b0b0b;
+                border:1px solid #403719;
+                border-radius:10px;
+                padding:15px;">
+
+      <div style="color:#aab0ba;font-size:12px;">
+        Sale Preview
+      </div>
+
+      <p id="manualSalePreview"
+         style="color:#ffcc33;font-weight:bold;">
+        Enter coins or amount to calculate sale.
+      </p>
+    </div>
+
+    <button id="saveManualCoinsSale"
+            type="submit"
+            disabled
+            style="background:linear-gradient(135deg,#ffdc70,#d7a72c);
+                   color:#171100;
+                   font-weight:800;">
+      ✅ Save Manual Sale
+    </button>
+
+    <p id="manualSaleMessage"
+       role="status"
+       style="font-size:13px;color:#aab0ba;"></p>
+
+  </form>
+</div>
 <div class="card full">
   <h3>📊 My Inventory</h3>
 
@@ -3608,5 +3823,234 @@ document.getElementById("historyStatus")
 </script>
 
 <script src="fh-assistant-commission-invoice.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const form = document.getElementById("manualCoinsSaleForm");
+  if (!form) return;
+
+  const poppo = document.getElementById("manualPoppoId");
+  const type = document.getElementById("manualSaleType");
+  const input = document.getElementById("manualSaleValue");
+  const preview = document.getElementById("manualSalePreview");
+  const save = document.getElementById("saveManualCoinsSale");
+  const message = document.getElementById("manualSaleMessage");
+
+  const MAX_AMOUNT = 10000000;
+  let calculation = null;
+  let submitting = false;
+  let pendingManualSaleRequestId = null;
+
+  const format = n => Number(n).toLocaleString("en-PK");
+
+  // Exact website custom amount formula
+  function coinsForAmount(amount) {
+    if (!Number.isSafeInteger(amount) ||
+        amount < 250 || amount > MAX_AMOUNT) {
+      return null;
+    }
+
+    const blocks = Math.floor(amount / 1500);
+    const remaining = amount % 1500;
+
+    return blocks * 50000 + remaining * 32;
+  }
+
+  // Find an exact matching PKR amount for coins
+  function amountForCoins(coins) {
+    if (!Number.isSafeInteger(coins) || coins <= 0) {
+      return null;
+    }
+
+    let low = 250;
+    let high = MAX_AMOUNT;
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const result = coinsForAmount(mid);
+
+      if (result === coins) return mid;
+
+      if (result < coins) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    return null;
+  }
+
+  function updatePreview() {
+    calculation = null;
+    save.disabled = true;
+
+    const value = Number(input.value);
+    const id = poppo.value.trim();
+
+    if (!input.value || !Number.isSafeInteger(value)) {
+      preview.textContent = "Enter a valid whole number.";
+      return;
+    }
+
+    let coins, amount;
+
+    if (type.value === "amount") {
+      amount = value;
+      coins = coinsForAmount(amount);
+    } else {
+      coins = value;
+      amount = amountForCoins(coins);
+    }
+
+    if (coins === null || amount === null) {
+      preview.textContent =
+        "No exact website price match. Minimum Rs. 250.";
+      return;
+    }
+
+    const availableText =
+      document.getElementById("invAvailable")
+        ?.textContent || "";
+
+    const available = Number(
+      availableText.replace(/,/g, "")
+    );
+
+    if (Number.isFinite(available) &&
+        availableText.trim() !== "—" &&
+        coins > available) {
+      preview.textContent = "Insufficient available coins.";
+      return;
+    }
+
+    const commission = coins * 30 / 100000;
+
+    preview.innerHTML = `
+      <div>Coins: ${format(coins)}</div>
+      <div>Amount: Rs. ${format(amount)}</div>
+      <div style="color:#4ade80;margin-top:8px">
+        Estimated Commission: Rs. ${commission.toFixed(2)}
+      </div>
+    `;
+
+    if (/^\d{4,20}$/.test(id) && !submitting) {
+      calculation = { coins, amount };
+      save.disabled = false;
+    }
+  }
+
+  type.addEventListener("change", () => {
+    input.value = "";
+    input.placeholder = type.value === "coins"
+      ? "Enter coins"
+      : "Enter amount in PKR";
+
+    const label = document.querySelector(
+      'label[for="manualSaleValue"]'
+    );
+
+    if (label) {
+      label.textContent = type.value === "coins"
+        ? "Coins Sold"
+        : "Sale Amount (PKR)";
+    }
+
+    updatePreview();
+  });
+
+  input.addEventListener("input", updatePreview);
+  poppo.addEventListener("input", updatePreview);
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    if (submitting) return;
+
+    updatePreview();
+    if (!calculation) return;
+
+    const { coins, amount } = calculation;
+    if (!pendingManualSaleRequestId) {
+  pendingManualSaleRequestId = crypto.randomUUID();
+}
+    const customerId = poppo.value.trim();
+
+    if (!confirm(
+      `Confirm Manual Sale?\n\n` +
+      `Poppo ID: ${customerId}\n` +
+      `Coins: ${format(coins)}\n` +
+      `Amount: Rs. ${format(amount)}\n\n` +
+      `Coins will be deducted immediately.`
+    )) return;
+
+    submitting = true;
+    save.disabled = true;
+    message.textContent = "Saving manual sale...";
+
+    try {
+      if (!pendingManualSaleRequestId) {
+    pendingManualSaleRequestId = crypto.randomUUID();
+}
+      const token = sessionStorage.getItem(
+        "fh_assistant_access_token"
+      );
+
+      if (!token) {
+        throw new Error("Please login again.");
+      }
+
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/rpc/fh_create_assistant_manual_sale`,
+        {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            p_poppo_id: customerId,
+            p_coins: coins,
+           p_amount: amount,
+p_request_id: pendingManualSaleRequestId
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+          error.message || "Unable to save manual sale."
+        );
+      }
+
+      const reference = await response.json();
+
+      message.style.color = "#4ade80";
+      message.textContent =
+        `Manual Sale Saved! Reference: ${reference}`;
+pendingManualSaleRequestId = null;
+      form.reset();
+
+      // Refresh inventory, finance and commission displays
+      window.location.reload();
+
+    } catch (error) {
+      message.style.color = "#f87171";
+      message.textContent =
+        error.message || "Manual sale could not be confirmed.";
+
+      // Do not automatically retry a financial transaction.
+    } finally {
+      submitting = false;
+      updatePreview();
+    }
+  });
+
+  updatePreview();
+})();
+</script>
 </body>
 </html>
