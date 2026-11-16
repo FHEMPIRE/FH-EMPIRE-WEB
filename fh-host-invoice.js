@@ -199,15 +199,42 @@ const giftRows = (data.gifts || [])
             </tr>
           </thead>
           <tbody>
-            <tr><td>Monthly Salary</td><td class="num">${rs(data.salary)}</td></tr>
-            
-<tr><td>Gross Settlement Payable</td><td class="num">${rs(data.grossPayable)}</td></tr>
-<tr><td>Host Deduction</td><td class="num" style="color:#b42336;">− ${rs(data.hostDeduction)}</td></tr>
+ 
+<tr>
+  <td>Monthly Salary</td>
+  <td class="num">${rs(data.salary)}</td>
+</tr>
 
-            <tr><td>External Gifts / Other Settlement Amount</td><td class="num">${rs(data.externalGifts)}</td></tr>
-            <tr class="total"><td>Total Payable</td><td class="num">${rs(data.totalPayable)}</td></tr>
-            <tr><td>Total Paid</td><td class="num">${rs(data.totalPaid)}</td></tr>
-            <tr class="total balance"><td>Remaining Balance</td><td class="num">${rs(data.remaining)}</td></tr>
+<tr>
+  <td>Host Deduction</td>
+  <td class="num">− ${rs(data.hostDeduction)}</td>
+</tr>
+
+<tr>
+  <td>External Gifts</td>
+  <td class="num">${rs(data.externalGifts)}</td>
+</tr>
+
+<tr>
+  <td>Other Settlement Amount</td>
+  <td class="num">${rs(data.otherAmount)}</td>
+</tr>
+
+<tr class="total">
+  <td>Total Confirmed Payable</td>
+  <td class="num">${rs(data.totalPayable)}</td>
+</tr>
+
+<tr>
+  <td>Payments This Month</td>
+  <td class="num">${rs(data.totalPaid)}</td>
+</tr>
+
+<tr class="total balance">
+  <td>All-Time Outstanding Balance</td>
+  <td class="num">${rs(data.allTimeRemaining)}</td>
+</tr>
+
           </tbody>
         </table>
 
