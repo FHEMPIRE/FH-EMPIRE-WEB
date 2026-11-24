@@ -1152,6 +1152,39 @@ document.getElementById("fhCalculateWithdrawal")
       return;
     }
 
+// FH EMPIRE — Reset payment status on recalculation
+const paymentStatus =
+  document.getElementById("fhWithdrawalPaymentStatus");
+
+const paidAmountInput =
+  document.getElementById("fhWithdrawalPaidAmount");
+
+if (paymentStatus) {
+  const unpaidOption = [...paymentStatus.options].find(
+    option => /unpaid|pending/i.test(
+      option.value + " " + option.textContent
+    )
+  );
+
+  if (unpaidOption) {
+    paymentStatus.value = unpaidOption.value;
+    paymentStatus.dispatchEvent(
+      new Event("change", { bubbles: true })
+    );
+  }
+}
+
+if (paidAmountInput) {
+  paidAmountInput.value = "0.00";
+}
+
+const withdrawalMessage =
+  document.getElementById("fhWithdrawalUpdateMessage");
+
+if (withdrawalMessage) {
+  withdrawalMessage.textContent = "";
+}
+
     result.textContent = "⏳ Calculating withdrawal...";
     result.style.color = "#fff";
 
