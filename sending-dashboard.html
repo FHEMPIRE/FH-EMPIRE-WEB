@@ -3936,7 +3936,7 @@ function calculateDashboardNormalCoins(sending) {
   return normalCoins;
 }
 
-function calculateDashboardRewards() {
+function calculateDashboardRewards(allTime = false) {
   const filtered = getFilteredRecords();
   const hostDates = new Map();
 
@@ -3956,7 +3956,7 @@ function calculateDashboardRewards() {
   });
 
   // Report period ki boundaries.
-  const period = periodFilter.value;
+  const period = allTime ? "all" : periodFilter.value;
   const today = getPoppoToday();
 
   const firstDate = originalRecords
@@ -3987,7 +3987,7 @@ function calculateDashboardRewards() {
     to = endDate.value || lastDate;
   }
 
-  const selectedType = hostTypeFilter.value;
+  const selectedType = allTime ? "all" : hostTypeFilter.value;
 
   // Har eligible host ke liye har calendar date check.
   if (from && to && from <= to) {
@@ -4089,7 +4089,267 @@ totalRewardCoins
   };
 }
 
-   function renderDashboard() {
+function calculateFIFOSales() {
+  const lots = [];
+
+  // Normal coins inventory
+  originalRecords.forEach((record, index) => {
+    const normalCoins = Math.round(
+      calculateDashboardNormalCoins(
+        Number(record.sending || 0)
+      )
+    );
+
+    const oldSold = Number(record.coinsSold || 0);
+const inventoryAdjustment = Math.max(
+  0, oldSold - normalCoins
+);
+    lots.push({
+      id: `normal-${index}`,
+      date: String(record.date || "").slice(0, 10),
+      hostType: String(record.hostType || "").toLowerCase(),
+      source: "normal",
+      totalCoins: normalCoins,
+inventoryAdjustment: inventoryAdjustment,
+      remaining: Math.max(0, normalCoins - oldSold),
+      sold: oldSold,
+      revenue: Number(record.saleAmount || 0)
+    });
+  });
+
+  // All Time reward inventory
+  const allRewards = calculateDashboardRewards(true);
+
+  allRewards.weeklyWithdrawals.forEach((week, index) => {
+    const weekStart = String(week.weekStart).slice(0, 10);
+    const weekEnd = shiftDate(weekStart, 6);
+
+    const dailyRewards = allRewards.hostRewards.filter(item =>
+      String(item.hostId) === String(week.hostId) &&
+      item.date >= weekStart &&
+      item.date <= weekEnd
+    );
+
+    const totalPoints = dailyRewards.reduce(
+      (sum, item) => sum + Number(item.rewardPoints || 0),
+      0
+    );
+
+    const host = originalRecords.find(record =>
+      String(record.hostId) === String(week.hostId)
+    );
+
+    let remainingCoins = Math.round(Number(week.coins || 0));
+
+    dailyRewards.forEach((item, dailyIndex) => {
+      const coins = dailyIndex === dailyRewards.length - 1
+        ? remainingCoins
+        : Math.min(
+            remainingCoins,
+            totalPoints > 0
+              ? Math.round(
+                  Number(week.coins || 0) *
+                  Number(item.rewardPoints || 0) /
+                  totalPoints
+                )
+              : 0
+          );
+
+      remainingCoins -= coins;
+
+      if (coins <= 0) return;
+
+      lots.push({
+        id: `reward-${index}-${dailyIndex}`,
+        date: item.date,
+        hostType: String(host?.hostType || "").toLowerCase(),
+        source: "reward",
+        totalCoins: coins,
+        remaining: coins,
+        sold: 0,
+        revenue: 0
+      });
+    });
+  });
+
+  // Oldest inventory first
+  lots.sort((a, b) => a.date.localeCompare(b.date));
+// Reconcile historical excess sales from common inventory
+const historicalAdjustments = lots
+  .filter(lot => Number(lot.inventoryAdjustment || 0) > 0)
+  .map(lot => ({
+    lot,
+    coins: Number(lot.inventoryAdjustment)
+  }));
+
+let unresolvedHistoricalCoins = 0;
+
+historicalAdjustments.forEach(({ lot, coins }) => {
+  let remaining = coins;
+
+  for (const source of lots) {
+    if (remaining <= 0) break;
+    if (source === lot) continue;
+    if (source.remaining <= 0) continue;
+    if (source.date > lot.date) continue;
+
+    const allocated = Math.min(
+      source.remaining,
+      remaining
+    );
+
+    const revenue =
+      lot.sold > 0
+        ? lot.revenue * allocated / lot.sold
+        : 0;
+
+    source.remaining -= allocated;
+    source.sold += allocated;
+    source.revenue += revenue;
+
+    lot.sold -= allocated;
+    lot.revenue -= revenue;
+    lot.inventoryAdjustment -= allocated;
+
+    remaining -= allocated;
+  }
+
+  unresolvedHistoricalCoins += remaining;
+});
+
+console.log(
+  "FH HISTORICAL UNRESOLVED COINS",
+  unresolvedHistoricalCoins
+);
+  // Oldest manual sale first
+  const sales = [...manualCoinsSales].sort((a, b) =>
+    String(a.sale_date).localeCompare(String(b.sale_date)) ||
+    String(a.created_at).localeCompare(String(b.created_at))
+  );
+
+  let unallocatedCoins = 0;
+  let unallocatedRevenue = 0;
+
+  sales.forEach(sale => {
+    const quantity = Number(sale.coins_sold || 0);
+    const amount = Number(sale.sale_amount || 0);
+
+    if (quantity <= 0) return;
+
+    let remainingSale = quantity;
+    let remainingRevenue = amount;
+
+    for (const lot of lots) {
+      if (remainingSale <= 0) break;
+      if (lot.remaining <= 0) continue;
+
+     
+
+      const allocated = Math.min(
+        lot.remaining,
+        remainingSale
+      );
+
+      const revenue = allocated === remainingSale
+        ? remainingRevenue
+        : amount * allocated / quantity;
+
+      lot.remaining -= allocated;
+      lot.sold += allocated;
+      lot.revenue += revenue;
+
+      remainingSale -= allocated;
+      remainingRevenue -= revenue;
+    }
+
+    unallocatedCoins += remainingSale;
+    unallocatedRevenue += remainingRevenue;
+  });
+
+  return {
+    lots,
+    unallocatedCoins,
+    unallocatedRevenue
+  };
+}
+
+function getFilteredFIFO() {
+  const fifo = calculateFIFOSales();
+
+  const today = getPoppoToday();
+  const period = periodFilter.value;
+  const type = hostTypeFilter.value;
+
+  let from = "";
+  let to = "";
+
+  if (period === "today") {
+    from = today;
+    to = today;
+  } else if (period === "week") {
+    from = shiftDate(today, -6);
+    to = today;
+  } else if (period === "month") {
+    from = today.slice(0, 7) + "-01";
+    to = today;
+  } else if (period === "custom") {
+    from = startDate.value;
+    to = endDate.value;
+  }
+
+  const filtered = fifo.lots.filter(lot => {
+    if (type !== "all" && lot.hostType !== type) {
+      return false;
+    }
+
+    if (from && lot.date < from) return false;
+    if (to && lot.date > to) return false;
+
+    return true;
+  });
+
+  const sum = (items, key) =>
+    items.reduce(
+      (total, item) => total + Number(item[key] || 0),
+      0
+    );
+
+  const normalLots = filtered.filter(
+    lot => lot.source === "normal"
+  );
+
+  const rewardLots = filtered.filter(
+    lot => lot.source === "reward"
+  );
+
+  const normalCoins = sum(normalLots, "totalCoins");
+  const rewardCoins = sum(rewardLots, "totalCoins");
+
+  const coinsSold = sum(filtered, "sold");
+  const salesRevenue = sum(filtered, "revenue");
+
+  const inventoryAdjustment = sum(
+    filtered,
+    "inventoryAdjustment"
+  );
+
+  const estimatedBalance =
+    normalCoins + rewardCoins - coinsSold;
+
+  return {
+    normalCoins,
+    rewardCoins,
+    totalInventory: normalCoins + rewardCoins,
+    salesRevenue,
+    coinsSold,
+    inventoryAdjustment,
+    estimatedBalance,
+    unsoldCoins: sum(filtered, "remaining"),
+    unallocatedCoins: fifo.unallocatedCoins,
+    unallocatedRevenue: fifo.unallocatedRevenue
+  };
+}
+function renderDashboard() {
   records = getFilteredRecords();
 
 const reward = calculateDashboardRewards();
@@ -4166,24 +4426,14 @@ document.getElementById("rewardCountedDays").textContent =
   const agencyShareUSD = agencySharePoints / 10000;
   const purchaseCost = sum("purchaseCost");
 // Existing sending-record sales
-const recordedSalesRevenue = sum("saleAmount");
-const recordedCoinsSold = sum("coinsSold");
+const fifo = getFilteredFIFO();
 
-// Manual coins sales from Supabase
-const manualSalesRevenue = manualCoinsSales.reduce(
-  (total, sale) => total + Number(sale.sale_amount || 0),
-  0
-);
+const salesRevenue = fifo.salesRevenue;
+const coinsSold = fifo.coinsSold;
 
-const manualCoinsSold = manualCoinsSales.reduce(
-  (total, sale) => total + Number(sale.coins_sold || 0),
-  0
-);
-
-// Combined totals
-const salesRevenue = recordedSalesRevenue + manualSalesRevenue;
-const coinsSold = recordedCoinsSold + manualCoinsSold;
-
+console.log("FH EMPIRE FIFO REPORT", fifo);
+document.getElementById("rewardCoins").textContent =
+  fmt(Math.round(fifo.rewardCoins)) + " coins";
 const totalNormalCoins = records.reduce(
   (total, record) => {
     const sending = Number(record.sending || 0);
@@ -4193,7 +4443,7 @@ const totalNormalCoins = records.reduce(
   0
 );
 document.getElementById("normalCoins").textContent =
-  fmt(Math.round(totalNormalCoins)) + " coins";
+  fmt(Math.round(fifo.normalCoins)) + " coins";
   document.getElementById("totalSending").textContent =
     fmt(totalSending) + " coins";
 
@@ -4227,11 +4477,7 @@ document.getElementById("agencyShare").innerHTML =
   }) +
   " USD</div>";
 
-const estimatedUnsoldCoins =
-  totalNormalCoins +
-  reward.totalRewardCoins -
-  coinsSold;
-
+const estimatedUnsoldCoins = fifo.estimatedBalance;
 document.getElementById("unsoldCoins").textContent =
   fmt(Math.round(estimatedUnsoldCoins)) + " coins (Est.)";
 
