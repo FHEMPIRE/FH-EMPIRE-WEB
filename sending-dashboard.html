@@ -509,7 +509,62 @@
     <strong class="value" id="rewardCountedDays">—</strong>
   </div>
 </div>
+<h2 class="section-title">
+  &#128200; Net Profit Overview
+</h2>
 
+<div class="cards">
+
+  <div class="metric">
+    <span class="name">Trading Cash Difference</span>
+    <strong class="value gold" id="profitTrading">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Gross Salary Expense</span>
+    <strong class="value red" id="profitGrossSalary">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Approved Salary Deductions</span>
+    <strong class="value green" id="profitDeductions">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Net Salary Expense</span>
+    <strong class="value red" id="profitNetSalary">—</strong>
+  </div>
+
+  <div class="metric">
+    <span class="name">Half-Half Host Payable (Separate)</span>
+    <strong class="value" id="profitHalfHalf">—</strong>
+    <div style="font-size:11px;color:#aaa;margin-top:6px;">
+      Host share excluded from estimated inventory
+    </div>
+  </div>
+
+  <div class="metric"
+       style="border:1px solid #d4af37;
+              background:linear-gradient(135deg,#201c10,#111);">
+
+    <span class="name">Estimated Net Profit</span>
+
+    <strong class="value green"
+            id="finalNetProfit"
+            style="font-size:24px;">—</strong>
+
+    <div id="finalProfitMargin"
+         style="font-size:12px;color:#d4af37;margin-top:6px;">
+      —
+    </div>
+
+    <div style="font-size:10px;color:#aaa;margin-top:6px;">
+      Before other expenses
+    </div>
+
+  </div>
+
+</div>
    <h2 class="section-title">&#128176; Coins Inventory</h2>
     <div class="cards">
       <div class="metric"><span class="name">Coins Sold (Recorded)</span><strong class="value green" id="coinsSold">—</strong></div>
@@ -4481,24 +4536,262 @@ const estimatedUnsoldCoins = fifo.estimatedBalance;
 document.getElementById("unsoldCoins").textContent =
   fmt(Math.round(estimatedUnsoldCoins)) + " coins (Est.)";
 
-  const salaryMonth = getPoppoToday().slice(0, 7);
+  // FH EMPIRE — Period Based Salary Expenses
 
-const grossSalary = salaryBaseHosts.length * 5000;
+const salaryToday = getPoppoToday();
+const salaryPeriod = periodFilter.value;
+const salaryType = hostTypeFilter.value;
 
-const approvedDeductions = salaryBaseHosts.reduce((total, host) => {
-  const hostDeduction = allRewardRecords
-    .filter(r =>
-      String(r.hostId) === String(host.id) &&
-      String(r.date || "").slice(0, 7) === salaryMonth &&
-      r.deductionApproved === true &&
-      String(r.deductionReason || "").toLowerCase() === "host"
-    )
-    .reduce((sum, r) => sum + Number(r.deductionAmount || 0), 0);
+const salaryHistory = (settlementData.settlements || [])
+  .filter(s =>
+    String(s.host_type).toLowerCase() === "salarybase" &&
+    String(s.status).toLowerCase() === "confirmed"
+  );
 
-  return total + Math.min(2500, hostDeduction);
-}, 0);
+const salaryDates = [
+  ...originalRecords.map(r =>
+    String(r.date || "").slice(0, 10)
+  ),
+  ...salaryHistory.map(s =>
+    String(s.period_start || "").slice(0, 10)
+  )
+].filter(Boolean).sort();
 
-const netSalary = Math.max(0, grossSalary - approvedDeductions);
+let salaryFrom = salaryDates[0] || salaryToday;
+let salaryTo = salaryToday;
+
+if (salaryPeriod === "today") {
+  salaryFrom = salaryToday;
+} else if (salaryPeriod === "week") {
+  salaryFrom = shiftDate(salaryToday, -6);
+} else if (salaryPeriod === "month") {
+  salaryFrom = salaryToday.slice(0, 7) + "-01";
+} else if (salaryPeriod === "custom") {
+  salaryFrom = startDate.value || salaryFrom;
+  salaryTo = endDate.value || salaryToday;
+}
+
+salaryTo = salaryTo > salaryToday
+  ? salaryToday
+  : salaryTo;
+
+let grossSalary = 0;
+let approvedDeductions = 0;
+
+if (
+  salaryType === "all" ||
+  salaryType === "salarybase"
+) {
+  for (
+    let month = salaryFrom.slice(0, 7) + "-01";
+    month <= salaryTo;
+  ) {
+    const year = Number(month.slice(0, 4));
+    const monthNumber = Number(month.slice(5, 7));
+
+    const daysInMonth = new Date(
+      Date.UTC(year, monthNumber, 0)
+    ).getUTCDate();
+
+    const monthEnd =
+      month.slice(0, 7) + "-" +
+      String(daysInMonth).padStart(2, "0");
+
+    const monthKey = month.slice(0, 7);
+
+    const confirmed = salaryHistory.filter(s =>
+      String(s.period_start).slice(0, 7) === monthKey
+    );
+
+    const confirmedIds = new Set(
+      confirmed.map(s => String(s.host_poppo_id))
+    );
+
+    // Confirmed historical salaries
+    confirmed.forEach(s => {
+      const periodStart = String(s.period_start);
+      const periodEnd = String(s.period_end);
+
+      let totalDays = 0;
+      let selectedDays = 0;
+
+      for (
+        let date = periodStart;
+        date <= periodEnd;
+        date = shiftDate(date, 1)
+      ) {
+        totalDays++;
+
+        if (
+          date >= salaryFrom &&
+          date <= salaryTo
+        ) {
+          selectedDays++;
+        }
+      }
+
+      const ratio = totalDays > 0
+        ? selectedDays / totalDays
+        : 0;
+
+      grossSalary +=
+        Number(s.gross_payable_pkr || 0) * ratio;
+
+      approvedDeductions +=
+        Number(s.deduction_pkr || 0) * ratio;
+    });
+
+    // Estimated salaries for unconfirmed hosts
+    salaryBaseHosts.forEach(host => {
+      const hostId = String(host.id);
+
+      if (confirmedIds.has(hostId)) return;
+
+      const joiningDate = String(
+        host.joining_date || ""
+      ).slice(0, 10);
+
+      if (!joiningDate) return;
+      if (joiningDate > monthEnd) return;
+
+      let selectedDays = 0;
+
+      for (
+        let date = month;
+        date <= monthEnd;
+        date = shiftDate(date, 1)
+      ) {
+        if (
+          date >= joiningDate &&
+          date >= salaryFrom &&
+          date <= salaryTo
+        ) {
+          selectedDays++;
+        }
+      }
+
+      if (selectedDays === 0) return;
+
+      const hostGross =
+        5000 * selectedDays / daysInMonth;
+
+      grossSalary += hostGross;
+
+      let monthlyDeduction = 0;
+      let selectedDeduction = 0;
+
+      const deductions = allRewardRecords
+        .filter(r =>
+          String(r.hostId) === hostId &&
+          String(r.date || "").slice(0, 7) === monthKey &&
+          String(r.date || "").slice(0, 10) >= joiningDate &&
+          String(r.date || "").slice(0, 10) <= salaryToday &&
+          r.deductionApproved === true &&
+          String(r.deductionReason || "")
+            .toLowerCase() === "host"
+        )
+        .sort((a, b) =>
+          String(a.date).localeCompare(String(b.date))
+        );
+
+      deductions.forEach(r => {
+        const amount = Math.min(
+          1000,
+          Math.max(0, Number(r.deductionAmount || 0)),
+          Math.max(0, 2500 - monthlyDeduction)
+        );
+
+        monthlyDeduction += amount;
+
+        const date = String(r.date).slice(0, 10);
+
+        if (
+          date >= salaryFrom &&
+          date <= salaryTo
+        ) {
+          selectedDeduction += amount;
+        }
+      });
+
+      approvedDeductions += Math.min(
+        hostGross,
+        selectedDeduction
+      );
+    });
+
+    month = shiftDate(monthEnd, 1);
+  }
+}
+
+const netSalary = Math.max(
+  0,
+  grossSalary - approvedDeductions
+);
+// FH EMPIRE — Net Profit Overview
+
+const profitTradingDifference =
+  salesRevenue - purchaseCost;
+
+const estimatedNetProfit =
+  profitTradingDifference - netSalary;
+
+const estimatedProfitMargin =
+  salesRevenue > 0
+    ? (estimatedNetProfit / salesRevenue) * 100
+    : 0;
+
+document.getElementById("profitTrading").textContent =
+  money(profitTradingDifference);
+
+document.getElementById("profitGrossSalary").textContent =
+  money(grossSalary);
+
+document.getElementById("profitDeductions").textContent =
+  money(approvedDeductions);
+
+document.getElementById("profitNetSalary").textContent =
+  money(netSalary);
+
+document.getElementById("profitHalfHalf").textContent =
+  money(totalHalfHalfPayable);
+
+const profitElement =
+  document.getElementById("finalNetProfit");
+
+profitElement.textContent =
+  money(estimatedNetProfit);
+
+profitElement.style.color =
+  estimatedNetProfit < 0
+    ? "#fb7185"
+    : estimatedNetProfit > 0
+      ? "#4ade80"
+      : "#facc15";
+
+document.getElementById("finalProfitMargin").textContent =
+  "Profit Margin: " +
+  estimatedProfitMargin.toFixed(2) + "%";
+
+console.log("FH NET PROFIT REPORT", {
+  from: salaryFrom,
+  to: salaryTo,
+  salesRevenue,
+  purchaseCost,
+  tradingDifference: profitTradingDifference,
+  grossSalary,
+  approvedDeductions,
+  netSalary,
+  halfHalfPayable: totalHalfHalfPayable,
+  estimatedNetProfit,
+  estimatedProfitMargin
+});
+console.log("FH SALARY EXPENSE REPORT", {
+  from: salaryFrom,
+  to: salaryTo,
+  grossSalary,
+  approvedDeductions,
+  netSalary
+});
 
 document.getElementById("salaryPayouts").innerHTML =
   money(netSalary) +
