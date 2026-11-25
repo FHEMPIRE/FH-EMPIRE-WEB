@@ -875,13 +875,318 @@ function calculateWithdrawalFee(usd) {
 
   return usd >= 65 ? 1 : usd * 0.015;
 }
+// FH EMPIRE — Persistent Optimizer Save Batch
 
-function runMaximumProfitOptimizer() {
-  const available = optimizerNumber("optimizerAvailableSending");
+const FH_OPTIMIZER_BATCH_KEY =
+  "fh_optimizer_pending_batch_v1";
+
+let fhOptimizerSaving = false;
+
+function fhGetPendingOptimizerBatch() {
+
+  const raw = localStorage.getItem(
+    FH_OPTIMIZER_BATCH_KEY
+  );
+
+  if (!raw) return null;
+
+  const batch = JSON.parse(raw);
+
+  if (
+    !batch.id ||
+    !batch.signature ||
+    !Array.isArray(batch.entries) ||
+    !batch.entries.length
+  ) {
+    throw new Error("Invalid pending sending batch.");
+  }
+
+  return batch;
+}
+
+function fhCreateOptimizerBatch(
+  entries,
+  date,
+  purchaseRate
+) {
+
+  const sorted = [...entries].sort(
+    (a, b) => String(a.host.id).localeCompare(
+      String(b.host.id)
+    )
+  );
+
+  const signature = JSON.stringify({
+    date,
+    purchaseRate,
+    hosts: sorted.map(entry => ({
+      id: String(entry.host.id),
+      sending: entry.actual
+    }))
+  });
+
+  const pending = fhGetPendingOptimizerBatch();
+
+  if (pending) {
+
+    if (pending.signature !== signature) {
+      throw new Error(
+        "An earlier sending batch is pending. " +
+        "Verify that batch before saving a new plan."
+      );
+    }
+
+    return pending;
+  }
+
+  const batch = {
+    id: crypto.randomUUID(),
+    signature,
+    createdAt: new Date().toISOString(),
+
+    entries: sorted.map(entry => ({
+
+      host: {
+        id: entry.host.id,
+        name: entry.host.name,
+        type: entry.host.type
+      },
+
+      record: {
+        id: crypto.randomUUID(),
+        hostId: entry.host.id,
+        date,
+        sending: entry.actual,
+        purchaseRate,
+        purchaseCost:
+          entry.actual / 100000 * purchaseRate,
+        saleStatus: "unsold",
+        coinsSold: 0,
+        sellingRate: 0,
+        saleAmount: 0
+      }
+    }))
+  };
+
+  localStorage.setItem(
+    FH_OPTIMIZER_BATCH_KEY,
+    JSON.stringify(batch)
+  );
+
+  return batch;
+}
+
+function fhClearPendingOptimizerBatch(batchId) {
+
+  const pending = fhGetPendingOptimizerBatch();
+
+  if (pending && pending.id === batchId) {
+
+    localStorage.removeItem(
+      FH_OPTIMIZER_BATCH_KEY
+    );
+  }
+}
+// FH EMPIRE — Pending Batch Recovery
+
+async function fhRecoverPendingOptimizerBatch() {
+
+  if (fhOptimizerSaving) return;
+
+  let batch;
+
+  try {
+    batch = fhGetPendingOptimizerBatch();
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+
+  if (!batch) {
+    alert("No pending sending batch found.");
+    return;
+  }
+
+  const total = batch.entries.reduce(
+    (sum, entry) => sum + entry.record.sending,
+    0
+  );
+
+  const approved = window.confirm(
+    "FH EMPIRE — Pending Sending Recovery\n\n" +
+    "Poppo Date: " +
+    batch.entries[0].record.date + "\n" +
+    "Hosts: " + batch.entries.length + "\n" +
+    "Total Sending: " +
+    total.toLocaleString("en-US") + "\n\n" +
+    "Confirm only if this sending was actually completed.\n\n" +
+    "Recover and verify these records?"
+  );
+
+  if (!approved) return;
+
+  fhOptimizerSaving = true;
+  optimizerButton.disabled = true;
+
+  optimizerResult.textContent =
+    "Recovering pending sending records...";
+
+  try {
+
+    await fhSaveBulkSendingRecords(
+      batch.entries
+    );
+
+    const verification =
+      await fhVerifyBulkSendingRecords(
+        batch.entries
+      );
+
+    save(verification.records);
+
+    renderHistory();
+
+    fhClearPendingOptimizerBatch(batch.id);
+
+    optimizerResult.textContent =
+      "✓ Successfully recovered and verified " +
+      verification.count + " sending records.";
+
+    showMessage(
+      "✓ Pending sending batch recovered successfully."
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    optimizerResult.textContent =
+      "Recovery failed: " + error.message +
+      ". Pending records are preserved.";
+
+  } finally {
+
+    fhOptimizerSaving = false;
+    optimizerButton.disabled = false;
+
+    fhRenderPendingOptimizerNotice();
+  }
+}
+
+function fhRenderPendingOptimizerNotice() {
+
+  document.getElementById(
+    "fhPendingOptimizerNotice"
+  )?.remove();
+
+  let batch;
+
+  try {
+
+    batch = fhGetPendingOptimizerBatch();
+
+  } catch (error) {
+
+    optimizerButton.disabled = true;
+
+    optimizerResult.textContent =
+      error.message;
+
+    return;
+  }
+
+  if (!batch) return;
+
+  const notice = document.createElement("div");
+
+  notice.id = "fhPendingOptimizerNotice";
+
+  notice.style.cssText = `
+    background:#292010;
+    border:1px solid #d4af37;
+    color:#fbbf24;
+    padding:16px;
+    border-radius:10px;
+    margin:15px 0;
+  `;
+
+  const title = document.createElement("strong");
+
+  title.textContent =
+    "⚠ PENDING SENDING BATCH";
+
+  const description = document.createElement("p");
+
+  description.textContent =
+    "An earlier sending batch requires verification. " +
+    "Recover it before creating another plan.";
+
+  const recoverButton = document.createElement("button");
+
+  recoverButton.type = "button";
+
+  recoverButton.textContent =
+    "Recover & Verify Pending Records";
+
+  recoverButton.style.cssText = `
+    background:#d4af37;
+    color:#111;
+    border:0;
+    padding:12px 18px;
+    border-radius:7px;
+    font-weight:bold;
+    cursor:pointer;
+  `;
+
+  recoverButton.addEventListener(
+    "click",
+    fhRecoverPendingOptimizerBatch
+  );
+
+  notice.append(
+    title,
+    description,
+    recoverButton
+  );
+
+  optimizerResult.before(notice);
+}
+
+  function runMaximumProfitOptimizer() {
+
+  if (fhOptimizerSaving) return;
+
+  try {
+
+    if (fhGetPendingOptimizerBatch()) {
+
+      fhRenderPendingOptimizerNotice();
+
+      return;
+    }
+
+  } catch (error) {
+
+    optimizerResult.textContent =
+      error.message;
+
+    return;
+  }
+
+ 
+  const rawAvailable = String(
+  $("optimizerAvailableSending")?.value || ""
+).trim();
+
+const autoMode = rawAvailable === "";
+
+let available = optimizerNumber(
+  "optimizerAvailableSending"
+);
   const purchaseRate = optimizerNumber("optimizerPurchaseRate");
   const sellingRate = optimizerNumber("optimizerSellingRate");
 
-  const STEP = 10000;
+
   const fmt = n => Math.round(n).toLocaleString("en-US");
   const money = n => Number(n).toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -889,9 +1194,11 @@ function runMaximumProfitOptimizer() {
   });
 
   if (
-    !Number.isSafeInteger(available) ||
-    available < STEP ||
-    available % STEP !== 0 ||
+    (!autoMode && (
+  !Number.isSafeInteger(available) ||
+  available < 10000 ||
+  available % 10000 !== 0
+)) ||
     !Number.isFinite(purchaseRate) ||
     purchaseRate <= 0 ||
     !Number.isFinite(sellingRate) ||
@@ -913,13 +1220,7 @@ const savedHosts = hosts().filter(h =>
     return;
   }
 
-  const units = available / STEP;
-
-  if (units > 3000) {
-  optimizerResult.textContent =
-    "30 million se zyada sending ke liye large-scale optimization required hai.";
-  return;
-}
+ 
   const today = poppoToday();
   const history = records();
 
@@ -961,111 +1262,271 @@ const receiving = paidReceiving + giftReceiving;
       options: []
     };
   });
+// FH EMPIRE — Automatic Reward Capacity
 
-  // Har host ke liye 0, 10K, 20K ... available
-  // sending tak 7-day profit calculate karo.
-  for (const item of hostData) {
-    const share = item.host.type === "halfhalf" ? 0.5 : 1;
-
-    for (let u = 0; u <= units; u++) {
-      const sending = u * STEP;
-      const addedReceiving = sending * 0.7;
-
-      const normalCoins = sending > 0
-        ? calculateNormalCoins(sending).normalCoins
-        : 0;
-
-      let extraRewardPoints = 0;
-      const days = [];
-
-      for (let day = 0; day < 7; day++) {
-        const oldReceiving = item.historical[day];
-        const newReceiving = oldReceiving + addedReceiving;
-
-        const oldReward = dailyReward(oldReceiving);
-        const newReward = dailyReward(newReceiving);
-
-        const extraPoints = Math.max(
-          0,
-          newReward - oldReward
-        );
-
-        extraRewardPoints += extraPoints;
-
-        days.push({
-          date: dateShift(today, day),
-          oldReward,
-          newReward,
-          extraPoints,
-          level: getRewardLevel(newReceiving)?.level || "None"
-        });
-      }
-
-      // Sirf FH EMPIRE ka reward share.
-      const fhRewardPoints = extraRewardPoints * share;
-
-      // Reward points ko estimated coins mein convert karo.
-     
-const rewardGrossUSD = fhRewardPoints / 10000;
-
-// Best case: rewards existing sending withdrawal ke
-// saath combine hon, sirf additional fee count hogi.
-const hostGrossUSD = sending * 0.70 / 10000;
-
-const combinedExtraFee = Math.max(
-  0,
-  calculateWithdrawalFee(hostGrossUSD + rewardGrossUSD) -
-  calculateWithdrawalFee(hostGrossUSD)
+const maximumRewardTarget = Math.max(
+  ...REWARD_LEVELS.map(level => level.target)
 );
 
-// Conservative: extra rewards separate withdraw hon.
-const separateRewardFee = calculateWithdrawalFee(rewardGrossUSD);
+const automaticCapacity = hostData.reduce(
+  (total, item) => {
 
-const bestRewardCoins = Math.max(
-  0,
-  rewardGrossUSD - combinedExtraFee
-) * 9900;
+    const lowestReceiving = Math.min(
+      ...item.historical
+    );
 
-const conservativeRewardCoins = Math.max(
-  0,
-  rewardGrossUSD - separateRewardFee
-) * 9900;
+    const requiredReceiving = Math.max(
+      0,
+      maximumRewardTarget - lowestReceiving
+    );
 
-// Existing optimizer ka profit best-case par optimize hoga.
-const rewardCoins = bestRewardCoins;
+    const requiredSending = Math.ceil(
+      requiredReceiving / 7000
+    ) * 10000;
 
+    return total + requiredSending;
+  },
+  0
+);
 
-      const totalCoins = normalCoins + rewardCoins;
-      const saleValue = totalCoins / 100000 * sellingRate;
-      const cost = sending / 100000 * purchaseRate;
+const normalMarginPer100K =
+  100000 * 0.70 * 1.20 * 0.99 /
+  100000 * sellingRate - purchaseRate;
 
-      item.options.push({
-        sending,
-        normalCoins,
-        rewardCoins,
-        bestRewardCoins,
-conservativeRewardCoins,
-        extraRewardPoints,
-        fhRewardPoints,
-        saleValue,
-        cost,
-        profit: saleValue - cost,
-        conservativeProfit:
-  (normalCoins + conservativeRewardCoins) / 100000 * sellingRate - cost,
-        days
-      });
+if (autoMode) {
+
+  if (normalMarginPer100K > 0) {
+    optimizerResult.textContent =
+      "Normal coin trading is profitable. " +
+      "Maximum profit requires a sending budget. " +
+      "Please enter available sending.";
+    return;
+  }
+
+  if (automaticCapacity <= 0) {
+    optimizerResult.textContent =
+      "All active hosts have reached maximum reward capacity.";
+    return;
+  }
+
+  available = automaticCapacity;
+}
+ // FH EMPIRE — Reusable Host Profit Calculator
+
+function evaluateHostSending(item, sending) {
+
+  const share =
+    item.host.type === "halfhalf" ? 0.5 : 1;
+
+  const addedReceiving = sending * 0.7;
+
+  const normalCoins = sending > 0
+    ? calculateNormalCoins(sending).normalCoins
+    : 0;
+
+  let extraRewardPoints = 0;
+  const days = [];
+
+  for (let day = 0; day < 7; day++) {
+
+    const oldReceiving = item.historical[day];
+    const newReceiving = oldReceiving + addedReceiving;
+
+    const oldReward = dailyReward(oldReceiving);
+    const newReward = dailyReward(newReceiving);
+
+    const extraPoints = Math.max(
+      0,
+      newReward - oldReward
+    );
+
+    extraRewardPoints += extraPoints;
+
+    days.push({
+      date: dateShift(today, day),
+      oldReward,
+      newReward,
+      extraPoints,
+      level:
+        getRewardLevel(newReceiving)?.level || "None"
+    });
+  }
+
+  const fhRewardPoints = extraRewardPoints * share;
+  const rewardGrossUSD = fhRewardPoints / 10000;
+  const hostGrossUSD = sending * 0.70 / 10000;
+
+  const combinedExtraFee = Math.max(
+    0,
+    calculateWithdrawalFee(
+      hostGrossUSD + rewardGrossUSD
+    ) - calculateWithdrawalFee(hostGrossUSD)
+  );
+
+  const separateRewardFee =
+    calculateWithdrawalFee(rewardGrossUSD);
+
+  const bestRewardCoins = Math.max(
+    0,
+    rewardGrossUSD - combinedExtraFee
+  ) * 9900;
+
+  const conservativeRewardCoins = Math.max(
+    0,
+    rewardGrossUSD - separateRewardFee
+  ) * 9900;
+
+  const rewardCoins = bestRewardCoins;
+
+  const totalCoins = normalCoins + rewardCoins;
+
+  const saleValue =
+    totalCoins / 100000 * sellingRate;
+
+  const cost =
+    sending / 100000 * purchaseRate;
+
+  return {
+    sending,
+    normalCoins,
+    rewardCoins,
+    bestRewardCoins,
+    conservativeRewardCoins,
+    extraRewardPoints,
+    fhRewardPoints,
+    saleValue,
+    cost,
+    profit: saleValue - cost,
+
+    conservativeProfit:
+      (normalCoins + conservativeRewardCoins)
+      / 100000 * sellingRate - cost,
+
+    days
+  };
+}
+// FH EMPIRE — Smart Reward Thresholds
+
+const BASE_STEP = 10000;
+
+function getHostThresholds(item) {
+
+  const amounts = new Set([0, BASE_STEP]);
+
+  function addAmount(amount) {
+
+    const rounded = Math.max(
+      0,
+      Math.ceil(amount / BASE_STEP) * BASE_STEP
+    );
+
+    if (rounded <= available) {
+      amounts.add(rounded);
     }
   }
 
-  // Exact distribution search:
-  // Har possible 10K allocation compare hoti hai.
+  // Withdrawal fee threshold
+  addAmount(650000 / 0.70);
+
+  // All seven days' reward thresholds
+  for (const receiving of item.historical) {
+
+    for (const level of REWARD_LEVELS) {
+
+      const requiredReceiving = Math.max(
+        0,
+        level.target - receiving
+      );
+
+      const requiredSending =
+        requiredReceiving / 0.70;
+
+      addAmount(requiredSending);
+    }
+  }
+
+  return [...amounts].sort((a, b) => a - b);
+}
+
+for (const item of hostData) {
+
+  item.thresholds = getHostThresholds(item);
+
+  item.thresholdOptions = item.thresholds.map(
+    sending => evaluateHostSending(item, sending)
+  );
+}
+ // FH EMPIRE — Hybrid Optimization Engine
+
+const STEP = BASE_STEP;
+const units = Math.floor(available / STEP);
+
+const planMap = new Map();
+
+function registerPlan(amounts) {
+
+  const sending = amounts.reduce(
+    (sum, amount) => sum + amount, 0
+  );
+
+  if (sending <= 0 || sending > available) return;
+
+  const allocation = hostData.map((item, index) => ({
+    ...item,
+    selected: evaluateHostSending(
+      item, amounts[index] || 0
+    )
+  })).filter(item => item.selected.sending > 0);
+
+  const profit = allocation.reduce(
+    (sum, item) =>
+      sum + item.selected.conservativeProfit,
+    0
+  );
+
+  const cost = sending / 100000 * purchaseRate;
+  const key = sending / STEP;
+
+  const previous = planMap.get(key);
+
+  if (!previous || profit > previous.profit) {
+
+    planMap.set(key, {
+      units: key,
+      sending,
+      cost,
+      profit,
+      roi: cost > 0 ? profit / cost * 100 : 0,
+      allocation
+    });
+  }
+}
+
+// Exact optimization for smaller amounts
+
+if (units <= 3000) {
+
+  for (const item of hostData) {
+
+    item.options = [];
+
+    for (let u = 0; u <= units; u++) {
+
+      item.options.push(
+        evaluateHostSending(item, u * STEP)
+      );
+    }
+  }
+
   let dp = new Float64Array(units + 1);
+
   dp.fill(-Infinity);
   dp[0] = 0;
 
   const decisions = [];
 
   for (const item of hostData) {
+
     const next = new Float64Array(units + 1);
     next.fill(-Infinity);
 
@@ -1073,13 +1534,19 @@ conservativeRewardCoins,
     choice.fill(-1);
 
     for (let used = 0; used <= units; used++) {
+
       if (!Number.isFinite(dp[used])) continue;
 
       for (let u = 0; u + used <= units; u++) {
+
         const total = used + u;
-      const profit = dp[used] + item.options[u].conservativeProfit;
+
+        const profit =
+          dp[used] +
+          item.options[u].conservativeProfit;
 
         if (profit > next[total]) {
+
           next[total] = profit;
           choice[total] = u;
         }
@@ -1090,19 +1557,257 @@ conservativeRewardCoins,
     decisions.push(choice);
   }
 
-  // Best distribution reconstruct karo.
-  let remainingUnits = units;
+  for (let u = 1; u <= units; u++) {
 
-  for (let i = hostData.length - 1; i >= 0; i--) {
-    const selectedUnits = decisions[i][remainingUnits];
+    if (!Number.isFinite(dp[u])) continue;
 
-    hostData[i].selected = hostData[i].options[selectedUnits];
-    remainingUnits -= selectedUnits;
+    let remaining = u;
+
+    const amounts = hostData.map(() => 0);
+
+    for (let i = hostData.length - 1; i >= 0; i--) {
+
+      const chosen = decisions[i][remaining];
+
+      amounts[i] = chosen * STEP;
+
+      remaining -= chosen;
+    }
+
+    registerPlan(amounts);
   }
 
-  const selected = hostData.filter(
-    item => item.selected.sending > 0
+} else {
+
+  // Smart large-scale threshold search
+
+  let states = [{
+    amounts: [],
+    sending: 0,
+    profit: 0
+  }];
+
+  const SEARCH_WIDTH = 2000;
+
+  for (const item of hostData) {
+
+    const nextStates = new Map();
+
+    for (const state of states) {
+
+      for (const option of item.thresholdOptions) {
+
+        const sending =
+          state.sending + option.sending;
+
+        if (sending > available) continue;
+
+        const profit =
+          state.profit + option.conservativeProfit;
+
+        const previous = nextStates.get(sending);
+
+        if (!previous || profit > previous.profit) {
+
+          nextStates.set(sending, {
+            amounts: [
+              ...state.amounts,
+              option.sending
+            ],
+            sending,
+            profit
+          });
+        }
+      }
+    }
+
+    const ranked = [...nextStates.values()];
+
+    const byProfit = [...ranked].sort(
+      (a, b) => b.profit - a.profit
+    );
+
+    const byROI = [...ranked].sort(
+      (a, b) =>
+        (b.sending ? b.profit / b.sending : 0) -
+        (a.sending ? a.profit / a.sending : 0)
+    );
+
+    const bySending = [...ranked].sort(
+      (a, b) => a.sending - b.sending
+    );
+
+    const retained = new Map();
+
+    function retain(state) {
+      retained.set(state.sending, state);
+    }
+
+    byProfit.slice(0, SEARCH_WIDTH / 2)
+      .forEach(retain);
+
+    byROI.slice(0, SEARCH_WIDTH / 4)
+      .forEach(retain);
+
+    const sampleCount = SEARCH_WIDTH / 4;
+
+    for (let i = 0; i < sampleCount; i++) {
+
+      const index = Math.floor(
+        i * (bySending.length - 1) /
+        Math.max(1, sampleCount - 1)
+      );
+
+      if (bySending[index]) {
+        retain(bySending[index]);
+      }
+    }
+
+    if (nextStates.has(0)) {
+      retain(nextStates.get(0));
+    }
+
+    states = [...retained.values()];
+  }
+
+  for (const state of states) {
+
+    registerPlan(state.amounts);
+  }
+
+  // Complete entered sending allocation
+
+  if (!autoMode) {
+
+    for (const state of states) {
+
+      const remaining =
+        available - state.sending;
+
+      if (remaining === 0) {
+
+        registerPlan(state.amounts);
+        continue;
+      }
+
+      // Compare every host for remaining sending
+
+      for (let i = 0; i < hostData.length; i++) {
+
+        const amounts = [...state.amounts];
+
+        amounts[i] += remaining;
+
+        registerPlan(amounts);
+      }
+    }
+  }
+}
+
+// FH EMPIRE — Smart Profit Suggestions
+
+const candidates = [...planMap.values()].sort(
+  (a, b) => a.sending - b.sending
+);
+
+if (!candidates.length) {
+
+  optimizerResult.textContent =
+    "No valid sending plan found.";
+
+  return;
+}
+
+const profitable = candidates.filter(
+  item => item.profit > 0
+);
+
+const best = candidates.reduce(
+  (a, b) => b.profit > a.profit ? b : a
+);
+
+const suggestions = [];
+
+function addSuggestion(name, description, plan) {
+
+  if (!plan) return;
+
+  suggestions.push({
+    ...plan,
+    name,
+    description
+  });
+}
+
+if (profitable.length) {
+
+  const highestROI = profitable.reduce(
+    (a, b) => b.roi > a.roi ? b : a
   );
+
+  const profitTarget = percentage =>
+    profitable.find(
+      item => item.profit >= best.profit * percentage
+    ) || best;
+
+  addSuggestion(
+    "Minimum Profitable",
+    "Lowest profitable sending found",
+    profitable[0]
+  );
+
+  addSuggestion(
+    "Low Investment",
+    "25% of maximum projected profit",
+    profitTarget(0.25)
+  );
+
+  addSuggestion(
+    "Highest ROI",
+    "Highest percentage return found",
+    highestROI
+  );
+
+  addSuggestion(
+    "Best Balanced",
+    "60% of maximum projected profit",
+    profitTarget(0.60)
+  );
+
+  addSuggestion(
+    "High Profit",
+    "90% of maximum projected profit",
+    profitTarget(0.90)
+  );
+
+  addSuggestion(
+    "Maximum Profit",
+    "Highest conservative profit found",
+    best
+  );
+
+} else {
+
+  addSuggestion(
+    "Lowest Projected Loss",
+    "No profitable sending found at current rates",
+    best
+  );
+}
+
+function reconstructPlan(planUnits) {
+
+  const plan = planMap.get(planUnits);
+
+  if (!plan) {
+    throw new Error("Invalid sending plan.");
+  }
+
+  return [...plan.allocation];
+}
+function renderSelectedPlan(activePlan) {
+
+const selected = reconstructPlan(activePlan.units);
 
   const totalSending = selected.reduce(
     (sum, item) => sum + item.selected.sending, 0
@@ -1130,12 +1835,12 @@ const normalOnlySaleValue =
   normalCoins / 100000 * sellingRate;
 
 const normalOnlyProfit =
-  normalOnlySaleValue - available / 100000 * purchaseRate;
+  normalOnlySaleValue - totalSending / 100000 * purchaseRate;
 
 const conservativeProfit =
-  conservativeSaleValue - available / 100000 * purchaseRate;
+  conservativeSaleValue - totalSending / 100000 * purchaseRate;
 
-  const cost = available / 100000 * purchaseRate;
+  const cost = totalSending / 100000 * purchaseRate;
   const saleValue = totalCoins / 100000 * sellingRate;
   const profit = saleValue - cost;
 
@@ -1145,18 +1850,150 @@ const conservativeProfit =
 
   optimizerResult.replaceChildren();
 
+// FH EMPIRE — Suggested Profit Plans
+
+const suggestionHeading = document.createElement("h3");
+suggestionHeading.textContent = "Smart Profit Suggestions";
+suggestionHeading.style.color = "#d4af37";
+
+optimizerResult.append(suggestionHeading);
+
+const suggestionNote = document.createElement("p");
+
+suggestionNote.textContent =
+  "Select a recommended plan to view its complete host distribution.";
+
+optimizerResult.append(suggestionNote);
+
+const suggestionGrid = document.createElement("div");
+
+suggestionGrid.style.cssText = `
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:12px;
+  margin:18px 0 25px;
+`;
+
+suggestions.forEach(plan => {
+
+  const isSelected = plan.units === activePlan.units &&
+    plan.name === activePlan.name;
+
+  const planCard = document.createElement("button");
+
+  planCard.type = "button";
+
+  planCard.style.cssText = `
+    background:${isSelected ? "#292310" : "#141414"};
+    color:#ffffff;
+    border:${isSelected ? "2px solid #d4af37" : "1px solid #454545"};
+    border-radius:12px;
+    padding:16px;
+    text-align:left;
+    cursor:pointer;
+    width:100%;
+    font-family:inherit;
+  `;
+
+  planCard.innerHTML = `
+    <div style="color:#d4af37;font-size:16px;font-weight:700;">
+      ${plan.name}
+    </div>
+
+    <div style="color:#aaaaaa;font-size:12px;margin:8px 0 15px;">
+      ${plan.description}
+    </div>
+
+    <div style="font-size:12px;color:#aaaaaa;">
+      RECOMMENDED SENDING
+    </div>
+
+    <div style="font-size:23px;font-weight:700;margin:5px 0 12px;">
+      ${fmt(plan.sending)}
+    </div>
+
+    <div style="margin-bottom:8px;">
+      Investment: Rs ${money(plan.cost)}
+    </div>
+
+    <div style="font-size:12px;color:#aaaaaa;">
+      CONSERVATIVE 7-DAY PROFIT
+    </div>
+
+    <div style="
+      font-size:21px;
+      font-weight:bold;
+      color:${plan.profit >= 0 ? "#22c55e" : "#ef4444"};
+      margin:5px 0;
+    ">
+      Rs ${money(plan.profit)}
+    </div>
+
+    <div style="margin:8px 0;">
+      ROI: ${plan.roi.toFixed(2)}%
+    </div>
+
+    <div style="
+      margin-top:15px;
+      padding:10px;
+      border-radius:7px;
+      text-align:center;
+      font-weight:bold;
+      background:${isSelected ? "#d4af37" : "#262626"};
+      color:${isSelected ? "#111111" : "#ffffff"};
+    ">
+      ${isSelected ? "✓ SELECTED PLAN" : "SELECT PLAN"}
+    </div>
+  `;
+
+  planCard.addEventListener("click", () => {
+    renderSelectedPlan(plan);
+  });
+
+  suggestionGrid.append(planCard);
+});
+
+optimizerResult.append(suggestionGrid);
+
+const planDivider = document.createElement("hr");
+
+planDivider.style.cssText =
+  "border:0;border-top:1px solid #8b741d;margin:25px 0;";
+
+optimizerResult.append(planDivider);
+
   const heading = document.createElement("h3");
-  heading.textContent = "FH EMPIRE — 7-Day Maximum Profit";
+  heading.textContent =
+  "FH EMPIRE — " + activePlan.name;
   optimizerResult.append(heading);
 
   const summary = document.createElement("p");
   
 summary.innerHTML = `
   <strong>Decision:</strong>
-  ${profit >= 0 ? "PROJECTED PROFIT" : "PROJECTED LOSS"}<br>
-  <strong>Total Sending:</strong> ${fmt(available)}<br>
-  <strong>Allocated:</strong> ${fmt(totalSending)}<br>
-  <strong>Unused:</strong> ${fmt(available - totalSending)}<br>
+  ${conservativeProfit > 0
+  ? "PROJECTED PROFIT"
+  : conservativeProfit < 0
+    ? "PROJECTED LOSS"
+    : "BREAK EVEN"}<br>
+ <strong>Calculation Mode:</strong> ${
+  autoMode
+    ? "Automatic Profit Finder"
+    : "Available Sending Allocation"
+}<br>
+
+<strong>${autoMode
+  ? "Recommended Sending"
+  : "Available Sending"}:</strong>
+${fmt(autoMode ? totalSending : available)}<br>
+
+<strong>Allocated Sending:</strong>
+${fmt(totalSending)}<br>
+
+${!autoMode ? `
+<strong>Unused Sending:</strong>
+${fmt(available - totalSending)}<br>
+` : ""}
   <strong>Normal Coins:</strong> ${fmt(normalCoins)}<br>
   <strong>7-Day Extra Reward Coins:</strong> ${fmt(rewardCoins)}<br>
   <strong>Total Saleable Coins:</strong> ${fmt(totalCoins)}<br>
@@ -1178,9 +2015,11 @@ summary.innerHTML = `
   title.textContent = "Best Immediate Host Distribution";
   optimizerResult.append(title);
 
-  selected.sort(
-    (a, b) => b.selected.sending - a.selected.sending
-  );
+ selected.sort((a, b) =>
+  b.selected.profit - a.selected.profit ||
+  b.selected.sending - a.selected.sending ||
+  String(a.host.id).localeCompare(String(b.host.id))
+);
 
 
    // Copy All Recommended Sending
@@ -1214,6 +2053,929 @@ copyAllBtn.addEventListener("click", async () => {
 });
 
 optimizerResult.append(copyAllBtn); 
+// FH EMPIRE — Confirm Sending Plan
+
+const confirmPlanBtn = document.createElement("button");
+
+confirmPlanBtn.type = "button";
+
+confirmPlanBtn.textContent = "✓ Confirm & Save Sending Plan";
+
+confirmPlanBtn.style.cssText = `
+  background:#15803d;
+  color:#ffffff;
+  border:0;
+  padding:12px 18px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:15px 8px;
+`;
+
+const incompletePlan =
+  !autoMode && totalSending !== available;
+
+if (incompletePlan) {
+
+  confirmPlanBtn.textContent =
+    "✓ Confirm Partial Sending";
+
+  confirmPlanBtn.style.background = "#b45309";
+}
+
+confirmPlanBtn.addEventListener("click", () => {
+
+
+
+  if (document.getElementById("fhConfirmPlanModal")) {
+    return;
+  }
+
+  const modal = document.createElement("div");
+
+  modal.id = "fhConfirmPlanModal";
+
+  modal.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    z-index:99999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+  `;
+
+  const panel = document.createElement("div");
+
+  panel.style.cssText = `
+    background:#141414;
+    color:#ffffff;
+    border:1px solid #d4af37;
+    border-radius:16px;
+    width:100%;
+    max-width:620px;
+    max-height:90vh;
+    overflow-y:auto;
+    padding:22px;
+    box-sizing:border-box;
+    box-shadow:0 15px 60px rgba(0,0,0,0.6);
+  `;
+
+  panel.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    ">
+      <div>
+        <h2 style="color:#d4af37;margin:0;">
+          CONFIRM SENDING PLAN
+        </h2>
+
+        <p style="color:#999;font-size:12px;">
+          FH EMPIRE — SENDING MANAGEMENT
+        </p>
+      </div>
+
+      <button id="fhClosePlanModal" type="button"
+        style="
+          background:#292929;
+          color:white;
+          border:0;
+          border-radius:8px;
+          padding:10px 15px;
+          cursor:pointer;
+        ">
+        ✕
+      </button>
+    </div>
+
+    <div style="
+      background:#1d1a10;
+      border:1px solid #66551c;
+      border-radius:10px;
+      padding:15px;
+      line-height:1.9;
+      margin:15px 0;
+    ">
+      <strong>Selected Plan:</strong>
+      ${activePlan.name}<br>
+
+      <strong>Poppo Date:</strong>
+      ${today}<br>
+
+      <strong>Total Hosts:</strong>
+      ${selected.length}<br>
+
+      <strong>Total Sending:</strong>
+      ${fmt(totalSending)}<br>
+
+      <strong>Purchase Rate:</strong>
+      Rs ${money(purchaseRate)} / 100K<br>
+
+      <strong>Sender Payment:</strong>
+      Rs ${money(cost)}<br>
+
+      <strong>Projected 7-Day Profit:</strong>
+
+      <span style="
+        color:${conservativeProfit >= 0
+          ? "#22c55e"
+          : "#ef4444"};
+        font-weight:bold;
+      ">
+        Rs ${money(conservativeProfit)}
+      </span><br>
+
+      <strong>Sale Status:</strong>
+
+      <span style="color:#fbbf24;">
+        UNSOLD
+      </span>
+    </div>
+
+    <h3 style="color:#d4af37;">
+      Host-wise Sending Distribution
+    </h3>
+
+    <div id="fhConfirmHostList"></div>
+
+    <div style="
+      background:#252015;
+      color:#fbbf24;
+      border-radius:8px;
+      padding:12px;
+      font-size:13px;
+      margin:15px 0;
+    ">
+      Only confirm after sending has actually been
+      completed for every listed host.
+
+      Projected sales and rewards will not be
+      recorded as actual sales.
+    </div>
+
+    <label style="
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      font-size:14px;
+      cursor:pointer;
+      margin:20px 0;
+    ">
+      <input
+        type="checkbox"
+        id="fhConfirmSendingCompleted"
+        style="
+          width:18px;
+          height:18px;
+          accent-color:#d4af37;
+        "
+      >
+
+      <span>
+      I confirm that the actual sending amounts
+entered for the selected hosts are correct.
+      </span>
+    </label>
+
+    <button
+      type="button"
+      id="fhSaveConfirmedPlan"
+      disabled
+      style="
+        background:#d4af37;
+        color:#111111;
+        width:100%;
+        padding:15px;
+        border:0;
+        border-radius:9px;
+        font-weight:bold;
+        font-size:15px;
+        cursor:not-allowed;
+        opacity:0.5;
+      "
+    >
+     CONFIRM & SAVE SELECTED HOSTS
+    </button>
+
+    <p id="fhConfirmPlanStatus"
+      style="
+        text-align:center;
+        font-size:13px;
+        margin-top:12px;
+      ">
+    </p>
+  `;
+
+  modal.append(panel);
+  document.body.append(modal);
+// FH EMPIRE — Professional Confirmation Layout
+
+panel.style.maxWidth = "850px";
+panel.style.width = "100%";
+panel.style.padding = "24px";
+panel.style.maxHeight = "88vh";
+panel.style.overflowX = "hidden";
+panel.style.scrollbarWidth = "thin";
+panel.style.scrollbarColor = "#806c28 #141414";
+
+const modalStyles = document.createElement("style");
+
+modalStyles.textContent = `
+  #fhConfirmPlanModal * {
+    box-sizing: border-box;
+  }
+
+  #fhConfirmPlanModal input[type="checkbox"] {
+    appearance: auto !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    min-height: 18px !important;
+    flex: 0 0 18px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    accent-color: #d4af37 !important;
+    cursor: pointer;
+    box-shadow: none !important;
+  }
+
+  #fhConfirmHostList > div {
+    max-width: 100%;
+  }
+
+  #fhConfirmHostList input[type="text"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    height: 42px !important;
+    font-size: 15px !important;
+    box-shadow: none !important;
+  }
+
+  #fhConfirmHostList .fh-actual-host-row {
+    display: grid !important;
+    grid-template-columns: 20px minmax(0, 1fr) 155px;
+    align-items: center;
+    gap: 14px !important;
+    padding: 14px !important;
+    background: #191919 !important;
+    border: 1px solid #333 !important;
+    border-radius: 9px !important;
+  }
+
+  #fhConfirmHostList .fh-host-details {
+    min-width: 0 !important;
+    overflow-wrap: anywhere;
+  }
+
+  #fhConfirmHostList .fh-amount-box {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  #fhConfirmHostList .fh-actual-host-row:hover {
+    border-color: #806c28 !important;
+  }
+
+  @media (max-width: 480px) {
+
+    #fhConfirmPlanModal {
+      padding: 8px !important;
+    }
+
+    #fhConfirmPlanModal > div {
+      padding: 14px !important;
+    }
+
+    #fhConfirmHostList .fh-actual-host-row {
+      grid-template-columns: 18px minmax(0, 1fr);
+      gap: 10px !important;
+    }
+
+    #fhConfirmHostList .fh-amount-box {
+      grid-column: 2;
+    }
+  }
+`;
+
+modal.append(modalStyles);
+ const hostList =
+  panel.querySelector("#fhConfirmHostList");
+
+// FH EMPIRE — Actual Sending Selection
+
+const actualEntries = selected.map(item => ({
+  host: item.host,
+  recommended: item.selected.sending,
+  actual: item.selected.sending,
+  checked: true
+}));
+
+const selectAllLabel = document.createElement("label");
+
+selectAllLabel.style.cssText = `
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  background:#292310;
+  border-radius:8px;
+  margin-bottom:12px;
+  cursor:pointer;
+`;
+
+const selectAll = document.createElement("input");
+
+selectAll.type = "checkbox";
+selectAll.checked = true;
+
+selectAll.style.cssText = `
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  accent-color:#d4af37;
+  margin:0;
+  padding:0;
+`;
+
+selectAllLabel.append(
+  selectAll,
+  document.createTextNode("Select All Hosts")
+);
+
+hostList.append(selectAllLabel);
+
+const hostControls = [];
+
+actualEntries.forEach((entry, index) => {
+
+  const hostRow = document.createElement("div");
+hostRow.className = "fh-actual-host-row";
+  hostRow.style.cssText = `
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#202020;
+    border:1px solid #444;
+    border-radius:10px;
+    padding:12px;
+    margin:8px 0;
+    flex-wrap:wrap;
+  `;
+
+  const hostCheck = document.createElement("input");
+
+  hostCheck.type = "checkbox";
+  hostCheck.checked = true;
+
+  hostCheck.style.cssText = `
+    width:18px;
+    height:18px;
+    flex:0 0 18px;
+    accent-color:#d4af37;
+    margin:0;
+    padding:0;
+  `;
+
+  const details = document.createElement("div");
+details.className = "fh-host-details";
+  details.style.cssText =
+    "flex:1;min-width:120px;";
+
+  const name = document.createElement("strong");
+
+  name.textContent =
+    `${index + 1}. ${entry.host.name}`;
+
+  const id = document.createElement("div");
+
+  id.style.cssText =
+    "font-size:11px;color:#999;margin-top:4px;";
+
+  id.textContent = `ID: ${entry.host.id}`;
+
+  const recommended = document.createElement("div");
+
+  recommended.style.cssText =
+    "font-size:12px;color:#d4af37;margin-top:5px;";
+
+  recommended.textContent =
+    `Recommended: ${fmt(entry.recommended)}`;
+
+  details.append(name, id, recommended);
+
+  const amountBox = document.createElement("div");
+amountBox.className = "fh-amount-box";
+  amountBox.style.cssText =
+    "width:145px;max-width:100%;";
+
+  const amountLabel = document.createElement("div");
+
+  amountLabel.textContent = "ACTUAL SENDING";
+
+  amountLabel.style.cssText =
+    "font-size:10px;color:#aaa;margin-bottom:5px;";
+
+  const amountInput = document.createElement("input");
+
+  amountInput.type = "text";
+  amountInput.inputMode = "numeric";
+  amountInput.value = fmt(entry.actual);
+
+  amountInput.style.cssText = `
+    width:100%;
+    box-sizing:border-box;
+    background:#101010;
+    color:#d4af37;
+    border:1px solid #666;
+    border-radius:7px;
+    padding:10px;
+    font-size:15px;
+    font-weight:bold;
+    text-align:right;
+  `;
+
+  amountBox.append(amountLabel, amountInput);
+
+  hostRow.append(
+    hostCheck,
+    details,
+    amountBox
+  );
+
+  hostList.append(hostRow);
+
+  hostControls.push({
+    entry,
+    hostCheck,
+    amountInput,
+    hostRow
+  });
+
+  hostCheck.addEventListener("change", () => {
+
+    entry.checked = hostCheck.checked;
+
+    amountInput.disabled = !entry.checked;
+
+    hostRow.style.opacity =
+      entry.checked ? "1" : "0.45";
+
+    updateActualSummary();
+  });
+
+  amountInput.addEventListener("input", () => {
+
+    const raw = amountInput.value.replace(
+      /[^\d]/g, ""
+    );
+
+    entry.actual = Number(raw || 0);
+
+    amountInput.value =
+      raw ? fmt(entry.actual) : "";
+
+    updateActualSummary();
+  });
+});
+
+// Live Actual Sending Summary
+
+const actualSummary = document.createElement("div");
+
+actualSummary.style.cssText = `
+  background:#1d1a10;
+  border:1px solid #d4af37;
+  border-radius:10px;
+  padding:15px;
+  margin:18px 0;
+  line-height:2;
+`;
+
+hostList.append(actualSummary);
+
+function getActualSendingData() {
+
+  const entries = actualEntries.filter(
+    entry => entry.checked
+  );
+
+  const valid = entries.length > 0 &&
+    entries.every(entry =>
+      Number.isSafeInteger(entry.actual) &&
+      entry.actual > 0
+    );
+
+  const actualTotal = entries.reduce(
+    (sum, entry) => sum + entry.actual,
+    0
+  );
+
+  const limit = autoMode
+    ? totalSending
+    : available;
+
+  const actualCost =
+    actualTotal / 100000 * purchaseRate;
+
+  return {
+    entries,
+    actualTotal,
+    actualCost,
+    remaining: limit - actualTotal,
+    valid:
+      valid &&
+      Number.isSafeInteger(actualTotal) &&
+      actualTotal <= limit
+  };
+}
+
+function updateActualSummary() {
+
+  const data = getActualSendingData();
+
+  selectAll.checked = actualEntries.every(
+    entry => entry.checked
+  );
+
+  selectAll.indeterminate =
+    actualEntries.some(entry => entry.checked) &&
+    !selectAll.checked;
+
+  let actualProfit = 0;
+
+  if (data.valid) {
+
+    actualProfit = data.entries.reduce(
+      (sum, entry) => {
+
+        const item = hostData.find(
+          h => String(h.host.id) ===
+            String(entry.host.id)
+        );
+
+        return sum + evaluateHostSending(
+          item,
+          entry.actual
+        ).conservativeProfit;
+      },
+      0
+    );
+  }
+
+  actualSummary.innerHTML = `
+    <h3 style="color:#d4af37;margin:0 0 10px;">
+      ACTUAL SENDING SUMMARY
+    </h3>
+
+    <strong>Selected Hosts:</strong>
+    ${data.entries.length} / ${selected.length}<br>
+
+    <strong>Recommended Sending:</strong>
+    ${fmt(totalSending)}<br>
+
+    <strong>Actual Sending:</strong>
+    <span style="color:#22c55e;font-weight:bold;">
+      ${fmt(data.actualTotal)}
+    </span><br>
+
+    <strong>Remaining Sending:</strong>
+    <span style="color:${
+      data.remaining === 0
+        ? "#22c55e"
+        : data.remaining < 0
+          ? "#ef4444"
+          : "#fbbf24"
+    };">
+      ${fmt(data.remaining)}
+    </span><br>
+
+    <strong>Actual Sender Payment:</strong>
+    Rs ${money(data.actualCost)}<br>
+
+    <strong>Updated Projected Profit:</strong>
+    <span style="color:${
+      actualProfit >= 0 ? "#22c55e" : "#ef4444"
+    };">
+      ${data.valid
+        ? "Rs " + money(actualProfit)
+        : "Invalid sending amount"}
+    </span>
+  `;
+
+  const confirmation = panel.querySelector(
+    "#fhConfirmSendingCompleted"
+  );
+
+  const button = panel.querySelector(
+    "#fhSaveConfirmedPlan"
+  );
+
+  confirmation.checked = false;
+
+  button.disabled = true;
+  button.style.opacity = "0.5";
+  button.style.cursor = "not-allowed";
+}
+
+selectAll.addEventListener("change", () => {
+
+  hostControls.forEach(control => {
+
+    control.entry.checked = selectAll.checked;
+
+    control.hostCheck.checked = selectAll.checked;
+
+    control.amountInput.disabled = !selectAll.checked;
+
+    control.hostRow.style.opacity =
+      selectAll.checked ? "1" : "0.45";
+  });
+
+  updateActualSummary();
+});
+
+updateActualSummary();
+
+  const checkbox = panel.querySelector(
+    "#fhConfirmSendingCompleted"
+  );
+
+  const saveButton = panel.querySelector(
+    "#fhSaveConfirmedPlan"
+  );
+
+  const status = panel.querySelector(
+    "#fhConfirmPlanStatus"
+  );
+
+  const closeButton = panel.querySelector(
+    "#fhClosePlanModal"
+  );
+
+  closeButton.addEventListener("click", () => {
+    modal.remove();
+  });
+
+ checkbox.addEventListener("change", () => {
+
+  const data = getActualSendingData();
+
+  const allowed =
+    checkbox.checked && data.valid;
+
+  saveButton.disabled = !allowed;
+
+  saveButton.style.opacity =
+    allowed ? "1" : "0.5";
+
+  saveButton.style.cursor =
+    allowed ? "pointer" : "not-allowed";
+
+  status.style.color = "#ef4444";
+
+  status.textContent = data.valid
+    ? ""
+    : "Please select hosts and enter valid sending amounts.";
+});
+
+  // FH EMPIRE — Bulk Database Save Handler
+
+// FH EMPIRE — Actual Bulk Sending Save
+
+saveButton.addEventListener("click", async () => {
+
+  if (fhOptimizerSaving) return;
+
+  const data = getActualSendingData();
+
+  if (!checkbox.checked || !data.valid) {
+
+    status.style.color = "#ef4444";
+
+    status.textContent =
+      "Please confirm valid actual sending amounts.";
+
+    return;
+  }
+
+  if (today !== poppoToday()) {
+
+    status.style.color = "#ef4444";
+
+    status.textContent =
+      "Poppo date has changed. Please calculate again.";
+
+    return;
+  }
+
+  const currentHosts = hosts();
+
+  const invalidHost = data.entries.some(entry => {
+
+    const current = currentHosts.find(
+      h => String(h.id) === String(entry.host.id)
+    );
+
+    return !current ||
+      current.isActive === false ||
+      current.type !== entry.host.type;
+  });
+
+  if (invalidHost) {
+
+    status.style.color = "#ef4444";
+
+    status.textContent =
+      "Host details have changed. Please review the plan.";
+
+    return;
+  }
+
+  fhOptimizerSaving = true;
+
+  saveButton.disabled = true;
+  closeButton.disabled = true;
+  checkbox.disabled = true;
+  selectAll.disabled = true;
+  optimizerButton.disabled = true;
+
+  hostControls.forEach(control => {
+    control.hostCheck.disabled = true;
+    control.amountInput.disabled = true;
+  });
+
+  saveButton.textContent = "SAVING RECORDS...";
+
+  saveButton.style.opacity = "0.6";
+  saveButton.style.cursor = "wait";
+
+  status.style.color = "#d4af37";
+
+  status.textContent =
+    "Saving actual sending records to Supabase...";
+
+  let completed = false;
+  let batch = null;
+
+  try {
+
+    batch = fhCreateOptimizerBatch(
+      data.entries,
+      today,
+      purchaseRate
+    );
+
+    await fhSaveBulkSendingRecords(
+      batch.entries
+    );
+
+    status.textContent =
+      "Verifying saved sending records...";
+
+    const verification =
+      await fhVerifyBulkSendingRecords(
+        batch.entries
+      );
+
+    save(verification.records);
+
+    renderHistory();
+
+    fhClearPendingOptimizerBatch(batch.id);
+
+    completed = true;
+// Update remaining sending after successful save
+if (!autoMode) {
+  $("optimizerAvailableSending").value =
+    fmt(data.remaining);
+}
+    status.style.color = "#22c55e";
+
+    status.textContent =
+      `Successfully saved ${verification.count} ` +
+      `host sending records.`;
+
+    saveButton.textContent =
+      "✓ RECORDS SAVED SUCCESSFULLY";
+
+    saveButton.style.background = "#15803d";
+    saveButton.style.color = "#ffffff";
+    saveButton.style.opacity = "1";
+    saveButton.style.cursor = "default";
+
+    confirmPlanBtn.disabled = true;
+
+    confirmPlanBtn.textContent =
+      "✓ Sending Records Saved";
+
+    confirmPlanBtn.style.opacity = "0.6";
+
+    optimizerResult.replaceChildren();
+
+    const successBox = document.createElement("div");
+
+    successBox.style.cssText = `
+      background:#102218;
+      border:1px solid #15803d;
+      border-radius:12px;
+      padding:22px;
+      line-height:2;
+      margin:15px 0;
+    `;
+
+    successBox.innerHTML = `
+      <h3 style="color:#22c55e;margin-top:0;">
+        ✓ SENDING SAVED SUCCESSFULLY
+      </h3>
+
+      <strong>Saved Hosts:</strong>
+      ${verification.count}<br>
+
+      <strong>Actual Sending:</strong>
+      ${fmt(data.actualTotal)}<br>
+
+      <strong>Purchase Cost:</strong>
+      Rs ${money(data.actualCost)}<br>
+
+      <strong>Remaining Sending:</strong>
+      ${fmt(data.remaining)}<br>
+
+      <strong>Sale Status:</strong>
+      UNSOLD<br>
+
+      <strong>Poppo Date:</strong>
+      ${today}<br>
+
+      <p style="color:#aaa;">
+        Records are available in Sending History.
+        Calculate again to create a fresh plan.
+      </p>
+    `;
+
+    optimizerResult.append(successBox);
+
+    showMessage(
+      "✓ Optimizer sending records saved successfully."
+    );
+
+    closeButton.textContent = "Done";
+
+  } catch (error) {
+
+    console.error(
+      "Optimizer bulk saving failed:",
+      error
+    );
+
+    status.style.color = "#ef4444";
+
+    status.textContent =
+      error.message ||
+      "Saving could not be verified. Please retry.";
+
+    saveButton.textContent =
+      "RETRY & VERIFY SAVING";
+
+    saveButton.disabled = false;
+
+    saveButton.style.opacity = "1";
+    saveButton.style.cursor = "pointer";
+
+  } finally {
+
+    fhOptimizerSaving = false;
+
+    closeButton.disabled = false;
+    optimizerButton.disabled = false;
+
+    // Once a batch exists, keep its amounts locked
+    // so retry uses the same record IDs and values.
+
+    if (!completed && !batch) {
+
+      checkbox.disabled = false;
+      selectAll.disabled = false;
+
+      hostControls.forEach(control => {
+
+        control.hostCheck.disabled = false;
+
+        control.amountInput.disabled =
+          !control.entry.checked;
+      });
+    }
+   }
+});
+
+}); // Close confirmPlanBtn event listener
+
+optimizerResult.append(confirmPlanBtn);
 // Host cards start here
 selected.forEach((item, index) => {
     const result = item.selected;
@@ -1329,7 +3091,32 @@ card.append(actionRow);
     "Reward conversion aur selling rates estimates hain.";
 
   optimizerResult.append(note);
+
+} // End renderSelectedPlan
+const fullSendingPlan = candidates.find(
+  plan => plan.units === units
+);
+
+if (!autoMode && fullSendingPlan) {
+  suggestions.unshift({
+    ...fullSendingPlan,
+    name: "Full Sending Plan",
+    description:
+      "Best distribution for the complete entered sending amount"
+  });
 }
+const defaultPlan =
+  suggestions.find(
+    plan => plan.name === (
+      autoMode
+        ? "Maximum Profit"
+        : "Full Sending Plan"
+    )
+  ) || suggestions[0];
+
+renderSelectedPlan(defaultPlan);
+
+} // End runMaximumProfitOptimizer
 
   // Automatic comma formatting — Available Sending
   const availableSendingInput = $("optimizerAvailableSending");
@@ -1376,6 +3163,7 @@ card.append(actionRow);
     "click",
     runMaximumProfitOptimizer
   );
+  fhRenderPendingOptimizerNotice();
   // ==========================================
 // FH EMPIRE - REWARD ADJUSTMENT RECORDS
 // ==========================================

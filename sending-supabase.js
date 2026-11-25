@@ -118,6 +118,105 @@ async function fhSaveSendingRecord(record, host) {
   );
 }
 
+// FH EMPIRE — Bulk Sending Records
+
+async function fhSaveBulkSendingRecords(entries) {
+  if (!Array.isArray(entries) || !entries.length) {
+    throw new Error("No sending records to save.");
+  }
+
+  const payload = entries.map(({ record, host }) => {
+    if (!host || !record.id) {
+      throw new Error("Invalid host or record details.");
+    }
+
+    return {
+      local_record_id: record.id,
+      host_poppo_id: host.id,
+      host_name: host.name,
+      host_type: host.type,
+      sending_date: record.date,
+      sending: record.sending,
+      purchase_rate: record.purchaseRate,
+      purchase_cost: record.purchaseCost,
+      selling_rate: 0,
+      sale_status: "unsold",
+      coins_sold: 0,
+      sale_amount: 0
+    };
+  });
+
+  return fhSendingRequest(
+    "fh_sending_records?on_conflict=local_record_id",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "resolution=ignore-duplicates,return=representation"
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+}
+
+// FH EMPIRE — Verify Saved Bulk Sending Records
+
+async function fhVerifyBulkSendingRecords(entries) {
+
+  if (!Array.isArray(entries) || !entries.length) {
+    throw new Error("No records available for verification.");
+  }
+
+  const ids = entries.map(
+    entry => entry.record.id
+  );
+
+  const cloudRecords = await fhLoadSendingRecords();
+
+  const recordMap = new Map(
+    cloudRecords.map(record => [
+      String(record.id),
+      record
+    ])
+  );
+
+  const verified = entries.every(({ record }) => {
+
+    const saved = recordMap.get(
+      String(record.id)
+    );
+
+    if (!saved) return false;
+
+    return (
+      String(saved.hostId) === String(record.hostId) &&
+      String(saved.date).slice(0, 10) === record.date &&
+      Number(saved.sending) === Number(record.sending) &&
+      Number(saved.purchaseRate) === Number(record.purchaseRate) &&
+      Math.abs(
+        Number(saved.purchaseCost) -
+        Number(record.purchaseCost)
+      ) < 0.01 &&
+      saved.saleStatus === "unsold" &&
+      Number(saved.coinsSold) === 0 &&
+      Number(saved.saleAmount) === 0
+    );
+  });
+
+  if (!verified) {
+
+    throw new Error(
+      "Database verification failed. " +
+      "Some sending records are missing or do not match."
+    );
+  }
+
+  return {
+    verified: true,
+    count: ids.length,
+    records: cloudRecords
+  };
+}
+
 async function fhLoadSendingRecords() {
   const rows = await fhSendingRequest(
     "fh_sending_records?select=*&order=created_at.asc",
