@@ -285,7 +285,67 @@ th{color:var(--gold)}
     grid-template-columns: 1fr;
   }
 }
+/* FH EMPIRE — Responsive Inventory History */
 
+#inventoryHistoryModal .fh-history-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+#inventoryHistoryModal .fh-history-header,
+#inventoryHistoryModal .form-grid,
+#inventoryHistoryModal .toolbar {
+  flex-shrink: 0;
+}
+
+#inventoryHistoryModal .table-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto !important;
+  max-height: none !important;
+  overflow: scroll !important;
+  scrollbar-width: auto;
+}
+
+#inventoryHistoryModal .table-wrap::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+#inventoryHistoryModal .table-wrap::-webkit-scrollbar-track {
+  background: #252525;
+}
+
+#inventoryHistoryModal .table-wrap::-webkit-scrollbar-thumb {
+  background: #b89b32;
+  border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+
+  #inventoryHistoryModal .fh-history-dialog {
+    width: 96% !important;
+    padding: 12px;
+    max-height: 94dvh;
+  }
+
+  #inventoryHistoryModal .form-grid {
+    gap: 8px;
+    margin: 10px 0 !important;
+  }
+
+  #inventoryHistoryModal .fh-history-header h2 {
+    font-size: 17px;
+  }
+
+  #inventoryHistoryModal .fh-history-header p {
+    font-size: 11px;
+  }
+}
 </style>
 </head>
 <body>
@@ -444,63 +504,200 @@ th{color:var(--gold)}
   </form>
 </section>
 
+<!-- INVENTORY TRANSACTION HISTORY -->
 <section class="card">
+
   <div class="toolbar">
-    <h2>📋 Inventory Transaction History</h2>
-    <span class="tag">Latest 100 Records</span>
+    <div>
+      <h2 style="margin:0;">
+        📋 Inventory Transaction History
+      </h2>
+
+      <p style="margin:8px 0 0;">
+        Review assistant coin allocations, sales
+        and inventory movements.
+      </p>
+    </div>
+
+    <button
+      id="viewInventoryHistoryBtn"
+      type="button"
+      style="
+        background:#ffd000;
+        color:#111;
+        font-weight:700;
+        padding:12px 20px;
+        border-radius:8px;
+        cursor:pointer;
+      "
+    >
+      📋 View Transaction History
+    </button>
   </div>
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Transaction</th>
-          <th>Coins</th>
-          <th>Order ID</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody id="historyRows">
-        <tr><td colspan="5">Loading...</td></tr>
-      </tbody>
-    </table>
-  </div>
 </section>
+
+<!-- INVENTORY HISTORY POPUP -->
+<div
+  id="inventoryHistoryModal"
+  class="fh-history-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="inventoryHistoryTitle"
+  hidden
+>
+
+  <div
+    class="fh-history-dialog"
+    style="width:95%;max-width:1150px;"
+  >
+
+    <div class="fh-history-header">
+
+      <div>
+        <h2
+          id="inventoryHistoryTitle"
+          style="color:#ffd000;margin:0;"
+        >
+          📋 Inventory Transactions
+        </h2>
+
+        <p style="margin:8px 0;color:#999;">
+          FH EMPIRE · Assistant Inventory Management
+        </p>
+      </div>
+
+      <button
+        id="closeInventoryHistoryBtn"
+        type="button"
+        aria-label="Close inventory history"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <!-- FILTERS -->
+    <div
+      class="form-grid"
+      style="margin:20px 0;"
+    >
+
+      <div>
+        <label for="inventoryHistorySearch">
+          Search Transactions
+        </label>
+
+        <input
+          type="search"
+          id="inventoryHistorySearch"
+          placeholder="Poppo ID, Order ID or Notes..."
+        >
+      </div>
+
+      <div>
+        <label for="inventoryHistoryType">
+          Transaction Type
+        </label>
+
+        <select id="inventoryHistoryType">
+          <option value="">All Transactions</option>
+          <option value="allocation">Allocation</option>
+          <option value="sale">Sale</option>
+          <option value="reservation">Reservation</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="inventoryHistoryDate">
+          Transaction Date
+        </label>
+
+        <input
+          type="date"
+          id="inventoryHistoryDate"
+        >
+      </div>
+
+    </div>
+
+    <div class="toolbar" style="margin-bottom:15px;">
+
+      <span class="tag" id="inventoryHistoryCount">
+        Latest 100 Records
+      </span>
+
+      <button
+        id="clearInventoryHistoryFilters"
+        type="button"
+      >
+        Clear Filters
+      </button>
+
+    </div>
+
+    <!-- TRANSACTION TABLE -->
+   <div
+  class="table-wrap"
+  style="
+    width:100%;
+    max-width:100%;
+    height:42vh;
+    overflow-x:auto;
+    overflow-y:auto;
+    scrollbar-width:auto;
+    border:1px solid #333;
+    border-radius:10px;
+  "
+>
+<table style="width:100%;min-width:850px;">
+
+        <thead style="
+          position:sticky;
+          top:0;
+          background:#181818;
+          z-index:2;
+        ">
+          <tr>
+            <th>Date</th>
+            <th>Transaction</th>
+            <th>Coins</th>
+            <th>Order ID</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+
+        <tbody id="historyRows">
+          <tr>
+            <td colspan="5">Loading...</td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
 
 <!-- ASSISTANT SALES HISTORY -->
 <section class="card" id="salesHistorySection">
-  <h2>📊 Sales History & Commission Report</h2>
-  <p>
-    Assistant ki completed sales, date-wise records
-    aur commission earnings.
-  </p>
 
-  <div class="form-grid">
+  <div class="toolbar">
     <div>
-      <label for="salesFromDate">From Date</label>
-      <input type="date" id="salesFromDate">
-    </div>
+      <h2 style="margin:0;">
+        📊 Sales & Commission Report
+      </h2>
 
-    <div>
-      <label for="salesToDate">To Date</label>
-      <input type="date" id="salesToDate">
+      <p style="margin:8px 0 0;">
+        Assistant sales performance and commission earnings.
+      </p>
     </div>
   </div>
 
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
-    <button type="button" id="salesApplyFilter">
-      🔍 Apply Filter
-    </button>
-    <button type="button" id="salesThisMonth">
-      📅 This Month
-    </button>
-    <button type="button" id="salesAllTime">
-      All Time
-    </button>
-  </div>
+  <div class="grid" style="margin-top:18px;">
 
-  <div class="grid">
     <div class="stat">
       <small>Total Orders</small>
       <strong id="salesTotalOrders">—</strong>
@@ -520,28 +717,230 @@ th{color:var(--gold)}
       <small>Commission Earned</small>
       <strong id="salesTotalCommission">—</strong>
     </div>
+
   </div>
 
-  <div style="overflow-x:auto;margin-top:20px;">
-    <table style="width:100%;">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Order ID</th>
-          <th>Coins</th>
-          <th>Sale Amount</th>
-          <th>Commission Rate</th>
-          <th>Commission</th>
-        </tr>
-      </thead>
-      <tbody id="salesHistoryBody">
-        <tr>
-          <td colspan="6">Sales history loading...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <p id="salesSummaryPeriod"
+     style="color:#999;font-size:12px;">
+    Report Period: All Time
+  </p>
+
+  <button
+    id="viewSalesHistoryBtn"
+    type="button"
+    style="
+      background:#ffd000;
+      color:#111;
+      font-weight:700;
+      padding:12px 20px;
+      border-radius:8px;
+      margin-top:10px;
+      cursor:pointer;
+    "
+  >
+    📋 View Sales & Commission History
+  </button>
+
 </section>
+
+
+<!-- SALES HISTORY POPUP -->
+<div
+  id="salesHistoryModal"
+  class="fh-history-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="salesHistoryTitle"
+  hidden
+>
+
+  <div
+    class="fh-history-dialog"
+    style="width:95%;max-width:1150px;"
+  >
+
+    <div class="fh-history-header">
+
+      <div>
+        <h2
+          id="salesHistoryTitle"
+          style="color:#ffd000;margin:0;"
+        >
+          📊 Sales & Commission History
+        </h2>
+
+        <p style="margin:8px 0;color:#999;">
+          FH EMPIRE · Assistant Sales Management
+        </p>
+      </div>
+
+      <button
+        id="closeSalesHistoryBtn"
+        type="button"
+        aria-label="Close sales history"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <!-- DATE FILTERS -->
+    <div class="form-grid" style="margin:15px 0;">
+
+      <div>
+        <label for="salesFromDate">From Date</label>
+        <input type="date" id="salesFromDate">
+      </div>
+
+      <div>
+        <label for="salesToDate">To Date</label>
+        <input type="date" id="salesToDate">
+      </div>
+
+    </div>
+
+
+    <!-- QUICK FILTERS -->
+    <div style="
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:15px;
+    ">
+
+      <button type="button" id="salesApplyFilter">
+        🔍 Apply Filter
+      </button>
+
+      <button type="button" id="salesToday">
+        Today
+      </button>
+
+      <button type="button" id="salesThisWeek">
+        This Week
+      </button>
+
+      <button type="button" id="salesThisMonth">
+        This Month
+      </button>
+
+      <button type="button" id="salesAllTime">
+        All Time
+      </button>
+
+    </div>
+
+
+    <!-- SEARCH -->
+    <div style="margin-bottom:15px;">
+
+      <label for="salesHistorySearch">
+        Search Sales
+      </label>
+
+      <input
+        type="search"
+        id="salesHistorySearch"
+        placeholder="Search by Order ID..."
+        style="width:100%;"
+      >
+
+    </div>
+
+
+    <!-- POPUP SUMMARY -->
+    <div class="grid" style="margin-bottom:15px;">
+
+      <div class="stat">
+        <small>Total Orders</small>
+        <strong id="popupSalesTotalOrders">—</strong>
+      </div>
+
+      <div class="stat">
+        <small>Coins Sold</small>
+        <strong id="popupSalesTotalCoins">—</strong>
+      </div>
+
+      <div class="stat">
+        <small>Sales Amount</small>
+        <strong id="popupSalesTotalAmount">—</strong>
+      </div>
+
+      <div class="stat">
+        <small>Commission</small>
+        <strong
+          id="popupSalesTotalCommission"
+          style="color:#22c55e;"
+        >—</strong>
+      </div>
+
+    </div>
+
+
+    <div class="toolbar" style="margin-bottom:10px;">
+
+      <span class="tag" id="salesHistoryCount">
+        Loading Records...
+      </span>
+
+      <button type="button" id="clearSalesHistorySearch">
+        Clear Search
+      </button>
+
+    </div>
+
+
+    <!-- SALES RECORDS TABLE -->
+    <div
+      class="table-wrap"
+      style="
+        width:100%;
+        max-width:100%;
+        height:40vh;
+        overflow:auto;
+        border:1px solid #333;
+        border-radius:10px;
+      "
+    >
+
+      <table style="width:100%;min-width:900px;">
+
+        <thead style="
+          position:sticky;
+          top:0;
+          background:#181818;
+          z-index:2;
+        ">
+
+          <tr>
+            <th>Date</th>
+            <th>Order ID</th>
+            <th>Coins</th>
+            <th>Sale Amount</th>
+            <th>Commission Rate</th>
+            <th>Commission</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="salesHistoryBody">
+
+          <tr>
+            <td colspan="6">
+              Sales history loading...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
 <section class="card" id="assistantFinanceSection">
   <h2>💰 Sales, Payments & Commission</h2>
   <p>
@@ -779,7 +1178,147 @@ function addCell(row, value) {
   cell.textContent = String(value ?? "—");
   row.appendChild(cell);
 }
+// FH EMPIRE — Inventory History Filters
 
+let inventoryHistoryRecords = [];
+
+function updateInventoryTransactionTypes() {
+
+  const select = $("inventoryHistoryType");
+  const previous = select.value;
+
+  const types = [...new Set(
+    inventoryHistoryRecords
+      .map(item => String(item.transaction_type || ""))
+      .filter(Boolean)
+  )].sort();
+
+  select.replaceChildren();
+
+  select.add(new Option("All Transactions", ""));
+
+  types.forEach(type => {
+
+    const label = type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, char => char.toUpperCase());
+
+    select.add(new Option(label, type));
+
+  });
+
+  if (types.includes(previous)) {
+    select.value = previous;
+  }
+}
+
+function inventoryPakistanDate(value) {
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Karachi",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date);
+
+  const get = type =>
+    parts.find(part => part.type === type)?.value || "";
+
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function renderInventoryHistory() {
+
+  const tbody = $("historyRows");
+
+  const search = $("inventoryHistorySearch")
+    .value.trim().toLowerCase();
+
+  const type = $("inventoryHistoryType").value;
+
+  const date = $("inventoryHistoryDate").value;
+
+  const filtered = inventoryHistoryRecords.filter(item => {
+
+    const searchable = [
+      item.order_id,
+      item.notes,
+      item.transaction_type,
+      item.coins
+    ].join(" ").toLowerCase();
+
+    return (
+      (!search || searchable.includes(search)) &&
+      (!type || item.transaction_type === type) &&
+      (!date || inventoryPakistanDate(item.created_at) === date)
+    );
+
+  });
+
+  tbody.replaceChildren();
+
+  $("inventoryHistoryCount").textContent =
+    `${filtered.length} of ${inventoryHistoryRecords.length} Records`;
+
+  if (!filtered.length) {
+
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+
+    td.colSpan = 5;
+    td.style.textAlign = "center";
+    td.style.padding = "25px";
+    td.style.color = "#999";
+
+    td.textContent =
+      "No transactions found for selected filters.";
+
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+
+    return;
+  }
+
+  for (const item of filtered) {
+
+    const tr = document.createElement("tr");
+
+    addCell(
+      tr,
+      new Date(item.created_at).toLocaleString("en-PK", {
+        timeZone: "Asia/Karachi"
+      })
+    );
+
+    addCell(tr, item.transaction_type);
+
+    const typeCell = tr.lastElementChild;
+
+    typeCell.style.fontWeight = "600";
+    typeCell.style.textTransform = "capitalize";
+
+    if (item.transaction_type === "allocation") {
+      typeCell.style.color = "#22c55e";
+    } else if (item.transaction_type === "sale") {
+      typeCell.style.color = "#f87171";
+    } else if (item.transaction_type === "reservation") {
+      typeCell.style.color = "#fbbf24";
+    }
+
+    addCell(tr, number(item.coins));
+
+    tr.lastElementChild.style.fontWeight = "600";
+
+    addCell(tr, item.order_id || "—");
+    addCell(tr, item.notes || "—");
+
+    tbody.appendChild(tr);
+  }
+}
 
 function renderDashboard(data) {
   const assistant = data.assistant;
@@ -808,37 +1347,14 @@ function renderDashboard(data) {
   $("returnedCoins").textContent =
     number(inventory.returned_coins);
 
-  const tbody = $("historyRows");
-  tbody.replaceChildren();
+   inventoryHistoryRecords = Array.isArray(data.history)
+    ? data.history
+    : [];
 
-  if (!data.history?.length) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 5;
-    td.textContent = "No inventory transactions yet.";
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-    return;
-  }
+  updateInventoryTransactionTypes();
+  renderInventoryHistory();
 
-  for (const item of data.history) {
-    const tr = document.createElement("tr");
-
-    addCell(
-      tr,
-      new Date(item.created_at).toLocaleString("en-PK", {
-        timeZone: "Asia/Karachi"
-      })
-    );
-
-    addCell(tr, item.transaction_type);
-    addCell(tr, number(item.coins));
-    addCell(tr, item.order_id || "—");
-    addCell(tr, item.notes || "—");
-
-    tbody.appendChild(tr);
-  }
-}
+} // End renderDashboard
 
 
 async function loadDashboard() {
@@ -1013,7 +1529,95 @@ function renderAssistantTransfers(transfers) {
     history.appendChild(card);
   }
 }
+// Inventory History Filter Events
 
+$("inventoryHistorySearch").addEventListener(
+  "input",
+  renderInventoryHistory
+);
+
+$("inventoryHistoryType").addEventListener(
+  "change",
+  renderInventoryHistory
+);
+
+$("inventoryHistoryDate").addEventListener(
+  "change",
+  renderInventoryHistory
+);
+
+$("clearInventoryHistoryFilters").addEventListener(
+  "click",
+  () => {
+
+    $("inventoryHistorySearch").value = "";
+    $("inventoryHistoryType").value = "";
+    $("inventoryHistoryDate").value = "";
+
+    renderInventoryHistory();
+
+  }
+);
+// FH EMPIRE — Inventory History Popup
+
+const inventoryModal = $("inventoryHistoryModal");
+const inventoryOpenBtn = $("viewInventoryHistoryBtn");
+const inventoryCloseBtn = $("closeInventoryHistoryBtn");
+
+let inventoryPreviousOverflow = "";
+
+function openInventoryHistory() {
+
+  inventoryPreviousOverflow =
+    document.body.style.overflow;
+
+  inventoryModal.hidden = false;
+
+  document.body.style.overflow = "hidden";
+
+  inventoryCloseBtn.focus();
+}
+
+function closeInventoryHistory() {
+
+  inventoryModal.hidden = true;
+
+  document.body.style.overflow =
+    inventoryPreviousOverflow;
+
+  inventoryOpenBtn.focus();
+}
+
+inventoryOpenBtn.addEventListener(
+  "click",
+  openInventoryHistory
+);
+
+inventoryCloseBtn.addEventListener(
+  "click",
+  closeInventoryHistory
+);
+
+// Close when clicking outside popup
+inventoryModal.addEventListener("click", event => {
+
+  if (event.target === inventoryModal) {
+    closeInventoryHistory();
+  }
+
+});
+
+// Close with Escape key
+document.addEventListener("keydown", event => {
+
+  if (
+    event.key === "Escape" &&
+    !inventoryModal.hidden
+  ) {
+    closeInventoryHistory();
+  }
+
+});
 
 // FH EMPIRE — Transfer History Popup
 
@@ -1287,6 +1891,59 @@ $("removeCoinsForm").addEventListener("submit", async event => {
     $("refreshBtn").disabled = false;
   }
 });
+// FH EMPIRE — Sales History Popup
+
+const salesModal = $("salesHistoryModal");
+const salesOpenBtn = $("viewSalesHistoryBtn");
+const salesCloseBtn = $("closeSalesHistoryBtn");
+
+let salesPreviousOverflow = "";
+
+function openSalesHistory() {
+  salesPreviousOverflow = document.body.style.overflow;
+
+  salesModal.hidden = false;
+  document.body.style.overflow = "hidden";
+
+  salesCloseBtn.focus();
+  loadSalesHistory();
+}
+
+function closeSalesHistory() {
+  salesModal.hidden = true;
+
+  document.body.style.overflow =
+    salesPreviousOverflow;
+
+  salesOpenBtn.focus();
+}
+
+salesOpenBtn.addEventListener(
+  "click",
+  openSalesHistory
+);
+
+salesCloseBtn.addEventListener(
+  "click",
+  closeSalesHistory
+);
+
+// Close when clicking outside popup
+salesModal.addEventListener("click", event => {
+  if (event.target === salesModal) {
+    closeSalesHistory();
+  }
+});
+
+// Close with Escape key
+document.addEventListener("keydown", event => {
+  if (
+    event.key === "Escape" &&
+    !salesModal.hidden
+  ) {
+    closeSalesHistory();
+  }
+});
 // SALES HISTORY & COMMISSION REPORT
 async function loadSalesHistory() {
   const tbody = $("salesHistoryBody");
@@ -1302,6 +1959,23 @@ async function loadSalesHistory() {
 
     const summary = result.summary || {};
     const records = result.records || [];
+
+    // FH EMPIRE — Popup Sales Summary
+
+$("popupSalesTotalOrders").textContent =
+  number(summary.total_orders);
+
+$("popupSalesTotalCoins").textContent =
+  number(summary.total_coins);
+
+$("popupSalesTotalAmount").textContent =
+  "Rs " + number(summary.total_sales);
+
+$("popupSalesTotalCommission").textContent =
+  "Rs " + number(summary.total_commission);
+
+$("salesHistoryCount").textContent =
+  records.length + " Sales Records";
 
     $("salesTotalOrders").textContent = number(summary.total_orders);
     $("salesTotalCoins").textContent = number(summary.total_coins);
@@ -1346,6 +2020,7 @@ async function loadSalesHistory() {
         cell.textContent = value ?? "—";
       }
     }
+    filterSalesHistory();
   } catch (error) {
     tbody.replaceChildren();
     const row = tbody.insertRow();
@@ -1354,8 +2029,95 @@ async function loadSalesHistory() {
     cell.textContent = "Error: " + error.message;
   }
 }
+// FH EMPIRE — Live Sales History Search
+
+function filterSalesHistory() {
+  const query = $("salesHistorySearch")
+    .value.trim().toLowerCase();
+
+  const rows = Array.from(
+    $("salesHistoryBody").rows
+  ).filter(row => row.cells.length === 6);
+
+  let visibleCount = 0;
+
+  rows.forEach(row => {
+    const orderId = row.cells[1]
+      .textContent.toLowerCase();
+
+    const matched = orderId.includes(query);
+
+    row.hidden = !matched;
+
+    if (matched) visibleCount++;
+  });
+
+  $("salesHistoryCount").textContent =
+    `${visibleCount} of ${rows.length} Sales Records`;
+}
+
+$("salesHistorySearch").addEventListener(
+  "input",
+  filterSalesHistory
+);
+
+$("clearSalesHistorySearch").addEventListener(
+  "click",
+  () => {
+    $("salesHistorySearch").value = "";
+    filterSalesHistory();
+  }
+);
 
 $("salesApplyFilter").addEventListener("click", loadSalesHistory);
+
+// FH EMPIRE — Quick Sales Date Filters
+
+function fhSalesTodayDate() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Karachi",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+
+  const year = parts.find(p => p.type === "year").value;
+  const month = parts.find(p => p.type === "month").value;
+  const day = parts.find(p => p.type === "day").value;
+
+  return `${year}-${month}-${day}`;
+}
+
+// TODAY
+$("salesToday").addEventListener("click", () => {
+  const today = fhSalesTodayDate();
+
+  $("salesFromDate").value = today;
+  $("salesToDate").value = today;
+
+  loadSalesHistory();
+});
+
+// THIS WEEK
+$("salesThisWeek").addEventListener("click", () => {
+  const today = fhSalesTodayDate();
+
+  const start = new Date(today + "T00:00:00Z");
+
+  const day = start.getUTCDay();
+  const difference = (day + 6) % 7;
+
+  start.setUTCDate(
+    start.getUTCDate() - difference
+  );
+
+  $("salesFromDate").value =
+    start.toISOString().slice(0, 10);
+
+  $("salesToDate").value = today;
+
+  loadSalesHistory();
+});
 
 $("salesAllTime").addEventListener("click", () => {
   $("salesFromDate").value = "";
